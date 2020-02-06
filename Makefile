@@ -1,3 +1,3 @@
 
 dev:
-	go run ./cmd/construct/main.go
+	go run ./cmd/constructor/main.go

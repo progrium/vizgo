@@ -1,16 +1,26 @@
 <!doctype html>
 <html>
     <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.11.2/css/jsplumbtoolkit-defaults.min.css" />
-        <link rel="stylesheet" href="/index.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.11.2/js/jsplumb.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
+
+        <script src="https://unpkg.com/mithril/mithril.js"></script>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="/index.js"></script>
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.11.2/css/jsplumbtoolkit-defaults.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.11.2/js/jsplumb.js"></script>
+        
+        <link rel="stylesheet" href="/app.css" />
+        <script src="/app.js"></script>
     </head>  
-    <body>
-        <main></main>
-        <script type="text/javascript"> 
-            jsPlumb.setContainer(document.querySelector("main"));
+    <body spellcheck="false">
+        <script type="text/javascript">
+            jsPlumb.ready(function() {
+                m.mount(document.body, App);
+            });
         </script>
     </body>
 </html>

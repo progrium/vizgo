@@ -96,7 +96,7 @@ func main() {
 	w := webview.New(webview.Settings{
 		Width:                  windowWidth,
 		Height:                 windowHeight,
-		Title:                  "Construct",
+		Title:                  "Constructor",
 		Resizable:              true,
 		URL:                    url,
 		ExternalInvokeCallback: handleRPC,

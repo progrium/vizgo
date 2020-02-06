@@ -1,4 +1,4 @@
-module github.com/progrium/construct
+module github.com/progrium/constructor
 
 go 1.13
 
