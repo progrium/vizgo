@@ -1,12 +1,13 @@
 :root {
     --background-color: #2D3639;
-    --sidebar-width: 300px;
+    --sidebar-width: 400px;
     --sidebar-color: #60696e;
+    --block-color: #475054;
     --outline-color: black;
     --sidebar-outline-color: #7d898f;
-    --pixel-size: 2px;
+    --pixel-size: 1px;
     --grid-size: 30px;
-    --corner-size: calc(var(--pixel-size)*2)
+    --corner-size: calc(var(--pixel-size)*4)
 }
 
 body {
@@ -15,6 +16,14 @@ body {
     margin: 0;
 
     background-color: var(--background-color);
+}
+
+div::-webkit-scrollbar {
+    background-color: transparent;
+    width: 10px;
+}
+div::-webkit-scrollbar-thumb {
+    background-color: #475054;
 }
 
 [contenteditable="true"] {
@@ -33,6 +42,97 @@ body {
     white-space:nowrap;
 }
 
+.jtk-endpoint.outflow::before {
+    content: "";
+    position: absolute;
+    z-index: 1000;
+
+    
+    margin-left: -15px;
+    margin-top: -12px;
+    width: 23px;
+    height: 23px;
+    background-color: var(--sidebar-color);
+    border-radius: var(--corner-size);
+    
+    transform: rotate(45deg);
+    
+    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-right: var(--pixel-size) solid #42494d;
+
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.jtk-endpoint.outflow.port::before {
+    background-color: var(--block-color);
+    border-radius: calc(var(--corner-size)/2);
+    border: 0;
+}
+
+.jtk-endpoint.inflow {
+    width: 20px !important;
+    height: 20px !important;
+    z-index: 100;
+    margin-left: -10px;
+    margin-top: -10px;
+    
+}
+.jtk-endpoint.inflow.jtk-endpoint-full::after {
+    background-color: white;
+}
+.jtk-endpoint.inflow::before {
+    content: "";
+    position: absolute;
+    z-index: 50;
+
+    border-radius: var(--corner-size);
+    width: 30px;
+    height: 30px;
+    margin-top: -6px;
+
+    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+
+    background-color: var(--sidebar-color);
+    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-left: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-bottom: var(--pixel-size) solid #42494d;
+    border-right: var(--pixel-size) solid #42494d;
+}
+.jtk-endpoint.inflow::after {
+    content: "";
+    position: absolute;
+    z-index: 500;
+
+    
+    margin-left: -12px;
+    margin-top: -2px;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--corner-size);
+    
+    transform: rotate(45deg);
+    
+    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-top: var(--pixel-size) solid #42494d;
+    background-color: var(--background-color);
+
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+
+.context-menu-list {
+    filter: drop-shadow(3px 3px 5px #111);
+    border-radius: var(--corner-size);
+    border-color: var(--sidebar-outline-color);
+    background-color: var(--block-color);
+}
+.context-menu-item {
+    background-color: var(--block-color);
+    color: white;
+}
+.context-menu-hover {
+    background-color: var(--sidebar-color) !important;
+}
+
 
 .app {
     position:fixed;
@@ -43,37 +143,127 @@ body {
     left:0;
 
     width: 500%;
-    height: 500%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+    align-items: stretch;
 
 }
 
 .sidebar {
     height: 100%;
     width: var(--sidebar-width);
-    position: fixed;
+
     z-index: 1;
-    top: 0;
-    left: 0;
     background-color: var(--sidebar-color);
-    overflow-x: hidden;
-    padding-top: 20px;
+    padding-top: 0px;
+
+    order: 0;
+    flex: 0 0 auto;
+    align-self: auto;
 
     filter: drop-shadow(2px 2px 5px #111);
     outline: var(--pixel-size) solid var(--outline-color);
-    border: var(--pixel-size) solid var(--sidebar-outline-color);
+    /*border: var(--pixel-size) solid var(--sidebar-outline-color);*/
+}
+
+.grip {
+    background-color: var(--sidebar-color);
+    background-image: radial-gradient(#444 50%, transparent 50%);
+    background-size: 4px 4px;
+    background-repeat: repeat;
+    background-position: -0px;
+    width: 8px;
+    margin-right: 4px;
+}
+
+.decl-container.fixed {
+    
+}
+.decl-container {
+    display: flex;
+    padding: 4px;
+
+    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-left: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-bottom: 2px solid black;
+    border-right: var(--pixel-size) solid #42494d;
+
+    background-color:var(--sidebar-color);
+}
+
+.decl {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.decl .label {
+    margin-left: 2px;
+    font-size: small;
+}
+
+.decl-body {
+    margin-top: 4px;
+    margin-left: 14px;
+    
+    min-height: 30px;
+    border-bottom: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-top: var(--pixel-size) solid #42494d;
+    border-left: var(--pixel-size) solid #42494d;
+}
+.sidebar .input.dark {
+    background-color: #475054;
+    flex-grow: 1;
+}
+.sidebar .input div {
+    border: 1px solid black;
+    padding: 4px;
+    padding-left: 8px;
+    color: white;
+    overflow: hidden;
+}
+.sidebar .input {
+    border-bottom: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
+    border-top: var(--pixel-size) solid #42494d;
+    border-left: var(--pixel-size) solid #42494d;
+
+    flex-grow: 1;
+    background-color: #7d898f;
+    box-shadow:         inset 2px 2px 3px #333;
+}
+
+.handle {
+    content: "";
+    flex: 0 0 auto;
+  position: relative;
+  box-sizing: border-box;
+  width: 2px;
+  background-color: black;
+  height: 100%;
+  cursor: ew-resize;
+  user-select: none;
 }
 
 .grid {
     background-size: var(--grid-size) var(--grid-size);
     background-color: var(--background-color);
-    background-image: radial-gradient(#202020 var(--pixel-size), transparent 0);
+    background-image: radial-gradient(#202020 2px, transparent 0);
     background-position: calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size));
 
-    margin-left: var(--sidebar-width);
     padding: var(--grid-size) var(--grid-size);
     height: 100%;
 
-    border: var(--pixel-size) solid var(--outline-color);
+    order: 0;
+    flex: 1 1 auto;
+    align-self: auto;
+
+    border: 1px solid var(--outline-color);
 }
 
 .block {
@@ -97,16 +287,6 @@ body {
     padding-left: 10px;
     padding-right: 10px;
     padding-top: 0px;
-}
-
-.grid .inflow {
-    transform: rotate(-45deg);
-    
-}
-.grid .outflow {
-    transform: rotate(-45deg);
-    margin-left: -1px;
-    z-index: 10;
 }
 
 .grid .port {

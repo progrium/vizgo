@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+	  <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="/fontawesome/css/all.min.css" />  
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    
+        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    
+        <script src="https://unpkg.com/prop-types@15.6/prop-types.min.js"></script>
+        <script src="https://unpkg.com/classnames@2.2.6/index.js"></script>
+        <style>
+            .topleft::before {
+                position: absolute;
+                margin-left: -4px;
+                margin-top: -4px;
+                width: 10px;
+                height: 4px;
+                border-right: 1px solid var(--outline-color);
+                content: '';
+            }
+            .topleft::after {
+                position: absolute;
+                margin-left: -4px;
+                margin-top: -4px;
+                width: 4px;
+                height: 10px;
+                border-bottom: 1px solid var(--outline-color);
+                content: '';
+            }
+            .bottomleft::before {
+                position: absolute;
+                margin-left: 6px;
+                margin-top: 0px;
+                width: 0px;
+                height: 4px;
+                border-right: 1px solid var(--outline-color);
+                content: '';
+            }
+            .bottomleft::after {
+                position: absolute;
+                margin-left: -4px;
+                margin-top: -7px;
+                width: 4px;
+                height: 0px;
+                border-bottom: 1px solid var(--outline-color);
+                content: '';
+            }
+            .topright, .bottomright {
+                float: right;
+            }
+            .topright::before {
+                position: absolute;
+                margin-left: -8px;
+                margin-top: -4px;
+                width: 8px;
+                height: 4px;
+                border-left: 1px solid var(--outline-color);
+                content: '';
+            }
+            .topright::after {
+                position: absolute;
+                margin-left: 0px;
+                margin-top: 0px;
+                width: 4px;
+                height: 7px;
+                border-bottom: 1px solid var(--outline-color);
+                content: '';
+            }
+            .bottomright::before {
+                position: absolute;
+                margin-left: -8px;
+                margin-top: 0px;
+                width: 0px;
+                height: 4px;
+                border-right: 1px solid var(--outline-color);
+                content: '';
+            }
+            .bottomright::after {
+                position: absolute;
+                margin-left: 0px;
+                margin-top: -7px;
+                width: 4px;
+                height: 0px;
+                border-bottom: 1px solid var(--outline-color);
+                content: '';
+            }
+
+            html {
+                background-color: var(--background-color);
+                color: white;
+                font-family: sans-serif;
+            }
+
+
+
+
+
+
+
+
+            :root {
+                --background-color: #2e3b40;
+                --outline-color: black;
+                --window-shadow: #42494d;
+                --window-highlight: #7d898f;
+                --window-dark-shadow: #363b3f;
+                --panel-background: #60696e;
+                --panel-outline: #7d898f;
+            }
+
+            .outline {
+                border: 1px solid var(--outline-color);
+            }
+            .window {
+                border: 3px double var(--window-shadow);
+                width: 400px;
+                padding: 1px;
+                background-color: var(--window-highlight);
+                outline: 1px solid var(--outline-color);
+            }
+            .panel {
+                outline: 1px solid var(--outline-color);
+                background-color: var(--panel-background);
+                border: 1px solid var(--panel-outline);
+            }
+            .inset {
+                border-top: 1px solid var(--window-dark-shadow);
+                border-left: 1px solid var(--window-dark-shadow);
+                
+            }
+            .window .title {
+                padding: 1px;
+                font-size: 10px;
+                line-height: 18px;
+                display: grid;
+                grid-template-columns: min-content auto min-content;
+                grid-gap: 4px;
+            }
+            .window .buttons {
+                display: flex;
+            }
+            .window .buttons.attached .button {
+                margin-left: 0px;
+            }
+            .title .button {
+                margin: 1px;
+                outline: 1px solid var(--outline-color); 
+                border: 1px solid var(--window-highlight);
+                width: 14px;
+                height: 14px;
+                line-height: 1.5em;
+                vertical-align: middle;
+                text-align: center;
+                color: black;
+                font-size: 10px;
+            }
+            .title .button.fit {
+                width: auto;
+                padding-left: 1px;
+                padding-right: 1px;
+            }
+            .element { 
+                padding: 10px;
+            }
+            .element.header {
+                border: 0;
+                padding: 4px;
+                border-bottom: 1px solid #40484e;
+                background-color: #40484e;
+                position: relative;
+            }
+            .element.header:before {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                bottom: 0px;
+                border: 1px solid #5a656d;
+                content: '';
+            }
+            .element.header:after {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                right: 0px;
+                bottom: -2px;
+                border: 0;
+                border-bottom: 1px solid var(--outline-color);
+                content: '';
+            }
+
+            .display {
+                color: black;
+                background-color: #90a09e;
+                width: 10px;
+                padding: 4px;
+                font-size: 9px;
+                box-shadow: -1px -1px 0px 1px #2a2f33, 1px 1px 0px 1px #5a656d;
+                outline: 1px solid var(--outline-color);
+                border: 1px solid #72807e;
+            }
+            .led {
+                position: relative;
+                top: 0.15em;
+                height: 12px;
+                width: 12px;
+                background: linear-gradient(var(--window-dark-shadow), var(--window-highlight));
+                border-radius: 50%;
+                display: inline-block;
+            }
+            .led span {
+                margin-bottom: 0.29em;
+                margin-left: 0.12em;
+                height: 8px;
+                width: 8px;
+                background: radial-gradient(#0f0, #060);
+                box-shadow: 0 0 5px 0px #0a0;
+                border-radius: 50%;
+                display: inline-block;
+            }
+        </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="text/babel">
+
+    function Window(props) {
+        return (
+            <div className="window">
+                <div className="topleft"></div>
+                <div className="topright"></div>
+                <div className="panel">
+                    <div className="title">
+                        <div className="button">
+                            <i className="fas fa-plug"></i>
+                        </div>
+                        <div className="label">
+                            Title bar
+                        </div>
+                        <div className="buttons">
+                            <div className="buttons attached">
+                                <div className="button fit">
+                                    <i className="fas fa-chevron-left"></i>
+                                </div>
+                                <div className="button fit">
+                                    <i className="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                            <div className="button" style={{marginLeft: 4}}>
+                                <i className="fas fa-times"></i>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div className="inset">
+                        <div className="outline" style={{padding: 10}}>
+                            <span className="led"><span></span></span> Hello world
+                            
+                        </div>
+                    </div>
+                </div>
+                <div className="bottomleft"></div>
+                <div className="bottomright"></div>
+            </div>
+        );
+    }
+
+
+    ReactDOM.render(<Window />, document.getElementById('app'));
+
+    </script>
+  </body>
+  </html>
+  <!--div className="element header">
+        <div style={{marginLeft: "20px"}} className="display">
+            - -
+        </div>
+    </div-->
