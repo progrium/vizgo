@@ -16,6 +16,7 @@ body {
     margin: 0;
     user-select: none;
     -moz-user-select: none;
+    -webkit-user-select: none;
     background-color: var(--background-color);
 }
 
