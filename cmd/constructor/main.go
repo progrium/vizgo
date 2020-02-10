@@ -17,7 +17,7 @@ import (
 const (
 	windowWidth  = 960
 	windowHeight = 640
-
+	listenAddr = "127.0.0.1:9999"
 	AssetsDir = "./assets"
 )
 
@@ -29,7 +29,7 @@ var upgrader = websocket.Upgrader{
 var clients = &sync.Map{}
 
 func startServer() string {
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	ln, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		log.Fatal(err)
 	}

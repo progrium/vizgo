@@ -14,7 +14,8 @@ body {
     font-family: 'Roboto Mono', monospace;
     color: lightgray;
     margin: 0;
-
+    user-select: none;
+    -moz-user-select: none;
     background-color: var(--background-color);
 }
 
