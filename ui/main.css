@@ -1,3 +1,6 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap) screen;
+@import "/vnd/jquery-contextmenu.css" screen;
+
 :root {
     --background-color: #2D3639;
     --sidebar-width: 400px;
