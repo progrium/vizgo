@@ -2,9 +2,13 @@ package app
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"os"
 	"strings"
 
-	"github.com/progrium/constructor/pkg/livehttp"
+	"github.com/gorilla/handlers"
+	"github.com/progrium/hotweb/pkg/hotweb"
 	"github.com/zserge/webview"
 )
 
@@ -25,18 +29,23 @@ func handleRPC(w webview.WebView, data string) {
 }
 
 func Main() {
-	url := livehttp.StartServer(frontendDir, listenAddr)
-	fmt.Println(url)
-	// w := webview.New(webview.Settings{
-	// 	Width:                  windowWidth,
-	// 	Height:                 windowHeight,
-	// 	Title:                  "Constructor",
-	// 	Resizable:              true,
-	// 	URL:                    url,
-	// 	ExternalInvokeCallback: handleRPC,
-	// })
-	// w.SetColor(255, 255, 255, 255)
-	// defer w.Exit()
-	// w.Run()
-	select {}
+	hw := hotweb.New(frontendDir, nil)
+	go func() {
+		log.Printf("watching %#v\n", Dir)
+		log.Fatal(hw.Watch())
+	}()
+	log.Printf("serving at %s\n", url)
+	http.ListenAndServe(listenAddr, handlers.LoggingHandler(os.Stdout, hw))
+
+	w := webview.New(webview.Settings{
+		Width:                  windowWidth,
+		Height:                 windowHeight,
+		Title:                  "Constructor",
+		Resizable:              true,
+		URL:                    url,
+		ExternalInvokeCallback: handleRPC,
+	})
+	w.SetColor(255, 255, 255, 255)
+	defer w.Exit()
+	w.Run()
 }
