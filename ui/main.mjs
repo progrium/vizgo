@@ -5,12 +5,16 @@ import "/vnd/jquery-ui-position.min.js";
 import "/vnd/jquery-contextmenu-2.9.0.min.js";
 import "/vnd/jsPlumb-2.11.2.min.js";
 
-import * as hmr from '/lib/_hmr.mjs';
+import * as hotweb from '/_hotweb.mjs'
 import * as app from '/lib/app.mjs';
 
-jsPlumb.ready(function() {
-    hmr.watchCSS();
-    hmr.refresh(() => m.redraw())
-    m.mount(document.body, hmr.wrap(() => app.App));
-})
+function wrap(cb) {
+    return {view: () => m(cb())};
+}
 
+jsPlumb.ready(function() {
+    hotweb.watchCSS();
+    hotweb.watchHTML();
+    hotweb.refresh(() => m.redraw())
+    m.mount(document.body, wrap(() => app.App));
+})
