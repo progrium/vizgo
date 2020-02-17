@@ -248,8 +248,8 @@ div::-webkit-scrollbar-thumb {
     flex: 0 0 auto;
   position: relative;
   box-sizing: border-box;
-  width: 2px;
-  background-color: black;
+  width: 2.5px;
+  background-color: grey;
   height: 100%;
   cursor: ew-resize;
   user-select: none;
@@ -313,7 +313,9 @@ div::-webkit-scrollbar-thumb {
 }
 
 .block .header .title {
+    -moz-user-select: none;
     padding-top: 0.25rem;
+    padding-bottom: 1.7rem;
     font-size: 1rem;
 }
 
