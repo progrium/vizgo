@@ -341,4 +341,4 @@ function styleProp(el, prop) {
 
 window.App = App;
 
-export const liveReload = true;
+export const noHMR = true;
