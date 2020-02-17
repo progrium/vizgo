@@ -6,19 +6,19 @@ const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
 
 export const App = {
     blocks: [
-        {id: genId(), title: "s.listener"},
-        {id: genId(), title: "s"},
-        {id: genId(), title: "req"},
-        {id: genId(), inputs: ["one"], title: "globalOptionsHandler{}"},
-        {id: genId(), inputs: ["one", "two"], inflow: true, outflow: true, title: "handler.ServeHTTP()"},
-        {id: genId(), inflow: true, outflow: true, title: "s.mu.Lock()"},
-        {id: genId(), inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"]},
-        {id: genId(), inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"]},
-        {id: genId(), inputs: ["one", "two", "three"], outputs: ["one", "two"],  inflow: true, outflow: true, title: "foobar()"},
+        {id: "block1", title: "s.listener", x: 2, y: 12},
+        {id: "block2", title: "s", x: 1, y: 10},
+        {id: "block3", title: "req", x: 1, y: 8},
+        {id: "block4", inputs: ["one"], title: "globalOptionsHandler{}", x: 1, y: 15},
+        {id: "block5", inputs: ["one", "two"], inflow: true, outflow: true, title: "handler.ServeHTTP()", x: 12, y: 15},
+        {id: "block6", inflow: true, outflow: true, title: "s.mu.Lock()", x: 1, y: 6},
+        {id: "block7", inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"], x: 8, y: 1},
+        {id: "block8", inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"], x: 8, y: 5},
+        {id: "block9", inputs: ["one", "two", "three"], outputs: ["one", "two"],  inflow: true, outflow: true, title: "foobar()", x: 10, y: 10},
     ],
     view: function(vnode) {
         return m("main", {class: "app"}, [
-            m(decl.Sidebar),
+            // m(decl.Sidebar),
             m(decl.Handle),
             m(Grid, {blocks: vnode.state.blocks})
         ])
@@ -148,7 +148,10 @@ const Grid = {
     },
     view: function(vnode) {
         return m("div", {class: "grid"},
-            vnode.attrs.blocks.map((attrs) => m(Block, attrs))
+            vnode.attrs.blocks.map((attrs) => {
+                attrs["key"] = attrs["id"];
+                return m(Block, attrs)
+            })
         )
     }
 }
@@ -297,8 +300,12 @@ const Block = {
         }
         let inputs = vnode.attrs.inputs||[];
         let outputs = vnode.attrs.outputs||[];
-        let bodyHeight = Math.max(inputs.length, outputs.length) * stylePropInt(document.documentElement, "--grid-size");
-        return m("div", {class: className, id: vnode.attrs.id}, [
+        let gridSize = stylePropInt(document.documentElement, "--grid-size");
+        let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
+        return m("div", {class: className, id: vnode.attrs.id, style: {
+                left: (vnode.attrs.x*gridSize)+"px",
+                top: (vnode.attrs.y*gridSize)+"px"
+            }}, [
             m("div", {class: "header", id: vnode.attrs.id+"-header"}, [
                 m("div[contentEditable]", {
                     class: "title",
@@ -334,3 +341,4 @@ function styleProp(el, prop) {
 
 window.App = App;
 
+export const liveReload = true;

@@ -5,12 +5,12 @@ import "/vnd/jquery-ui-position.min.js";
 import "/vnd/jquery-contextmenu-2.9.0.min.js";
 import "/vnd/jsPlumb-2.11.2.min.js";
 
-import * as hmr from '/lib/_hmr.mjs?ts=0';
+import * as hmr from '/lib/_hmr.mjs';
 import * as app from '/lib/app.mjs';
 
-hmr.watchCSS();
 jsPlumb.ready(function() {
-    hmr.refresh(() => {
-        m.mount(document.body, app.App);
-    })
+    hmr.watchCSS();
+    hmr.refresh(() => m.redraw())
+    m.mount(document.body, hmr.wrap(() => app.App));
 })
+

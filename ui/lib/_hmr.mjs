@@ -1,10 +1,14 @@
 
+// TODO: top level component wrapper so we don't have to
+//      remount when the top level component is reloaded
+
 let listeners = {};
 let refreshers = [];
 let ws = undefined;
  
 (function connect() {
     ws = new WebSocket(import.meta.url.replace("http", "ws"));
+    ws.onopen = () => console.log("hmr websocket open");
     ws.onclose = () => console.log("hmr websocket closed");
     ws.onerror = (err) => console.log("hmr websocket error: ", err);
     ws.onmessage = async (event) => {
@@ -54,4 +58,8 @@ export function watchCSS() {
             }
         }
     })
+}
+
+export function wrap(cb) {
+    return {view: () => m(cb())};
 }

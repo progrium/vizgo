@@ -27,15 +27,16 @@ func handleRPC(w webview.WebView, data string) {
 func Main() {
 	url := livehttp.StartServer(frontendDir, listenAddr)
 	fmt.Println(url)
-	w := webview.New(webview.Settings{
-		Width:                  windowWidth,
-		Height:                 windowHeight,
-		Title:                  "Constructor",
-		Resizable:              true,
-		URL:                    url,
-		ExternalInvokeCallback: handleRPC,
-	})
-	w.SetColor(255, 255, 255, 255)
-	defer w.Exit()
-	w.Run()
+	// w := webview.New(webview.Settings{
+	// 	Width:                  windowWidth,
+	// 	Height:                 windowHeight,
+	// 	Title:                  "Constructor",
+	// 	Resizable:              true,
+	// 	URL:                    url,
+	// 	ExternalInvokeCallback: handleRPC,
+	// })
+	// w.SetColor(255, 255, 255, 255)
+	// defer w.Exit()
+	// w.Run()
+	select {}
 }

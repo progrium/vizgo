@@ -43,6 +43,7 @@ func serveHTTP(basepath string, ln net.Listener) {
 		WriteBufferSize: 1024,
 	}
 	tmpl := template.Must(template.New("proxy").Parse(ProxyTmpl))
+	counter := 0
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if websocket.IsWebSocketUpgrade(r) {
 			conn, err := upgrader.Upgrade(w, r, nil)
@@ -50,18 +51,30 @@ func serveHTTP(basepath string, ln net.Listener) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			defer conn.Close()
+			counter++
+			id := counter
 			ch := make(chan string)
 			clients.Store(ch, struct{}{})
+			log.Println("new hmr connection")
 			for path := range ch {
-				conn.WriteJSON(map[string]interface{}{
+				err := conn.WriteJSON(map[string]interface{}{
 					"path": strings.TrimPrefix(path, basepath),
 				})
+				if err != nil {
+					clients.Delete(ch)
+					if !strings.Contains(err.Error(), "broken pipe") {
+						log.Println("hmr error:", err)
+					}
+					return
+				} else {
+					log.Println("hmr:", id, path)
+				}
 			}
-			conn.Close()
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/lib") {
-			if r.URL.Query().Get("ts") == "" {
+			if r.URL.Query().Get("ts") == "" && path.Base(r.URL.Path)[0] != '_' {
 				w.Header().Set("content-type", "text/javascript")
 				exports, err := jsexports.Exports(path.Join(basepath, r.URL.Path))
 				if err != nil {
@@ -72,6 +85,7 @@ func serveHTTP(basepath string, ln net.Listener) {
 				tmpl.Execute(w, map[string]interface{}{
 					"Path":    r.URL.Path,
 					"Exports": exports,
+					"Reload":  contains(exports, "liveReload"),
 				})
 				return
 			}
@@ -92,6 +106,7 @@ func watchFiles(filepath string) {
 		for {
 			select {
 			case event := <-watch.Event:
+				// log.Println(event)
 				clients.Range(func(k, v interface{}) bool {
 					k.(chan string) <- event.Path
 					return true
@@ -108,20 +123,31 @@ func watchFiles(filepath string) {
 	}
 }
 
-const ProxyTmpl = `import * as hmr from '/lib/_hmr.mjs?ts=1';
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+const ProxyTmpl = `import * as hmr from '/lib/_hmr.mjs';
 import * as mod from '{{.Path}}?ts=0';
 
 {{range .Exports}}let {{.}}Proxy = mod.{{.}};
 {{end}}
 
 hmr.accept('{{.Path}}', async (ts) => {
-    let newMod = await import("{{.Path}}?ts="+ts);
-{{range .Exports}}    {{.}}Proxy = newMod.{{.}};
+{{ if .Reload }}	location.reload();
+{{ else }}	let newMod = await import("{{.Path}}?ts="+ts);
+{{range .Exports}}	{{.}}Proxy = newMod.{{.}};
 {{end}}
+{{- end -}}
 });
 
 export {
-{{range .Exports}}    {{.}}Proxy as {{.}},
+{{range .Exports}}	{{.}}Proxy as {{.}},
 {{end}}
 };
 `
