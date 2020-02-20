@@ -183,6 +183,7 @@ div::-webkit-scrollbar-thumb {
     background-repeat: repeat;
     background-position: -0px;
     width: 8px;
+    flex: 0 0 auto;
     margin-right: 4px;
 }
 
@@ -192,7 +193,6 @@ div::-webkit-scrollbar-thumb {
 .decl-container {
     display: flex;
     padding: 4px;
-
     border-top: var(--pixel-size) solid var(--sidebar-outline-color);
     border-left: var(--pixel-size) solid var(--sidebar-outline-color);
     border-bottom: 2px solid black;
@@ -246,13 +246,13 @@ div::-webkit-scrollbar-thumb {
 .handle {
     content: "";
     flex: 0 0 auto;
-  position: relative;
-  box-sizing: border-box;
-  width: 2.5px;
-  background-color: grey;
-  height: 100%;
-  cursor: ew-resize;
-  user-select: none;
+    position: relative;
+    box-sizing: border-box;
+    width: 2.5px;
+    background-color: grey;
+    height: 100%;
+    cursor: ew-resize;
+    user-select: none;
 }
 
 .grid {
