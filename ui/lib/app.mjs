@@ -68,17 +68,14 @@ export const App = {
             event.stopPropagation();
             
             const handleElement = event.currentTarget;
-            console.log(handleElement)
             if (!handleElement.parentElement) {
                 console.error(new Error("Parent element not found."));
                 return;
             }
             
             // Use the target selector on the handle to get the resize target.
-            const resizeTarget = 'data-target'
-            const targetSelector = handleElement.getAttribute(resizeTarget);
+            const targetSelector = handleElement.getAttribute('data-target');
             const targetElement = selectTarget(handleElement.parentElement, targetSelector);
-            console.log(targetElement)
             if (!targetElement) {
                 console.error(new Error("Resize target element not found."));
                 return;
@@ -93,14 +90,19 @@ export const App = {
         });
 
         $(document).ready(function(){
-            // sidebar element sorting
+            // sidebar declarations sorting
+            $("nav").sortable({ 
+                items: ">> div",
+                tolerance: "pointer",
+                cursor: "grip",
+                containment: "parent",
+            });
             $(".decl-body").sortable({
                 items: "> div",
                 tolerance: "pointer",
                 cursor: "grip",
                 containment: "parent",
             });
-            
         })
 
         $(window).on('mousemove', null, null, (event) => {

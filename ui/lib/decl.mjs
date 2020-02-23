@@ -7,7 +7,6 @@ export const Sidebar = {
                 m(Declaration, m(ImportDeclarations)),
                 m(Declaration, m(ConstDeclarations)),
                 m(Declaration, m(TypeDeclaration)),
-                m(Declaration, m(TypeDeclaration)),
                 m(Declaration, m(FuncDeclaration)),
                 m(Declaration, m(FuncDeclaration))
             ])
@@ -49,10 +48,8 @@ const TypeDeclaration = {
                 m(Declaration, m(Fieldbox, {type: "string"}, "Foobar")),
                 m(Declaration, m(Fieldbox, {type: "bool"}, "BooleanField")),
                 m(Declaration, m(Fieldbox, {type: "int64"}, "Number")),
-            ]),
-            m("div", {class: "decl-body"}, [
                 m(Declaration, m(MethodDeclaration, {type: "string, error"}, "DoFoobar()")),
-            ])
+            ]),
         ])
     }
 }
