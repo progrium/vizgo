@@ -94,13 +94,13 @@ export const App = {
             $("nav").sortable({ 
                 items: ">> div",
                 tolerance: "pointer",
-                cursor: "grip",
+                handle: "div.grip",
                 containment: "parent",
             });
             $(".decl-body").sortable({
                 items: "> div",
                 tolerance: "pointer",
-                cursor: "grip",
+                handle: "div.grip",
                 containment: "parent",
             });
         })
