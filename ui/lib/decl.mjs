@@ -2,13 +2,16 @@
 export const Sidebar = {
     view: function() {
         return m("nav", {class: "sidebar"}, [
-            m(FixedDeclaration, m(PackageDeclaration)),
-            m("div", {style: "overflow-y: auto; height: 90%;"}, [
-                m(Declaration, m(ImportDeclarations)),
-                m(Declaration, m(TypeDeclaration)),
-                m(Declaration, m(ConstDeclarations)),
-                m(Declaration, m(TypeDeclaration)),
-                m(Declaration, m(FuncDeclaration)),
+            m("div", {style: "overflow-y: auto; height: 100%;"}, [
+                m(FixedDeclaration, m(PackageDeclaration)),
+                m("div", {id:"declarations"}, [
+                    m(Declaration, m(ImportDeclarations)),
+                    m(Declaration, m(ConstDeclarations)),
+                    m(Declaration, m(TypeDeclaration)),
+                    m(Declaration, m(TypeDeclaration)),
+                    m(Declaration, m(FuncDeclaration)),
+                    m(Declaration, m(FuncDeclaration)),
+                ])
             ])
         ])
     }
