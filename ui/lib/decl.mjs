@@ -3,12 +3,12 @@ export const Sidebar = {
     view: function() {
         return m("nav", {class: "sidebar"}, [
             m(FixedDeclaration, m(PackageDeclaration)),
-            m("div", {style: "overflow-y: auto; height: 110%;"}, [
+            m("div", {style: "overflow-y: auto; height: 90%;"}, [
                 m(Declaration, m(ImportDeclarations)),
+                m(Declaration, m(TypeDeclaration)),
                 m(Declaration, m(ConstDeclarations)),
                 m(Declaration, m(TypeDeclaration)),
                 m(Declaration, m(FuncDeclaration)),
-                m(Declaration, m(FuncDeclaration))
             ])
         ])
     }

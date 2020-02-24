@@ -91,17 +91,20 @@ export const App = {
 
         $(document).ready(function(){
             // sidebar declarations sorting
-            $("nav").sortable({ 
+            $("nav").sortable({
                 items: ">> div",
-                tolerance: "pointer",
+                tolerance: "intersect",
                 handle: "div.grip",
+                scroll: true,
                 containment: "parent",
+                axis: "y",
             });
             $(".decl-body").sortable({
                 items: "> div",
                 tolerance: "pointer",
                 handle: "div.grip",
                 containment: "parent",
+                axis: "y",
             });
         })
 
