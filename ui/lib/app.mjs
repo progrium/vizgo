@@ -331,9 +331,19 @@ const Block = {
                         let id = e.target.parentNode.parentNode.id;
                         App.updateBlock(id, {title: e.target.innerHTML});
                     },
-                    ondblclick: (e) => {
-                        e.target.focus();
-                        document.execCommand('selectAll',false,null);
+                    ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
+                        var node = e.srcElement;
+                        if (document.body.createTextRange) {
+                            const range = document.body.createTextRange();
+                            range.moveToElementText(node);
+                            range.select();
+                        } else if (window.getSelection) {
+                            const selection = window.getSelection();
+                            const range = document.createRange();
+                            range.selectNodeContents(node);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }, m.trust(vnode.attrs.title))
             ]),
