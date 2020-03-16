@@ -6,19 +6,19 @@ const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
 
 export const App = {
     blocks: [
-        {id: "block1", title: "s.listener", x: 2, y: 12},
-        {id: "block2", title: "s", x: 1, y: 10},
-        {id: "block3", title: "req", x: 1, y: 8},
-        {id: "block4", inputs: ["one"], title: "globalOptionsHandler{}", x: 1, y: 15},
-        {id: "block5", inputs: ["one", "two"], inflow: true, outflow: true, title: "handler.ServeHTTP()", x: 12, y: 15},
-        {id: "block6", inflow: true, outflow: true, title: "s.mu.Lock()", x: 1, y: 6},
-        {id: "block7", inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"], x: 8, y: 1},
-        {id: "block8", inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"], x: 8, y: 5},
-        {id: "block9", inputs: ["one", "two", "three"], outputs: ["one", "two"],  inflow: true, outflow: true, title: "foobar()", x: 10, y: 10},
+        {id: "block1", title: "s.listener", x:15, y: 0},
+        {id: "block2", title: "s", x: 15, y: 1},
+        {id: "block3", title: "req", x: 15, y: 2},
+        {id: "block4", inputs: ["one"], title: "globalOptionsHandler{}", x: 15, y: 3},
+        {id: "block5", inputs: ["one", "two"], inflow: true, outflow: true, title: "handler.ServeHTTP()", x: 15, y: 5},
+        {id: "block6", inflow: true, outflow: true, title: "s.mu.Lock()", x: 15, y: 8},
+        {id: "block7", inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"], x: 15, y: 9},
+        {id: "block8", inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"], x: 15, y: 11},
+        {id: "block9", inputs: ["one", "two", "three"], outputs: ["one", "two"],  inflow: true, outflow: true, title: "foobar()", x: 15, y: 14},
     ],
     view: function(vnode) {
         return m("main", {class: "app"}, [
-            // m(decl.Sidebar),
+            m(decl.Sidebar),
             m(decl.Handle),
             m(Grid, {blocks: vnode.state.blocks})
         ])
@@ -68,7 +68,6 @@ export const App = {
             event.stopPropagation();
             
             const handleElement = event.currentTarget;
-            
             if (!handleElement.parentElement) {
                 console.error(new Error("Parent element not found."));
                 return;
@@ -77,7 +76,6 @@ export const App = {
             // Use the target selector on the handle to get the resize target.
             const targetSelector = handleElement.getAttribute('data-target');
             const targetElement = selectTarget(handleElement.parentElement, targetSelector);
-            
             if (!targetElement) {
                 console.error(new Error("Resize target element not found."));
                 return;
@@ -90,7 +88,27 @@ export const App = {
             resizeData.maxWidth = $(handleElement.parentElement).innerWidth() - resizeData.handleWidth;
             resizeData.tracking = true;
         });
-        
+
+        $(document).ready(function(){
+            // sidebar declarations sorting
+            $("#declarations").sortable({
+                items: "> div",
+                revert: 150,
+                tolerance: "intersect",
+                handle: "div.grip",
+                containment: "parent",
+                axis: "y",
+            });
+            $(".decl-body").sortable({
+                items: "> div",
+                revert: 150,
+                tolerance: "pointer",
+                handle: "div.grip",
+                containment: "parent",
+                axis: "y",
+            });
+        })
+
         $(window).on('mousemove', null, null, (event) => {
             if (resizeData.tracking) {
                 const cursorScreenXDelta = event.screenX - resizeData.startCursorScreenX;
@@ -313,9 +331,19 @@ const Block = {
                         let id = e.target.parentNode.parentNode.id;
                         App.updateBlock(id, {title: e.target.innerHTML});
                     },
-                    ondblclick: (e) => {
-                        e.target.focus();
-                        document.execCommand('selectAll',false,null);
+                    ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
+                        var node = e.srcElement;
+                        if (document.body.createTextRange) {
+                            const range = document.body.createTextRange();
+                            range.moveToElementText(node);
+                            range.select();
+                        } else if (window.getSelection) {
+                            const selection = window.getSelection();
+                            const range = document.createRange();
+                            range.selectNodeContents(node);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
                     }
                 }, m.trust(vnode.attrs.title))
             ]),

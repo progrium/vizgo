@@ -1,0 +1,25 @@
+Suggestions:
+
+* Prevent draggable blocks from moving outside the screen/onto the sidebar
+* Screen resize feature (or maybe object resize)?
+* Custom blocks (which can be created via the grid's right click menu)
+* Right-click feature menu for the sidebar (delete, collapse, etc.)?
+* Batch-select blocks to move/delete?
+
+Grid bugs:
+
+* can select all text (in blocks) by double-clicking it, right clicking, double-clicking it again (firefox)
+    - "document.execCommand" doesn't work (line 337)
+* can select text in the block's empty node (the one without a circle or an arrow on its right)
+* right clicking on element titles freezes text selection (chrome/webkit)
+* text in nodes can overlap the textbox if the block's inital body is small enough
+* pressing spacebar in block's title makes the block's body a lot bigger than typing regular characters
+* summoning any node besides "expression" breaks the right-click menu
+
+Sidebar bugs:
+
+* Dragging breaks after hotweb reloads the file
+* Big declaration blocks sometimes don't swap places properly
+
+Go bugs:
+* Server port is still in use after suspending the application (ctrl+z)
