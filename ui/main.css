@@ -23,11 +23,11 @@ body {
     background-color: var(--background-color);
 }
 
-div::-webkit-scrollbar {
+nav::-webkit-scrollbar {
     background-color: transparent;
     width: 10px;
 }
-div::-webkit-scrollbar-thumb {
+nav::-webkit-scrollbar-thumb {
     background-color: #475054;
 }
 
@@ -139,160 +139,9 @@ div::-webkit-scrollbar-thumb {
 }
 
 
-.app {
-    position:fixed;
-    padding:0;
-    margin:0;
 
-    top:0;
-    left:0;
 
-    width: 500%;
-    height: 100%;
 
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-content: stretch;
-    align-items: stretch;
-
-}
-
-.sidebar {
-    height: 100%;
-    width: var(--sidebar-width);
-
-    z-index: 1;
-    background-color: var(--sidebar-color);
-    padding-top: 0px;
-
-    order: 0;
-    flex: 0 0 auto;
-    align-self: auto;
-
-    filter: drop-shadow(2px 2px 5px #111);
-    outline: var(--pixel-size) solid var(--outline-color);
-    /*border: var(--pixel-size) solid var(--sidebar-outline-color);*/
-}
-
-.grip {
-    background-color: var(--sidebar-color);
-    background-image: radial-gradient(#444 50%, transparent 50%);
-    background-size: 4px 4px;
-    background-repeat: repeat;
-    background-position: -0px;
-    width: 8px;
-    flex: 0 0 auto;
-    margin-right: 4px;
-}
-
-.decl-container.fixed {
-    
-}
-.decl-container {
-    display: flex;
-    padding: 4px;
-    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-left: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-bottom: 2px solid black;
-    border-right: var(--pixel-size) solid #42494d;
-
-    background-color:var(--sidebar-color);
-}
-
-.decl {
-    flex-grow: 1;
-    width: 100%;
-}
-
-.decl .label {
-    margin-left: 2px;
-    font-size: small;
-}
-
-.decl-body {
-    margin-top: 4px;
-    margin-left: 14px;
-    
-    min-height: 30px;
-    border-bottom: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-top: var(--pixel-size) solid #42494d;
-    border-left: var(--pixel-size) solid #42494d;
-}
-.sidebar .input.dark {
-    background-color: #475054;
-    flex-grow: 1;
-}
-.sidebar .input div {
-    border: 1px solid black;
-    padding: 4px;
-    padding-left: 8px;
-    color: white;
-    overflow: hidden;
-}
-.sidebar .input {
-    border-bottom: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-top: var(--pixel-size) solid #42494d;
-    border-left: var(--pixel-size) solid #42494d;
-
-    flex-grow: 1;
-    background-color: #7d898f;
-    box-shadow:         inset 2px 2px 3px #333;
-}
-
-.handle {
-    content: "";
-    flex: 0 0 auto;
-    position: relative;
-    box-sizing: border-box;
-    width: 2.5px;
-    background-color: grey;
-    height: 100%;
-    cursor: ew-resize;
-    user-select: none;
-}
-
-.grid {
-    background-size: var(--grid-size) var(--grid-size);
-    background-color: var(--background-color);
-    background-image: radial-gradient(#202020 2px, transparent 0);
-    background-position: calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size));
-
-    padding: var(--grid-size) var(--grid-size);
-    height: 100%;
-
-    order: 0;
-    flex: 1 1 auto;
-    align-self: auto;
-
-    border: 1px solid var(--outline-color);
-}
-
-.block {
-    width: 120px;
-    position:absolute;
-    background-color: #475054;
-    z-index: 10;
-
-    -webkit-transform: translate3d(0,0,0);
-
-    filter: drop-shadow(3px 3px 5px #111);
-    border-radius: var(--corner-size);
-    /*border: var(--pixel-size) solid var(--outline-color);*/
-}
-
-.block .header {
-    height: var(--grid-size);
-    border-radius: var(--corner-size);
-    color: white;
-    text-align: left;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 0px;
-}
 
 .grid .port {
     margin-top: -5px;
@@ -303,26 +152,6 @@ div::-webkit-scrollbar-thumb {
     z-index: 10;
 }
 
-.block.flow .header {
-    background-color: var(--sidebar-color);
-    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-left: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-bottom: var(--pixel-size) solid #42494d;
-    border-right: var(--pixel-size) solid #42494d;
-    
-}
-
-.block .header .title {
-    -moz-user-select: none;
-    padding-top: 0.25rem;
-    padding-bottom: 1.7rem;
-    font-size: 1rem;
-}
-
-.block .body {
-    height: 0px;
-    border-radius: 0 0 4px 4px;
-}
 
 .grid .output-label {
     transform: translate(-90%, -50%) !important;
@@ -344,3 +173,4 @@ div::-webkit-scrollbar-thumb {
     .sidenav a {font-size: 18px;}
   }
   */
+

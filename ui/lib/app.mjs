@@ -1,4 +1,6 @@
 import * as decl from "/lib/decl.mjs";
+import * as block from "/lib/block.mjs";
+import * as inline from "/lib/inline.mjs";
 
 //deps: $, jsPlumb
 const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
@@ -15,9 +17,30 @@ export const App = {
         {id: "block7", inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"], x: 15, y: 9},
         {id: "block8", inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"], x: 15, y: 11},
         {id: "block9", inputs: ["one", "two", "three"], outputs: ["one", "two"],  inflow: true, outflow: true, title: "foobar()", x: 15, y: 14},
+        {id: "block10", inputs: ["one?"], inflow: true, outflow: true, title: "switch", x: 15, y: 18},
+        {id: "block11", inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "for range  ", x: 15, y: 24},
+        {id: "block12", inputs: ["ch", "send"], inflow: true, outflow: true, title: "send", x: 26, y: 2},
+        {id: "block12", inputs: ["exp"], outputs: ["loop>"], inflow: true, outflow: true, title: "for     ", x: 26, y: 6},
     ],
     view: function(vnode) {
-        return m("main", {class: "app"}, [
+        let style = inline.style({
+            class: "app",
+
+            position: "fixed",
+            padding: "0",
+            margin: "0",
+            top: "0",
+            left: "0",
+            width: "500%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            justifyContent: "flex-start",
+            alignContent: "stretch",
+            alignItems: "stretch"
+        })
+        return m("main", style({}), [
             m(decl.Sidebar),
             m(decl.Handle),
             m(Grid, {blocks: vnode.state.blocks})
@@ -165,206 +188,37 @@ const Grid = {
         jsPlumb.setContainer(vnode.dom);
     },
     view: function(vnode) {
-        return m("div", {class: "grid"},
+        let style = inline.style({
+            class: "grid",
+
+            backgroundSize: "var(--grid-size) var(--grid-size)",
+            backgroundColor: "var(--background-color)",
+            backgroundImage: "radial-gradient(#202020 2px, transparent 0)",
+            backgroundPosition:
+                "calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size))",
+            padding: "var(--grid-size) var(--grid-size)",
+            height: "100%",
+            order: "0",
+            flex: "1 1 auto",
+            alignSelf: "auto",
+            border: "1px solid var(--outline-color)"
+        })
+        return m("div", style({}),
             vnode.attrs.blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
-                return m(Block, attrs)
+                return m(block.Block, attrs)
             })
         )
     }
 }
 
-const Block = {
-    autosize: function(vnode) {
-        let fontSize = stylePropInt(vnode.dom, "font-size");
-        let textWidth = vnode.attrs.title.length*fontSize*0.8;
-        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/30),2)*30)+"px";
-        jsPlumb.repaintEverything();
-    },
-    onupdate: function(vnode) {
-        this.autosize(vnode);
-    },
-    oncreate: function(vnode) {
-        let size = stylePropInt(document.documentElement, "--grid-size");
-        jsPlumb.draggable(vnode.dom,{
-            grid: [size, size]
-        });
 
-        this.autosize(vnode);
-
-        if (vnode.attrs.title === "") {
-            vnode.dom.firstChild.firstChild.focus();
-        }
-
-        let color = styleProp(vnode.dom.firstChild, "background-color")
-        let headerId = vnode.dom.id+"-header";
-        if (vnode.attrs.inflow) {
-            jsPlumb.addEndpoint(headerId, {
-                endpoint: "Blank",
-                isTarget: true,
-                cssClass: "inflow",
-                anchor: [0, 0.5, -1, 0],
-                paintStyle:{ fill: color },
-                scope:"flow"
-            });
-        }
-        if (vnode.attrs.outflow) {
-            jsPlumb.addEndpoint(headerId, {
-                endpoint:"Blank",
-                isSource: true,
-                cssClass: "outflow",
-                anchor: [1, 0.5, 1, 0],
-                paintStyle:{ fill: color},
-                scope:"flow",
-
-                connectorStyle:{ stroke:"white", strokeWidth:10 },
-                connector:[ "Flowchart", { 
-                    alwaysRespectStubs: true,
-                    cornerRadius: 4,
-                }],
-                // connectorOverlays: [
-                //     [ "Arrow", { foldback:0.8, width:35 } ]
-                // ]
-            });
-        }
-        let inputs = vnode.attrs.inputs||[];
-        inputs.forEach((val,idx) => {
-            jsPlumb.addEndpoint(vnode.dom.id+"-body", {
-                endpoint:"Dot",
-                isTarget: true,
-                cssClass: "input port",
-                scope: "ports",
-                // dragOptions:{ scope:"output" },
-                // dropOptions:{ scope:"input" },
-                anchor:[0, 1/inputs.length*idx, -1, 0, 0, 20],
-                paintStyle:{ fill: "#2a2a2c", stroke:"#475054", strokeWidth:8 },
-                overlays:[ 
-                    [ "Label", { label:val, location: [1,0.5], id:"myLabel", cssClass: "input-label port-label" } ]
-                ],
-                connectorStyle: { stroke:"gray", strokeWidth:8 },
-                connector:[ "Bezier", { 
-                    curviness:100 ,
-                } ]
-            });
-        });
-        let outputs = vnode.attrs.outputs||[];
-        let expr = false;
-        if (!vnode.attrs.outflow && !vnode.attrs.inflow && outputs.length===0) {
-            expr = true;
-            outputs = ["expr"]
-        }
-        outputs.forEach((val,idx) => {
-            let outflow = false;
-            if (val[val.length-1] == ">") {
-                val = val.substr(0, val.length-1);
-                outflow = true;
-            }
-            let input = false;
-            if (val[val.length-1] == "?") {
-                val = val.substr(0, val.length-1);
-                input = true;
-            }
-            let endpoint = {
-                containerId: vnode.dom.id+"-body",
-                endpoint: "Dot",
-                cssClass: "output port",
-                scope: "ports",
-                // dragOptions:{ scope:"output" },
-                // dropOptions:{ scope:"input" },
-                maxConnections: -1,
-                isSource: true,
-                anchor:[1, 1/Math.max(inputs.length, outputs.length)*idx, 1, 0, 0, 20],
-                paintStyle: { fill: "#2a2a2c", stroke:"#475054", strokeWidth:8 },
-                overlays: [[ "Label", { label: val, location: [0,0.5], id: val, cssClass: "output-label port-label" } ]],
-                connectorStyle: { stroke:"gray", strokeWidth:8 },
-                connector: [ "Bezier", {curviness:100} ],
-                connectorOverlays: []
-            }
-            if (expr) {
-                endpoint.overlays = [];
-                endpoint.containerId = vnode.dom.id+"-header";
-            }
-            if (input) {
-                endpoint.paintStyle = {};
-            }
-            if (outflow) {
-                endpoint.endpoint = "Blank";
-                endpoint.cssClass = "outflow port";
-                endpoint.paintStyle = { fill: "#475054" }
-                endpoint.connector = [ "Flowchart", { 
-                    alwaysRespectStubs: true,
-                    cornerRadius: 4,
-                }];
-                //endpoint.connectorOverlays = [[ "Arrow", { foldback:0.8, width:35 } ]];
-                endpoint.connectorStyle = { stroke:"white", strokeWidth:10 };
-                endpoint.maxConnections = 1;
-                endpoint.scope = "flow";
-                endpoint.overlays = [[ "Label", { label: val, location: [-1,0.5], id: val, cssClass: "output-label port-label" } ]];
-            }
-            let e = jsPlumb.addEndpoint(endpoint.containerId, endpoint);
-            if (input) {
-                let el = e.getOverlay(val).getElement();
-                el.contentEditable = true;
-                el.oninput = (e) => {
-                    // TODO
-                }
-            }
-        });
-    },
-    view: function(vnode) {
-        let className = "block"
-        if (vnode.attrs.inflow || vnode.attrs.outflow) {
-            className += " flow";
-        }
-        let inputs = vnode.attrs.inputs||[];
-        let outputs = vnode.attrs.outputs||[];
-        let gridSize = stylePropInt(document.documentElement, "--grid-size");
-        let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
-        return m("div", {class: className, id: vnode.attrs.id, style: {
-                left: (vnode.attrs.x*gridSize)+"px",
-                top: (vnode.attrs.y*gridSize)+"px"
-            }}, [
-            m("div", {class: "header", id: vnode.attrs.id+"-header"}, [
-                m("div[contentEditable]", {
-                    class: "title",
-                    oninput: (e) => {
-                        let id = e.target.parentNode.parentNode.id;
-                        App.updateBlock(id, {title: e.target.innerHTML});
-                    },
-                    ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
-                        var node = e.srcElement;
-                        if (document.body.createTextRange) {
-                            const range = document.body.createTextRange();
-                            range.moveToElementText(node);
-                            range.select();
-                        } else if (window.getSelection) {
-                            const selection = window.getSelection();
-                            const range = document.createRange();
-                            range.selectNodeContents(node);
-                            selection.removeAllRanges();
-                            selection.addRange(range);
-                        }
-                    }
-                }, m.trust(vnode.attrs.title))
-            ]),
-            m("div", {class: "body", id: vnode.attrs.id+"-body", style: {height: bodyHeight+"px"}})
-        ])
-    }
-}
 
 
 const BlockTemplates = {
     expr: {title: ""},
     assign: {inflow: true, outflow: true, title: "Assign", inputs: [""], outputs: ["name?"]},
 };
-
-function stylePropInt(el, prop) {
-    return parseInt(styleProp(el, prop), 10);
-}
-
-function styleProp(el, prop) {
-    return getComputedStyle(el).getPropertyValue(prop);
-}
 
 
 window.App = App;
