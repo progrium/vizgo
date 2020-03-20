@@ -54,8 +54,19 @@ export const Block = {
             filter: "drop-shadow(3px 3px 5px #111)",
             borderRadius: "var(--corner-size)"
         });
-        let headerAttrs = {id: vnode.attrs.id, title: vnode.attrs.title, flow: flowBlock, expr: exprBlock};
-        let bodyAttrs = {id: vnode.attrs.id, inputs: vnode.attrs.inputs, outputs: vnode.attrs.outputs};
+        let headerAttrs = {
+            id: vnode.attrs.id, 
+            title: vnode.attrs.title, 
+            flow: flowBlock, 
+            expr: exprBlock,
+            inflow: vnode.attrs.inflow,
+            outflow: vnode.attrs.outflow
+        };
+        let bodyAttrs = {
+            id: vnode.attrs.id, 
+            inputs: vnode.attrs.inputs, 
+            outputs: vnode.attrs.outputs
+        };
         return m("div", style({}), [
             m(Header, headerAttrs),
             (vnode.attrs.title == "switch") ?
@@ -118,9 +129,9 @@ const Header = {
         let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
         if (vnode.attrs.flow === true) {
             return m("div", style(["flow", "outer"]), [
-                m(InflowEndpoint),
+                (vnode.attrs.inflow)?m(InflowEndpoint):undefined,
                 title,
-                m(OutflowEndpoint)
+                (vnode.attrs.outflow)?m(OutflowEndpoint):undefined
             ]);
         }
         if (vnode.attrs.expr === true) {
@@ -315,7 +326,6 @@ function OutflowEndpoint(ivnode) {
             });
         },
         view: function(vnode) {
-
             let style = inline.style({
                 wrap: {
                     class: klass,
@@ -387,7 +397,7 @@ const Endpoint = function(ivnode) {
                         scope: "ports",
                         maxConnections: -1,
                         anchor: [0, 0, 1, 0, 15, 12],
-                        isTarget: true,
+                        isSource: true,
                         connectorStyle: { stroke:"gray", strokeWidth:8 },
                         connector: ["Bezier", {curviness: 100}]
                     });
@@ -395,7 +405,7 @@ const Endpoint = function(ivnode) {
             } else {
                 jsPlumb.addEndpoint(vnode.dom, {
                     endpoint:"Blank",
-                    isSource: true,
+                    isTarget: true,
                     cssClass: `${style.class} input`,
                     scope: "ports",
                     anchor: [0, 0, -1, 0, 12, 12],

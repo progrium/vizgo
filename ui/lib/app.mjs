@@ -21,6 +21,12 @@ export const App = {
         {id: "block11", inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "for range  ", x: 15, y: 24},
         {id: "block12", inputs: ["ch", "send"], inflow: true, outflow: true, title: "send", x: 26, y: 2},
         {id: "block13", inputs: ["exp"], outputs: ["loop>"], inflow: true, outflow: true, title: "for     ", x: 26, y: 6},
+        {id: "block14", inputs: ["", ""], title: "and", x: 26, y: 9},
+        {id: "block15", inputs: [""], title: "not", x: 29, y: 9},
+        {id: "block16", inputs: ["", ""], title: "multiply", x: 29, y: 12},
+        {id: "block17", inputs: ["string", "error"], inflow: true, title: "return", x: 29, y: 14},
+        {id: "block18", inflow: true, title: "continue", x: 29, y: 17},
+        {id: "block19", outputs: ["defer>"], inflow: true, outflow: true, title: "defer", x: 29, y: 20},
     ],
     view: function(vnode) {
         let style = inline.style({
@@ -215,8 +221,6 @@ const Grid = {
         )
     }
 }
-
-
 
 
 const BlockTemplates = {
