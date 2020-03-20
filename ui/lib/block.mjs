@@ -23,133 +23,21 @@ export const Block = {
 
         this.autosize(vnode);
 
+        // when creating a new empty expression block
         if (vnode.attrs.title === "") {
             vnode.dom.firstChild.firstChild.focus();
         }
-
-        let color = styleProp(vnode.dom.firstChild, "background-color")
-        let headerId = vnode.dom.id+"-header";
-        // if (vnode.attrs.inflow) {
-        //     jsPlumb.addEndpoint(headerId, {
-        //         endpoint: "Blank",
-        //         isTarget: true,
-        //         cssClass: "inflow",
-        //         anchor: [0, 0.5, -1, 0],
-        //         paintStyle:{ fill: color },
-        //         scope:"flow"
-        //     });
-        // }
-        // if (vnode.attrs.outflow) {
-        //     jsPlumb.addEndpoint(headerId, {
-        //         endpoint:"Blank",
-        //         isSource: true,
-        //         cssClass: "outflow",
-        //         anchor: [1, 0.5, 1, 0],
-        //         paintStyle:{ fill: color},
-        //         scope:"flow",
-
-        //         connectorStyle:{ stroke:"white", strokeWidth:10 },
-        //         connector:[ "Flowchart", { 
-        //             alwaysRespectStubs: true,
-        //             cornerRadius: 4,
-        //         }],
-        //         // connectorOverlays: [
-        //         //     [ "Arrow", { foldback:0.8, width:35 } ]
-        //         // ]
-        //     });
-        // }
-        // let inputs = vnode.attrs.inputs||[];
-        // inputs.forEach((val,idx) => {
-        //     jsPlumb.addEndpoint(vnode.dom.id+"-body", {
-        //         endpoint:"Dot",
-        //         isTarget: true,
-        //         cssClass: "input port",
-        //         scope: "ports",
-        //         // dragOptions:{ scope:"output" },
-        //         // dropOptions:{ scope:"input" },
-        //         anchor:[0, 1/inputs.length*idx, -1, 0, 0, 20],
-        //         paintStyle:{ fill: "#2a2a2c", stroke:"#475054", strokeWidth:8 },
-        //         // overlays:[ 
-        //         //     [ "Label", { label:val, location: [1,0.5], id:"myLabel", cssClass: "input-label port-label" } ]
-        //         // ],
-        //         connectorStyle: { stroke:"gray", strokeWidth:8 },
-        //         connector:[ "Bezier", { 
-        //             curviness:100 ,
-        //         } ]
-        //     });
-        // });
-        // let outputs = vnode.attrs.outputs||[];
-        // let expr = false;
-        // if (!vnode.attrs.outflow && !vnode.attrs.inflow && outputs.length===0) {
-        //     expr = true;
-        //     outputs = ["expr"]
-        // }
-        // outputs.forEach((val,idx) => {
-        //     let outflow = false;
-        //     if (val[val.length-1] == ">") {
-        //         val = val.substr(0, val.length-1);
-        //         outflow = true;
-        //     }
-        //     let input = false;
-        //     if (val[val.length-1] == "?") {
-        //         val = val.substr(0, val.length-1);
-        //         input = true;
-        //     }
-        //     let endpoint = {
-        //         containerId: vnode.dom.id+"-body",
-        //         endpoint: "Dot",
-        //         cssClass: "output port",
-        //         scope: "ports",
-        //         // dragOptions:{ scope:"output" },
-        //         // dropOptions:{ scope:"input" },
-        //         maxConnections: -1,
-        //         isSource: true,
-        //         anchor:[1, 1/Math.max(inputs.length, outputs.length)*idx, 1, 0, 0, 20],
-        //         paintStyle: { fill: "#2a2a2c", stroke:"#475054", strokeWidth:8 },
-        //         //overlays: [[ "Label", { label: val, location: [0,0.5], id: val, cssClass: "output-label port-label" } ]],
-        //         connectorStyle: { stroke:"gray", strokeWidth:8 },
-        //         connector: [ "Bezier", {curviness:100} ],
-        //         connectorOverlays: []
-        //     }
-        //     if (expr) {
-        //         endpoint.overlays = [];
-        //         endpoint.containerId = vnode.dom.id+"-header";
-        //     }
-        //     if (input) {
-        //         endpoint.paintStyle = {};
-        //     }
-        //     if (outflow) {
-        //         endpoint.endpoint = "Blank";
-        //         endpoint.cssClass = "outflow port";
-        //         endpoint.paintStyle = { fill: "#475054" }
-        //         endpoint.connector = [ "Flowchart", { 
-        //             alwaysRespectStubs: true,
-        //             cornerRadius: 4,
-        //         }];
-        //         //endpoint.connectorOverlays = [[ "Arrow", { foldback:0.8, width:35 } ]];
-        //         endpoint.connectorStyle = { stroke:"white", strokeWidth:10 };
-        //         endpoint.maxConnections = 1;
-        //         endpoint.scope = "flow";
-        //         //endpoint.overlays = [[ "Label", { label: val, location: [-1,0.5], id: val, cssClass: "output-label port-label" } ]];
-        //     }
-        //     let e = jsPlumb.addEndpoint(endpoint.containerId, endpoint);
-        //     if (input) {
-        //         let overlay = e.getOverlay(val);
-        //         if (!overlay) return;
-        //         let el = overlay.getElement();
-        //         el.contentEditable = true;
-        //         el.oninput = (e) => {
-        //             // TODO
-        //         }
-        //     }
-        // });
     },
     view: function(vnode) {
         let className = "block"
         let flowBlock = false;
+        let exprBlock = false;
         if (vnode.attrs.inflow || vnode.attrs.outflow) {
             className += " flow";
             flowBlock = true;
+        }
+        if (!vnode.attrs.inflow && !vnode.attrs.outflow && !vnode.attrs.outputs) {
+            exprBlock = true;
         }
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let style = inline.style({
@@ -166,28 +54,83 @@ export const Block = {
             filter: "drop-shadow(3px 3px 5px #111)",
             borderRadius: "var(--corner-size)"
         });
+        let headerAttrs = {id: vnode.attrs.id, title: vnode.attrs.title, flow: flowBlock, expr: exprBlock};
+        let bodyAttrs = {id: vnode.attrs.id, inputs: vnode.attrs.inputs, outputs: vnode.attrs.outputs};
         return m("div", style({}), [
-            m(BlockHeader, {id: vnode.attrs.id, title: vnode.attrs.title, flow: flowBlock}),
+            m(Header, headerAttrs),
             (vnode.attrs.title == "switch") ?
-                m(BlockSwitch, {id: vnode.attrs.id, inputs: vnode.attrs.inputs, outputs: vnode.attrs.outputs}) :
-                m(BlockPorts, {id: vnode.attrs.id, inputs: vnode.attrs.inputs, outputs: vnode.attrs.outputs})
+                m(SwitchBody, bodyAttrs) :
+                m(PortsBody, bodyAttrs)
         ])
     }
 }
 
-const SwitchCase = {
+const Header = {
     view: function(vnode) {
-        return m("div", Object.assign(
-                decl.Declaration.style({}), 
-                {class: "case decl-container"}), [
-            m(misc.Grip),
-            m(Textbox, "werfgewrf"),
-            m(outflow, {case: true})
-        ])
+        let style = inline.style({
+            outer: {
+                id: vnode.attrs.id+"-header",
+                class: "header", 
+
+                height: "var(--grid-size)",
+                borderRadius: "var(--corner-size)",
+                color: "white",
+                textAlign: "left",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+                paddingTop: "0px"
+            },
+            flow: {
+                backgroundColor: "var(--sidebar-color)",
+                borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+                borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
+                borderBottom: "var(--pixel-size) solid #42494d",
+                borderRight: "var(--pixel-size) solid #42494d",
+            },
+            inner: {
+                class: "title",
+
+                MozUserSelect: "none",
+                paddingTop: "0.25rem",
+                fontSize: "1rem"
+            }
+        });
+        let handlers = {
+            oninput: (e) => {
+                let id = e.target.parentNode.parentNode.id;
+                App.updateBlock(id, {title: e.target.innerHTML});
+            },
+            ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
+                var node = e.srcElement;
+                if (document.body.createTextRange) {
+                    const range = document.body.createTextRange();
+                    range.moveToElementText(node);
+                    range.select();
+                } else if (window.getSelection) {
+                    const selection = window.getSelection();
+                    const range = document.createRange();
+                    range.selectNodeContents(node);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        };
+        let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
+        if (vnode.attrs.flow === true) {
+            return m("div", style(["flow", "outer"]), [
+                m(InflowEndpoint),
+                title,
+                m(OutflowEndpoint)
+            ]);
+        }
+        if (vnode.attrs.expr === true) {
+            return m("div", style("outer"), [title, m(Endpoint, {output: true, header: true})]);
+        }
+        return m("div", style("outer"), title);
     }
 }
 
-const BlockSwitch = {
+const SwitchBody = {
     view: function(vnode) {
         let inputs = vnode.attrs.inputs||[];
         let outputs = vnode.attrs.outputs||[];
@@ -211,7 +154,7 @@ const BlockSwitch = {
             }
         });
         return m("div", style("switch"), [
-            m("div", {}, inputs.map((val,idx) => m(BlockPort, {input: true, desc: val}))),
+            m("div", {}, inputs.map((val,idx) => m(Port, {input: true, desc: val}))),
             m("div", style("cases"), [
                 m(SwitchCase),
                 m(SwitchCase),
@@ -221,7 +164,19 @@ const BlockSwitch = {
     }
 }
 
-const BlockPorts = {
+const SwitchCase = {
+    view: function(vnode) {
+        return m("div", Object.assign(
+                decl.Declaration.style({}), 
+                {class: "case decl-container"}), [
+            m(misc.Grip),
+            m(Textbox, "werfgewrf"),
+            m(OutflowEndpoint, {case: true, class: "case"})
+        ])
+    }
+}
+
+const PortsBody = {
     view: function(vnode) {
         let inputs = vnode.attrs.inputs||[];
         let outputs = vnode.attrs.outputs||[];
@@ -237,44 +192,57 @@ const BlockPorts = {
             borderRadius: "0 0 4px 4px"
         });
         return m("div", style({}), [
-            m("div", {}, inputs.map((val,idx) => m(BlockPort, {input: true, desc: val}))),
-            m("div", {}, outputs.map((val,idx) => m(BlockPort, {output: true, desc: val})))
+            m("div", {}, inputs.map((val,idx) => m(Port, {input: true, desc: val}))),
+            m("div", {}, outputs.map((val,idx) => m(Port, {output: true, desc: val})))
         ])
     }
 }
 
-const BlockPort = {
+const Port = {
     view: function(vnode) {
         let style = {
             paddingTop: "2px", 
             height: "28px"
         }
-        if (vnode.attrs.input) {
+        if (vnode.attrs.input === true) {
             style.marginLeft = "15px";
         }
-        if (vnode.attrs.output) {
+        if (vnode.attrs.output === true) {
             style.marginRight = "15px";
             style.textAlign = "right";
         }
         let val = vnode.attrs.desc;
         if (val[val.length-1] == ">") {
             val = val.substr(0, val.length-1);
-            return m("div", {style: style}, [m(outflow, {body: true}), val])
+            return m("div", {style: style}, [m(OutflowEndpoint, {body: true}), val])
         }
         if (val[val.length-1] == "?") {
             val = val.substr(0, val.length-1);
             return m(Textbox, val)
         } else {
-            return m("div", {style: style}, [m(port, {dir: vnode.attrs.input ? "left" : "right"}), val])
+            return m("div", {style: style}, [m(Endpoint, {output: vnode.attrs.output}), val])
         }
         
     }
 }
 
-const inflow = {
+const InflowEndpoint = {
+    oncreate: function(vnode) {
+        jsPlumb.addEndpoint(vnode.dom, {
+            endpoint: "Blank",
+            isTarget: true,
+            cssClass: "inflow",
+            width: 30, 
+            height: 30,
+            anchor: [0, 0.5, -1, 0, 0, 10],
+            scope:"flow"
+        });
+    },
     view: function(vnode) {
         let style = inline.style({
             wrap: {
+                class: "inflow",
+
                 marginLeft: "-20px",
                 top: "5px",
                 position: "relative"
@@ -312,71 +280,141 @@ const inflow = {
     }
 }
 
-const outflow = {
-    view: function(vnode) {
-        let backgroundColor = "var(--sidebar-color)";
-        let top = "-37px";
-        let left = "12px";
-        if (vnode.attrs.body) {
-            backgroundColor = "#475054";
-            top = "12px";
-            left = "16px";
+function OutflowEndpoint(ivnode) {
+    let klass = "outflow";
+    let backgroundColor = "var(--sidebar-color)";
+    let top = "-10px";
+    let left = "12px";
+    if (ivnode.attrs.body) {
+        backgroundColor = "#475054";
+        top = "12px";
+        left = "16px";
+        klass += " body"
+    }
+    if (ivnode.attrs.case) {
+        top = "13px";
+        left = "6px";
+        klass += " case"
+    }
+    if (ivnode.attrs.class) {
+        klass += ` ${ivnode.attrs.class}`
+    }
+    return {
+        oncreate: function(vnode) {
+            jsPlumb.addEndpoint(vnode.dom, {
+                endpoint:"Blank",
+                isSource: true,
+                anchor: [0, 0, 1, 0, 4, 0],
+                cssClass: klass,
+                scope:"flow",
+                connectorStyle:{ stroke:"white", strokeWidth:10 },
+                connector:[ "Flowchart", { 
+                    alwaysRespectStubs: true,
+                    cornerRadius: 4,
+                }]
+            });
+        },
+        view: function(vnode) {
+
+            let style = inline.style({
+                wrap: {
+                    class: klass,
+                    float: "right",
+                    position: "relative",
+                    top: top,
+                    left: left
+                },
+                before: {
+                    position: "absolute",
+                    zIndex: "1000",
+                    marginLeft: "-15px",
+                    marginTop: "-12px",
+                    width: "23px",
+                    height: "23px",
+                    backgroundColor: backgroundColor,
+                    borderRadius: "var(--corner-size)",
+                    transform: "rotate(45deg)",
+                    borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+                    borderRight: "var(--pixel-size) solid #42494d",
+                    clipPath: "polygon(0 0, 100% 0, 100% 100%)"
+                }
+            })
+            return m("div", style("wrap"), [m("div", style("before"))]);
         }
-        if (vnode.attrs.case) {
-            top = "13px";
-            left = "6px";
-        }
-        let style = inline.style({
-            wrap: {
-                float: "right",
-                position: "relative",
-                top: top,
-                left: left
-            },
-            before: {
-                position: "absolute",
-                zIndex: "1000",
-                marginLeft: "-15px",
-                marginTop: "-12px",
-                width: "23px",
-                height: "23px",
-                backgroundColor: backgroundColor,
-                borderRadius: "var(--corner-size)",
-                transform: "rotate(45deg)",
-                borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-                borderRight: "var(--pixel-size) solid #42494d",
-                clipPath: "polygon(0 0, 100% 0, 100% 100%)"
-            }
-        })
-        return m("div", style("wrap"), [m("div", style("before"))]);
     }
 }
 
-const port = {
-    view: function(vnode) {
-        let style = {
-            width: "28px",
-            height: "28px",
-            backgroundColor: "#475054",
-            borderRadius: "50%",
-            marginTop: "-1px"
-        };
-        if (vnode.attrs.dir == "right") {
-            style.float = "right";
-            style.marginRight = "-29px";
-        } else {
-            style.position = "absolute";
-            style.marginLeft = "-28px";
+const Endpoint = function(ivnode) {
+    let style = {
+        class: "endpoint",
+
+        width: "28px",
+        height: "28px",
+        backgroundColor: "#475054",
+        borderRadius: "50%",
+        marginTop: "-1px"
+    };
+    if (ivnode.attrs.output === true) {
+        style.float = "right";
+        style.marginRight = "-29px";
+    } else {
+        style.position = "absolute";
+        style.marginLeft = "-28px";
+    }
+    if (ivnode.attrs.header === true) {
+        style.marginTop = "-23px";
+        style.marginRight = "-24px";
+        style.class = "endpoint header"
+    }
+    return {
+        oncreate: function(vnode) {
+            if (vnode.attrs.output === true) {
+                if (vnode.attrs.header === true) {
+                    jsPlumb.addEndpoint(vnode.dom,  {
+                        endpoint: "Blank",
+                        cssClass: `${style.class} output`,
+                        scope: "ports",
+                        maxConnections: 1,
+                        anchor: [0, 0, 1, 0, 14, 14],
+                        isSource: true,
+                        connectorStyle: { stroke:"gray", strokeWidth:8 },
+                        connector: ["Bezier", {curviness: 100}]
+                    });
+                } else {
+                    jsPlumb.addEndpoint(vnode.dom,  {
+                        endpoint: "Blank",
+                        cssClass: `${style.class} output`,
+                        scope: "ports",
+                        maxConnections: -1,
+                        anchor: [0, 0, 1, 0, 15, 12],
+                        isTarget: true,
+                        connectorStyle: { stroke:"gray", strokeWidth:8 },
+                        connector: ["Bezier", {curviness: 100}]
+                    });
+                }
+            } else {
+                jsPlumb.addEndpoint(vnode.dom, {
+                    endpoint:"Blank",
+                    isSource: true,
+                    cssClass: `${style.class} input`,
+                    scope: "ports",
+                    anchor: [0, 0, -1, 0, 12, 12],
+                    connectorStyle: { stroke:"gray", strokeWidth:8 },
+                    connector: ["Bezier", {curviness: 100}]
+                });
+            }
+        },
+        view: function(vnode) {
+            return m("div", inline.style(style)({}), m("div", inline.style({
+                width: "14px",
+                height: "14px",
+                left: "7px",
+                top: "7px",
+                position: "relative",
+                backgroundColor: "#2a2a2c",
+                borderRadius: "50%"
+            })({})))
         }
-        return m("div", inline.style(style)({}), m("div", inline.style({
-            width: "14px",
-            height: "14px",
-            left: "7px",
-            top: "7px",
-            position: "relative",
-            backgroundColor: "#2a2a2c",
-            borderRadius: "50%"
-        })({})))
     }
 }
 
@@ -392,71 +430,6 @@ const Textbox = {
                 m("div", inner, vnode.children));
     }
 }
-
-
-const BlockHeader = {
-    view: function(vnode) {
-        let style = inline.style({
-            outer: {
-                id: vnode.attrs.id+"-header",
-                class: "header", 
-
-                height: "var(--grid-size)",
-                borderRadius: "var(--corner-size)",
-                color: "white",
-                textAlign: "left",
-                paddingLeft: "10px",
-                paddingRight: "10px",
-                paddingTop: "0px"
-            },
-            flow: {
-                backgroundColor: "var(--sidebar-color)",
-                borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-                borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
-                borderBottom: "var(--pixel-size) solid #42494d",
-                borderRight: "var(--pixel-size) solid #42494d",
-            },
-            inner: {
-                class: "title",
-
-                MozUserSelect: "none",
-                paddingTop: "0.25rem",
-                paddingBottom: "1.7rem",
-                fontSize: "1rem"
-            }
-        });
-        let handlers = {
-            oninput: (e) => {
-                let id = e.target.parentNode.parentNode.id;
-                App.updateBlock(id, {title: e.target.innerHTML});
-            },
-            ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
-                var node = e.srcElement;
-                if (document.body.createTextRange) {
-                    const range = document.body.createTextRange();
-                    range.moveToElementText(node);
-                    range.select();
-                } else if (window.getSelection) {
-                    const selection = window.getSelection();
-                    const range = document.createRange();
-                    range.selectNodeContents(node);
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
-            }
-        };
-        let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
-        if (vnode.attrs.flow === true) {
-            return m("div", style(["flow", "outer"]), [
-                m(inflow),
-                title,
-                m(outflow)
-            ]);
-        }
-        return m("div", style("outer"), title);
-    }
-}
-
 
 function stylePropInt(el, prop) {
     return parseInt(styleProp(el, prop), 10);

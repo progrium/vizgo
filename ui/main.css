@@ -23,6 +23,8 @@ body {
     background-color: var(--background-color);
 }
 
+
+
 nav::-webkit-scrollbar {
     background-color: transparent;
     width: 10px;
@@ -30,6 +32,8 @@ nav::-webkit-scrollbar {
 nav::-webkit-scrollbar-thumb {
     background-color: #475054;
 }
+
+
 
 [contenteditable="true"] {
     white-space: nowrap;
@@ -45,82 +49,6 @@ nav::-webkit-scrollbar-thumb {
 [contenteditable="true"] * {
     display:inline;
     white-space:nowrap;
-}
-
-.jtk-endpoint.outflow::before {
-    content: "";
-    position: absolute;
-    z-index: 1000;
-
-    
-    margin-left: -15px;
-    margin-top: -12px;
-    width: 23px;
-    height: 23px;
-    background-color: var(--sidebar-color);
-    border-radius: var(--corner-size);
-    
-    transform: rotate(45deg);
-    
-    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-right: var(--pixel-size) solid #42494d;
-
-    clip-path: polygon(0 0, 100% 0, 100% 100%);
-}
-.jtk-endpoint.outflow.port::before {
-    background-color: var(--block-color);
-    border-radius: calc(var(--corner-size)/2);
-    border: 0;
-}
-
-.jtk-endpoint.inflow {
-    width: 20px !important;
-    height: 20px !important;
-    z-index: 100;
-    margin-left: -10px;
-    margin-top: -10px;
-    
-}
-.jtk-endpoint.inflow.jtk-endpoint-full::after {
-    background-color: white;
-}
-.jtk-endpoint.inflow::before {
-    content: "";
-    position: absolute;
-    z-index: 50;
-
-    border-radius: var(--corner-size);
-    width: 30px;
-    height: 30px;
-    margin-top: -6px;
-
-    clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
-
-    background-color: var(--sidebar-color);
-    border-top: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-left: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-bottom: var(--pixel-size) solid #42494d;
-    border-right: var(--pixel-size) solid #42494d;
-}
-.jtk-endpoint.inflow::after {
-    content: "";
-    position: absolute;
-    z-index: 500;
-
-    
-    margin-left: -12px;
-    margin-top: -2px;
-    width: 22px;
-    height: 22px;
-    border-radius: var(--corner-size);
-    
-    transform: rotate(45deg);
-    
-    border-right: var(--pixel-size) solid var(--sidebar-outline-color);
-    border-top: var(--pixel-size) solid #42494d;
-    background-color: var(--background-color);
-
-    clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 
 
@@ -141,36 +69,41 @@ nav::-webkit-scrollbar-thumb {
 
 
 
-
-
-.grid .port {
-    margin-top: -5px;
-    z-index: 10;
+.jtk-endpoint {
+    /* border: 1px solid green; */
+    z-index: 100;
+    height: 28px !important;
+    width: 28px !important;
+}
+.jtk-endpoint.output {
+    margin-left: -12px;
+    margin-top: -12px;
+}
+.jtk-endpoint.output {
+    margin-left: -12px;
+    margin-top: -12px;
+}
+.jtk-endpoint.output.header {
+    margin-left: -14px;
+    margin-top: -14px;
+}
+.jtk-endpoint.input {
+    margin-left: -18px;
+    margin-top: -13px;
+}
+.jtk-endpoint.inflow {
+    margin-top: -16px;
+    margin-left: -14px;
+}
+.jtk-endpoint.outflow {
+    margin-left: -12px;
+    margin-top: -17px;
+    
 }
 
-.grid .input {
-    z-index: 10;
+.jtk-endpoint-anchor.jtk-connected.endpoint div {
+    background-color: gray !important;
 }
-
-
-.grid .output-label {
-    transform: translate(-90%, -50%) !important;
+.jtk-endpoint-anchor.jtk-connected.inflow div:last-child {
+    background-color: white !important;
 }
-
-.grid .input-label {
-    transform: translate(0%, -50%) !important;
-    margin-left: -2px;
-}
-
-.grid .port-label {
-    margin-top: -7px;
-    z-index: 10;
-}
-  
-/*
-  @media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
-  }
-  */
-

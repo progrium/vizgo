@@ -20,7 +20,7 @@ export const App = {
         {id: "block10", inputs: ["one?"], inflow: true, outflow: true, title: "switch", x: 15, y: 18},
         {id: "block11", inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "for range  ", x: 15, y: 24},
         {id: "block12", inputs: ["ch", "send"], inflow: true, outflow: true, title: "send", x: 26, y: 2},
-        {id: "block12", inputs: ["exp"], outputs: ["loop>"], inflow: true, outflow: true, title: "for     ", x: 26, y: 6},
+        {id: "block13", inputs: ["exp"], outputs: ["loop>"], inflow: true, outflow: true, title: "for     ", x: 26, y: 6},
     ],
     view: function(vnode) {
         let style = inline.style({
@@ -186,6 +186,10 @@ const Grid = {
         });
 
         jsPlumb.setContainer(vnode.dom);
+        jsPlumb.bind("beforeDrop", function(params) {
+            console.log(params);
+            return true;
+        });
     },
     view: function(vnode) {
         let style = inline.style({
