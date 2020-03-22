@@ -246,7 +246,7 @@ const InflowEndpoint = {
             width: 30, 
             height: 30,
             anchor: [0, 0.5, -1, 0, 0, 10],
-            scope:"flow"
+            scope: "flow",
         });
     },
     view: function(vnode) {
@@ -264,8 +264,9 @@ const InflowEndpoint = {
                 borderRadius: "var(--corner-size)",
                 width: "30px",
                 height: "30px",
-                marginTop: "-6px",
-                clipPath: "polygon(0 0, 50% 0, 50% 100%, 0 100%)",
+                marginTop: "-5.9px",
+                marginLeft: "-7px",
+                clipPath: "polygon(0 0, 62% 0, 62% 100%, 0 100%, 52% 50%)",
                 backgroundColor: "var(--sidebar-color)",
                 borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
                 borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -275,7 +276,7 @@ const InflowEndpoint = {
             after: {
                 position: "absolute",
                 zIndex: "500",
-                marginLeft: "-12px",
+                marginLeft: "-17px",
                 marginTop: "-2px",
                 width: "22px",
                 height: "22px",
@@ -284,7 +285,8 @@ const InflowEndpoint = {
                 borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
                 borderTop: "var(--pixel-size) solid #42494d",
                 backgroundColor: "var(--background-color)",
-                clipPath: "polygon(0 0, 100% 0, 100% 100%)"
+                clipPath: "polygon(0 0, 100% 0, 100% 100%)",
+                opacity: "0",
             }
         })
         return m("div", style("wrap"), [m("div", style("before")), m("div", style("after"))]);
@@ -337,8 +339,8 @@ function OutflowEndpoint(ivnode) {
                 before: {
                     position: "absolute",
                     zIndex: "1000",
-                    marginLeft: "-15px",
-                    marginTop: "-12px",
+                    marginLeft: "-16px",
+                    marginTop: "-12.6px",
                     width: "23px",
                     height: "23px",
                     backgroundColor: backgroundColor,
@@ -346,7 +348,7 @@ function OutflowEndpoint(ivnode) {
                     transform: "rotate(45deg)",
                     borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
                     borderRight: "var(--pixel-size) solid #42494d",
-                    clipPath: "polygon(0 0, 100% 0, 100% 100%)"
+                    clipPath: "polygon(0 0, 100% 0, 100% 100%)",
                 }
             })
             return m("div", style("wrap"), [m("div", style("before"))]);

@@ -15,10 +15,10 @@ Grid bugs:
 * text in nodes can overlap the textbox if the block's inital body is small enough
 * pressing spacebar in block's title makes the block's body a lot bigger than typing regular characters
 * summoning any node besides "expression" breaks the right-click menu
+* jsPlumb breaks whenever hotweb reloads the page
 
 Sidebar bugs:
 
-* Dragging breaks after hotweb reloads the file
 * Big declaration blocks sometimes don't swap places properly
 
 Go bugs:
