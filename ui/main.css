@@ -106,4 +106,5 @@ nav::-webkit-scrollbar-thumb {
 }
 .jtk-endpoint-anchor.jtk-connected.inflow div:last-child {
     background-color: white !important;
+    opacity: 1 !important;
 }
