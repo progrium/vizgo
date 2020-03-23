@@ -16,6 +16,7 @@ Grid bugs:
 * pressing spacebar in block's title makes the block's body a lot bigger than typing regular characters
 * summoning any node besides "expression" breaks the right-click menu
 * jsPlumb breaks whenever hotweb reloads the page
+* subsections in the right click menu do not show if the screen width is too short
 
 Sidebar bugs:
 

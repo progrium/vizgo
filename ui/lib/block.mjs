@@ -267,11 +267,12 @@ const InflowEndpoint = {
                 marginTop: "-5.9px",
                 marginLeft: "-7px",
                 clipPath: "polygon(0 0, 62% 0, 62% 100%, 0 100%, 52% 50%)",
+                WebkitClipPath: "polygon(0 0, 62% 0, 62% 100%, 0 100%, 52% 50%)",
                 backgroundColor: "var(--sidebar-color)",
                 borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
                 borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
                 borderBottom: "var(--pixel-size) solid #42494d",
-                borderRight: "var(--pixel-size) solid #42494d"
+                borderRight: "var(--pixel-size) solid #42494d",
             },
             after: {
                 position: "absolute",
@@ -286,6 +287,7 @@ const InflowEndpoint = {
                 borderTop: "var(--pixel-size) solid #42494d",
                 backgroundColor: "var(--background-color)",
                 clipPath: "polygon(0 0, 100% 0, 100% 100%)",
+                WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
                 opacity: "0",
             }
         })
@@ -349,6 +351,7 @@ function OutflowEndpoint(ivnode) {
                     borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
                     borderRight: "var(--pixel-size) solid #42494d",
                     clipPath: "polygon(0 0, 100% 0, 100% 100%)",
+                    WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
                 }
             })
             return m("div", style("wrap"), [m("div", style("before"))]);
