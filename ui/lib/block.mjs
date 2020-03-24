@@ -9,7 +9,7 @@ export const Block = {
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
-        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/30),2)*30)+"px"; // TODO
+        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/40),2)*30)+60+"px"; // TODO
         jsPlumb.repaintEverything();
     },
     onupdate: function(vnode) {
@@ -19,7 +19,7 @@ export const Block = {
         let size = stylePropInt(document.documentElement, "--grid-size");
         jsPlumb.draggable(vnode.dom,{
             grid: [size, size],
-            containment: true,
+            containment: "parent",
         });
 
         this.autosize(vnode);
@@ -127,7 +127,7 @@ const Header = {
                     selection.addRange(range);
                 }
             }
-        };
+        }
         let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
         if (vnode.attrs.flow === true) {
             return m("div", style(["flow", "outer"]), [
