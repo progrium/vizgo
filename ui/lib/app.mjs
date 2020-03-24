@@ -57,7 +57,6 @@ export const App = {
             if (el.id !== id) {
                 return el;
             }
-            console.log(el)
             return Object.assign(el, obj);
         })
         m.redraw();

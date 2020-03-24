@@ -18,7 +18,8 @@ export const Block = {
     oncreate: function(vnode) {
         let size = stylePropInt(document.documentElement, "--grid-size");
         jsPlumb.draggable(vnode.dom,{
-            grid: [size, size]
+            grid: [size, size],
+            containment: true,
         });
 
         this.autosize(vnode);
@@ -43,6 +44,7 @@ export const Block = {
         let style = inline.style({
             id: vnode.attrs.id,
             class: className,
+
             marginLeft: "4px",
             left: (vnode.attrs.x*gridSize)+"px",
             top: (vnode.attrs.y*gridSize)+"px",

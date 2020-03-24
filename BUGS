@@ -8,12 +8,12 @@ Suggestions:
 
 Grid bugs:
 
-* can select all text (in blocks) by double-clicking it, right clicking, double-clicking it again (firefox)
-    - "document.execCommand" doesn't work (line 337)
 * can select text in the block's empty node (the one without a circle or an arrow on its right)
-* right clicking on element titles freezes text selection (chrome/webkit)
+* double-clicking to select text doesn't work (webkit)
+* focusing on text fields doesn't work (webkit)
 * text in nodes can overlap the textbox if the block's inital body is small enough
 * pressing spacebar in block's title makes the block's body a lot bigger than typing regular characters
+* blocks autoresize incorrectly 
 * summoning any node besides "expression" breaks the right-click menu
 * jsPlumb-ed blocks break whenever hotweb reloads the page
 * subsections in the right click menu do not show if the screen width is too short
