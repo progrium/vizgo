@@ -57,6 +57,7 @@ export const App = {
             if (el.id !== id) {
                 return el;
             }
+            console.log(el)
             return Object.assign(el, obj);
         })
         m.redraw();
@@ -118,6 +119,22 @@ export const App = {
             resizeData.tracking = true;
         });
 
+        $(window).on('mousemove', null, null, (event) => {
+            if (resizeData.tracking) {
+                const cursorScreenXDelta = event.screenX - resizeData.startCursorScreenX;
+                const snappedCursorScreenXDelta = cursorScreenXDelta - (cursorScreenXDelta % 30);
+                const newWidth = resizeData.startWidth + snappedCursorScreenXDelta;
+                $(resizeData.resizeTarget).outerWidth(newWidth);
+                jsPlumb.repaintEverything();
+            }
+        });
+        
+        $(window).on('mouseup', null, null, (event) => {
+            if (resizeData.tracking) {
+                resizeData.tracking = false;
+            }
+        });
+
         $(document).ready(function(){
             // sidebar declarations sorting
             $("#declarations").sortable({
@@ -137,21 +154,6 @@ export const App = {
                 axis: "y",
             });
         })
-
-        $(window).on('mousemove', null, null, (event) => {
-            if (resizeData.tracking) {
-                const cursorScreenXDelta = event.screenX - resizeData.startCursorScreenX;
-                const newWidth = Math.min(resizeData.startWidth + cursorScreenXDelta, resizeData.maxWidth);
-                $(resizeData.resizeTarget).outerWidth(newWidth);
-                jsPlumb.repaintEverything();
-            }
-        });
-        
-        $(window).on('mouseup', null, null, (event) => {
-            if (resizeData.tracking) {
-                resizeData.tracking = false;
-            }
-        });
     }
 }
 
