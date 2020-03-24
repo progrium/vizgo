@@ -9,7 +9,7 @@ export const Block = {
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
-        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/30),2)*30)+"px";
+        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/30),2)*30)+"px"; // TODO
         jsPlumb.repaintEverything();
     },
     onupdate: function(vnode) {
@@ -43,7 +43,7 @@ export const Block = {
         let style = inline.style({
             id: vnode.attrs.id,
             class: className,
-
+            marginLeft: "4px",
             left: (vnode.attrs.x*gridSize)+"px",
             top: (vnode.attrs.y*gridSize)+"px",
             width: "120px",
@@ -111,7 +111,7 @@ const Header = {
                 let id = e.target.parentNode.parentNode.id;
                 App.updateBlock(id, {title: e.target.innerHTML});
             },
-            ondblclick: (e) => { // fixed the text selection so it doesn't select all in firefox
+            ondblclick: (e) => {
                 var node = e.srcElement;
                 if (document.body.createTextRange) {
                     const range = document.body.createTextRange();
