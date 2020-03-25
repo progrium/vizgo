@@ -9,7 +9,34 @@ export const Block = {
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
-        vnode.dom.style.width = (Math.max(Math.ceil(textWidth/40),2)*30)+60+"px"; // TODO
+        let newWidth = (Math.max(Math.ceil(textWidth/40),2)*30)+30;
+        let inputListLength = 0;
+        let outputListLength = 0;
+        if (vnode.attrs.inputs) {
+            inputListLength = vnode.attrs.inputs.length
+        }
+        if (vnode.attrs.outputs) {
+            outputListLength = vnode.attrs.outputs.length
+        }
+        let i;
+        for (i = 0; i <  Math.max(inputListLength,outputListLength); i++) {
+            let inputWidth = 0
+            let outputWidth = 0
+            if (vnode.attrs.inputs){
+                if (i < vnode.attrs.inputs.length) {
+                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length*fontSize*0.8)/40),2)*30)/1.5
+                }
+            }
+            if (vnode.attrs.outputs){
+                if (i < vnode.attrs.outputs.length) {
+                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length*fontSize*0.8)/40),2)*30)/1.5
+                }
+            }
+            if (inputWidth + outputWidth > newWidth){
+                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/17),2)*30 + 30) 
+            }
+        };
+        vnode.dom.style.width = newWidth+"px";
         jsPlumb.repaintEverything();
     },
     onupdate: function(vnode) {
@@ -300,7 +327,7 @@ const InflowEndpoint = {
 function OutflowEndpoint(ivnode) {
     let klass = "outflow";
     let backgroundColor = "var(--sidebar-color)";
-    let top = "-10px";
+    let top = "-9.9px";
     let left = "12px";
     if (ivnode.attrs.body) {
         backgroundColor = "#475054";
@@ -377,11 +404,11 @@ const Endpoint = function(ivnode) {
     } else {
         style.position = "absolute";
         style.marginLeft = "-28px";
-    }
+    };
     if (ivnode.attrs.header === true) {
-        style.marginTop = "-23px";
+        style.marginTop = "-25px";
         style.marginRight = "-24px";
-        style.class = "endpoint header"
+        style.class = "endpoint header";
     }
     return {
         oncreate: function(vnode) {
