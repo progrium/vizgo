@@ -17,7 +17,6 @@ body {
     font-family: 'Roboto Mono', monospace;
     color: lightgray;
     margin: 0;
-    user-select: none;
     -moz-user-select: none;
     -webkit-user-select: text;
     background-color: var(--background-color);
@@ -45,17 +44,6 @@ nav::-webkit-scrollbar-thumb {
 [contenteditable="true"] br {
     display:none;
 
-}
-@-moz-document url-prefix() {
-    [contenteditable="true"] br {
-        display:block;
-    
-    }
-
-    [contenteditable="true"] * {
-        display:inline;
-        white-space:wrap;
-    }
 }
 
 [contenteditable="true"] * {

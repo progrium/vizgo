@@ -5,13 +5,13 @@ import * as decl from "/lib/decl.mjs";
 export const Block = {
     autosize: function(vnode) {
         let fontSize = stylePropInt(vnode.dom, "font-size");
+        vnode.attrs.title = vnode.attrs.title.replace(/<br>/g,'').replace(/&nbsp;/g,'').replace(/<div>/g,'').replace(/<\/div>/g,'')
         let textWidth = vnode.attrs.title.length*fontSize*0.8;
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
         let newWidth = (Math.max(Math.ceil(textWidth/40),2)*30)+30;
-        let inputListLength = 0;
-        let outputListLength = 0;
+        let inputListLength,outputListLength = 0;
         if (vnode.attrs.inputs) {
             inputListLength = vnode.attrs.inputs.length
         }
@@ -23,19 +23,19 @@ export const Block = {
             let inputWidth, outputWidth = 0
             if (vnode.attrs.inputs){
                 if (i < vnode.attrs.inputs.length) {
-                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length*fontSize*0.8)/40),2)*30)/1.5
+                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length*fontSize*0.8)/40),2)*30)/0.9
                 }
             }
             if (vnode.attrs.outputs){
                 if (i < vnode.attrs.outputs.length) {
-                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length*fontSize*0.8)/40),2)*30)/1.5
+                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length*fontSize*0.8)/40),2)*30)
                 }
             }
             if (inputWidth + outputWidth > newWidth){
-                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/17),2)*30)
+                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/30),2)*30)
             }
         };
-        vnode.dom.style.width = newWidth+30+"px";
+        vnode.dom.style.width = newWidth+"px";
         jsPlumb.repaintEverything();
     },
     onupdate: function(vnode) {
