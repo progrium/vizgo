@@ -20,8 +20,7 @@ export const Block = {
         }
         let i;
         for (i = 0; i <  Math.max(inputListLength,outputListLength); i++) {
-            let inputWidth = 0
-            let outputWidth = 0
+            let inputWidth, outputWidth = 0
             if (vnode.attrs.inputs){
                 if (i < vnode.attrs.inputs.length) {
                     inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length*fontSize*0.8)/40),2)*30)/1.5
@@ -33,10 +32,10 @@ export const Block = {
                 }
             }
             if (inputWidth + outputWidth > newWidth){
-                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/17),2)*30 + 30) 
+                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/17),2)*30)
             }
         };
-        vnode.dom.style.width = newWidth+"px";
+        vnode.dom.style.width = newWidth+30+"px";
         jsPlumb.repaintEverything();
     },
     onupdate: function(vnode) {

@@ -19,7 +19,7 @@ body {
     margin: 0;
     user-select: none;
     -moz-user-select: none;
-    -webkit-user-select: none;
+    -webkit-user-select: text;
     background-color: var(--background-color);
 }
 
@@ -46,6 +46,18 @@ nav::-webkit-scrollbar-thumb {
     display:none;
 
 }
+@-moz-document url-prefix() {
+    [contenteditable="true"] br {
+        display:block;
+    
+    }
+
+    [contenteditable="true"] * {
+        display:inline;
+        white-space:wrap;
+    }
+}
+
 [contenteditable="true"] * {
     display:inline;
     white-space:nowrap;
