@@ -7,6 +7,7 @@ export const Block = {
         let fontSize = stylePropInt(vnode.dom, "font-size");
         vnode.attrs.title = vnode.attrs.title.replace(/<br>/g,'').replace(/&nbsp;/g,'').replace(/<div>/g,'').replace(/<\/div>/g,'')
         let textWidth = vnode.attrs.title.length*fontSize*0.8;
+
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
@@ -66,6 +67,7 @@ export const Block = {
         if (!vnode.attrs.inflow && !vnode.attrs.outflow && !vnode.attrs.outputs) {
             exprBlock = true;
         }
+        
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let style = inline.style({
             id: vnode.attrs.id,
@@ -128,7 +130,7 @@ const Header = {
             },
             inner: {
                 class: "title",
-
+                height: "22px",
                 MozUserSelect: "none",
                 paddingTop: "0.25rem",
                 fontSize: "1rem"
