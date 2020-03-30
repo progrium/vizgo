@@ -4,9 +4,7 @@ import * as decl from "/lib/decl.mjs";
 
 export const Block = {
     checkposition: function(vnode){
-        console.log("sidebar width: "+ $(".sidebar").innerWidth())
         let vnodePosition = parseInt(vnode.dom.style.left.replace("px", ""))
-        console.log("vnode position: "+ vnodePosition)
         if (vnodePosition <= $(".sidebar").innerWidth()) {
             vnodePosition += $(".sidebar").innerWidth() - vnodePosition + 30
             vnode.dom.style.left = vnodePosition + "px"
@@ -14,7 +12,6 @@ export const Block = {
     },
 
     autosize: function(vnode) {
-        this.checkposition(vnode)
         let fontSize = stylePropInt(vnode.dom, "font-size");
         vnode.attrs.title = vnode.attrs.title.replace(/<br>/g,'').replace(/&nbsp;/g,'').replace(/<div>/g,'').replace(/<\/div>/g,'')
         let textWidth = vnode.attrs.title.length*fontSize*0.8;
@@ -59,10 +56,10 @@ export const Block = {
             grid: [size, size],
             containment: "parent",
         });
-        //jsPlumb.bind("connectionMoved", function(){})
-        //http://jsplumb.github.io/jsplumb/events.html
+        $(window).on('mousemove', null, null, (event) => {
+            this.checkposition(vnode)
+        })
         this.autosize(vnode);
-
         // when creating a new empty expression block
         if (vnode.attrs.title === "") {
             vnode.dom.firstChild.firstChild.focus();
