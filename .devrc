@@ -1,0 +1,13 @@
+
+dev() {
+    hotweb -dir=./ui
+}
+
+deps() {
+    which hotweb || go install github.com/progrium/hotweb/cmd/...
+}
+
+devrc-unset() {
+    unset -f dev 
+    unset -f deps 
+}

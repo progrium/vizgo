@@ -31,9 +31,10 @@ func handleRPC(w webview.WebView, data string) {
 func Main() {
 	hw := hotweb.New(frontendDir, nil)
 	go func() {
-		log.Printf("watching %#v\n", Dir)
+		log.Printf("watching %#v\n", frontendDir)
 		log.Fatal(hw.Watch())
 	}()
+	url := fmt.Sprintf("http://%s", listenAddr)
 	log.Printf("serving at %s\n", url)
 	http.ListenAndServe(listenAddr, handlers.LoggingHandler(os.Stdout, hw))
 
