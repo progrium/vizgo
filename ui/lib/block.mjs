@@ -96,6 +96,7 @@ export const Block = {
         let headerAttrs = {
             id: vnode.attrs.id, 
             title: vnode.attrs.title, 
+            connect: vnode.attrs.connect,
             flow: flowBlock, 
             expr: exprBlock,
             inflow: vnode.attrs.inflow,
@@ -104,7 +105,8 @@ export const Block = {
         let bodyAttrs = {
             id: vnode.attrs.id, 
             inputs: vnode.attrs.inputs, 
-            outputs: vnode.attrs.outputs
+            outputs: vnode.attrs.outputs,
+            connects: vnode.attrs.connects
         };
         return m("div", style({}), [
             m(Header, headerAttrs),
@@ -168,13 +170,13 @@ const Header = {
         let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
         if (vnode.attrs.flow === true) {
             return m("div", style(["flow", "outer"]), [
-                (vnode.attrs.inflow)?m(InflowEndpoint):undefined,
+                (vnode.attrs.inflow)?m(InflowEndpoint, {id: vnode.attrs.id+"-in"}):undefined,
                 title,
-                (vnode.attrs.outflow)?m(OutflowEndpoint):undefined
+                (vnode.attrs.outflow)?m(OutflowEndpoint, {id: vnode.attrs.id+"-out", connect: vnode.attrs.connect}):undefined
             ]);
         }
         if (vnode.attrs.expr === true) {
-            return m("div", style("outer"), [title, m(Endpoint, {output: true, header: true})]);
+            return m("div", style("outer"), [title, m(Endpoint, {id: vnode.attrs.id+"-out", connect: vnode.attrs.connect, output: true, header: true})]);
         }
         return m("div", style("outer"), title);
     }
@@ -242,14 +244,16 @@ const PortsBody = {
             borderRadius: "0 0 4px 4px"
         });
         return m("div", style({}), [
-            m("div", {}, inputs.map((val,idx) => m(Port, {input: true, desc: val}))),
-            m("div", {}, outputs.map((val,idx) => m(Port, {output: true, desc: val})))
+            m("div", {}, inputs.map((val,idx) => m(Port, {id: vnode.attrs.id, input: true, desc: val}))),
+            m("div", {}, outputs.map((val,idx) => m(Port, {id: vnode.attrs.id, output: true, desc: val, connects: vnode.attrs.connects})))
         ])
     }
 }
 
 const Port = {
     view: function(vnode) {
+        let id = vnode.attrs.id;
+        let connect = undefined;
         let style = {
             paddingTop: "2px", 
             height: "28px"
@@ -260,17 +264,24 @@ const Port = {
         if (vnode.attrs.output === true) {
             style.marginRight = "15px";
             style.textAlign = "right";
+            id += "-out";
         }
         let val = vnode.attrs.desc;
+        if (vnode.attrs.connects) {
+            connect = vnode.attrs.connects[val];
+        }
         if (val[val.length-1] == ">") {
             val = val.substr(0, val.length-1);
-            return m("div", {style: style}, [m(OutflowEndpoint, {body: true}), val])
+            if (vnode.attrs.connects) {
+                connect = vnode.attrs.connects[val];
+            }
+            return m("div", {style: style}, [m(OutflowEndpoint, {id: `${id}-${val}`, body: true, connect: connect}), val])
         }
         if (val[val.length-1] == "?") {
             val = val.substr(0, val.length-1);
             return m(Textbox, val)
         } else {
-            return m("div", {style: style}, [m(Endpoint, {output: vnode.attrs.output}), val])
+            return m("div", {style: style}, [m(Endpoint, {id: `${id}-${val}`, output: vnode.attrs.output, connect: connect}), val])
         }
         
     }
@@ -295,7 +306,8 @@ const InflowEndpoint = {
 
                 marginLeft: "-20px",
                 top: "5px",
-                position: "relative"
+                position: "relative",
+                id: vnode.attrs.id
             },
             before: {
                 position: "absolute",
@@ -367,6 +379,19 @@ function OutflowEndpoint(ivnode) {
                     cornerRadius: 4,
                 }]
             });
+            if (vnode.attrs.connect) {
+                jsPlumb.connect({
+                    source: vnode.attrs.id, 
+                    target: vnode.attrs.connect,
+                    paintStyle:{ stroke:"white", strokeWidth:10 },
+                    connector:[ "Flowchart", { 
+                        alwaysRespectStubs: true,
+                        cornerRadius: 4,
+                    }],
+                    endpoint:"Blank",
+                    anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
+                });
+            }
         },
         view: function(vnode) {
             let style = inline.style({
@@ -375,7 +400,8 @@ function OutflowEndpoint(ivnode) {
                     float: "right",
                     position: "relative",
                     top: top,
-                    left: left
+                    left: left,
+                    id: vnode.attrs.id
                 },
                 before: {
                     position: "absolute",
@@ -406,7 +432,8 @@ const Endpoint = function(ivnode) {
         height: "28px",
         backgroundColor: "#475054",
         borderRadius: "50%",
-        marginTop: "-1px"
+        marginTop: "-1px",
+        id: ivnode.attrs.id
     };
     if (ivnode.attrs.output === true) {
         style.float = "right";
@@ -455,6 +482,18 @@ const Endpoint = function(ivnode) {
                     anchor: [0, 0, -1, 0, 12, 12],
                     connectorStyle: { stroke:"gray", strokeWidth:8 },
                     connector: ["Bezier", {curviness: 100}]
+                });
+            }
+            if (vnode.attrs.connect) {
+                jsPlumb.connect({
+                    source: vnode.attrs.id, 
+                    target: vnode.attrs.connect,
+                    paintStyle:{ stroke:"gray", strokeWidth:8 },
+                    connector:[ "Bezier", { 
+                        curviness: 100
+                    }],
+                    endpoint:"Blank",
+                    anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
                 });
             }
         },

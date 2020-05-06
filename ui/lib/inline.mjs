@@ -21,8 +21,12 @@ export function style(obj) {
             style = Object.assign(style, obj[key]);
         }
         // pull class and id out of input obj
-        attrs['class'] = style['class'];
-        attrs['id'] = style['id'];
+        if (!attrs['class']) {
+            attrs['class'] = style['class'];
+        }
+        if (!attrs['id']) {
+            attrs['id'] = style['id'];
+        }
         delete style['class'];
         delete style['id'];
         // put the rest on style
