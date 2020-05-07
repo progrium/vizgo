@@ -1,5 +1,6 @@
+
 export function style(obj) {
-    return function(key, attrs) {
+    return function (key, attrs) {
         // default attrs value
         if (!attrs) {
             attrs = {};

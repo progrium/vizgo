@@ -1,9 +1,10 @@
+import { Style } from "/lib/style.mjs";
 import * as inline from "/lib/inline.mjs";
-import * as misc from "/lib/misc.mjs";
-import * as decl from "/lib/decl.mjs";
+import * as misc from "/lib/misc.js";
+import * as decl from "/lib/decl.js";
 
 export const Block = {
-    checkposition: function(vnode){
+    checkposition: function (vnode) {
         let vnodePosition = parseInt(vnode.dom.style.left.replace("px", ""))
         if (vnodePosition <= $(".sidebar").innerWidth()) {
             vnodePosition += $(".sidebar").innerWidth() - vnodePosition + 30
@@ -11,16 +12,16 @@ export const Block = {
         }
     },
 
-    autosize: function(vnode) {
+    autosize: function (vnode) {
         let fontSize = stylePropInt(vnode.dom, "font-size");
-        vnode.attrs.title = vnode.attrs.title.replace(/<br>/g,'').replace(/&nbsp;/g,'').replace(/<div>/g,'').replace(/<\/div>/g,'')
-        let textWidth = vnode.attrs.title.length*fontSize*0.8;
+        vnode.attrs.title = vnode.attrs.title.replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+        let textWidth = vnode.attrs.title.length * fontSize * 0.8;
 
         if (vnode.attrs.title == "switch") {
             textWidth *= 3;
         }
-        let newWidth = (Math.max(Math.ceil(textWidth/40),2)*30)+30;
-        let inputListLength,outputListLength = 0;
+        let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
+        let inputListLength, outputListLength = 0;
         if (vnode.attrs.inputs) {
             inputListLength = vnode.attrs.inputs.length
         }
@@ -28,31 +29,31 @@ export const Block = {
             outputListLength = vnode.attrs.outputs.length
         }
         let i;
-        for (i = 0; i <  Math.max(inputListLength,outputListLength); i++) {
+        for (i = 0; i < Math.max(inputListLength, outputListLength); i++) {
             let inputWidth, outputWidth = 0
-            if (vnode.attrs.inputs){
+            if (vnode.attrs.inputs) {
                 if (i < vnode.attrs.inputs.length) {
-                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length*fontSize*0.8)/40),2)*30)/0.9
+                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length * fontSize * 0.8) / 40), 2) * 30) / 0.9
                 }
             }
-            if (vnode.attrs.outputs){
+            if (vnode.attrs.outputs) {
                 if (i < vnode.attrs.outputs.length) {
-                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length*fontSize*0.8)/40),2)*30)
+                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length * fontSize * 0.8) / 40), 2) * 30)
                 }
             }
-            if (inputWidth + outputWidth > newWidth){
-                newWidth = (Math.max(Math.ceil((inputWidth+outputWidth)/30),2)*30)
+            if (inputWidth + outputWidth > newWidth) {
+                newWidth = (Math.max(Math.ceil((inputWidth + outputWidth) / 30), 2) * 30)
             }
         };
-        vnode.dom.style.width = newWidth+"px";
+        vnode.dom.style.width = newWidth + "px";
         jsPlumb.repaintEverything();
     },
-    onupdate: function(vnode) {
+    onupdate: function (vnode) {
         this.autosize(vnode);
     },
-    oncreate: function(vnode) {
+    oncreate: function (vnode) {
         let size = stylePropInt(document.documentElement, "--grid-size");
-        jsPlumb.draggable(vnode.dom,{
+        jsPlumb.draggable(vnode.dom, {
             grid: [size, size],
             containment: "parent",
         });
@@ -65,7 +66,7 @@ export const Block = {
             vnode.dom.firstChild.firstChild.focus();
         }
     },
-    view: function(vnode) {
+    view: function (vnode) {
         let className = "block"
         let flowBlock = false;
         let exprBlock = false;
@@ -76,15 +77,15 @@ export const Block = {
         if (!vnode.attrs.inflow && !vnode.attrs.outflow && !vnode.attrs.outputs) {
             exprBlock = true;
         }
-        
+
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let style = inline.style({
             id: vnode.attrs.id,
             class: className,
 
             marginLeft: "4px",
-            left: (vnode.attrs.x*gridSize)+"px",
-            top: (vnode.attrs.y*gridSize)+"px",
+            left: (vnode.attrs.x * gridSize) + "px",
+            top: (vnode.attrs.y * gridSize) + "px",
             width: "120px",
             position: "absolute",
             backgroundColor: "#475054",
@@ -94,17 +95,17 @@ export const Block = {
             borderRadius: "var(--corner-size)"
         });
         let headerAttrs = {
-            id: vnode.attrs.id, 
-            title: vnode.attrs.title, 
+            id: vnode.attrs.id,
+            title: vnode.attrs.title,
             connect: vnode.attrs.connect,
-            flow: flowBlock, 
+            flow: flowBlock,
             expr: exprBlock,
             inflow: vnode.attrs.inflow,
             outflow: vnode.attrs.outflow
         };
         let bodyAttrs = {
-            id: vnode.attrs.id, 
-            inputs: vnode.attrs.inputs, 
+            id: vnode.attrs.id,
+            inputs: vnode.attrs.inputs,
             outputs: vnode.attrs.outputs,
             connects: vnode.attrs.connects
         };
@@ -118,11 +119,11 @@ export const Block = {
 }
 
 const Header = {
-    view: function(vnode) {
+    view: function (vnode) {
         let style = inline.style({
             outer: {
-                id: vnode.attrs.id+"-header",
-                class: "header", 
+                id: vnode.attrs.id + "-header",
+                class: "header",
 
                 height: "var(--grid-size)",
                 borderRadius: "var(--corner-size)",
@@ -150,7 +151,7 @@ const Header = {
         let handlers = {
             oninput: (e) => {
                 let id = e.target.parentNode.parentNode.id;
-                App.updateBlock(id, {title: e.target.innerHTML});
+                App.updateBlock(id, { title: e.target.innerHTML });
             },
             ondblclick: (e) => {
                 var node = e.srcElement;
@@ -170,33 +171,33 @@ const Header = {
         let title = m("div[contentEditable]", style("inner", handlers), m.trust(vnode.attrs.title));
         if (vnode.attrs.flow === true) {
             return m("div", style(["flow", "outer"]), [
-                (vnode.attrs.inflow)?m(InflowEndpoint, {id: vnode.attrs.id+"-in"}):undefined,
+                (vnode.attrs.inflow) ? m(InflowEndpoint, { id: vnode.attrs.id + "-in" }) : undefined,
                 title,
-                (vnode.attrs.outflow)?m(OutflowEndpoint, {id: vnode.attrs.id+"-out", connect: vnode.attrs.connect}):undefined
+                (vnode.attrs.outflow) ? m(OutflowEndpoint, { id: vnode.attrs.id + "-out", connect: vnode.attrs.connect }) : undefined
             ]);
         }
         if (vnode.attrs.expr === true) {
-            return m("div", style("outer"), [title, m(Endpoint, {id: vnode.attrs.id+"-out", connect: vnode.attrs.connect, output: true, header: true})]);
+            return m("div", style("outer"), [title, m(Endpoint, { id: vnode.attrs.id + "-out", connect: vnode.attrs.connect, output: true, header: true })]);
         }
         return m("div", style("outer"), title);
     }
 }
 
 const SwitchBody = {
-    view: function(vnode) {
-        let inputs = vnode.attrs.inputs||[];
-        let outputs = vnode.attrs.outputs||[];
+    view: function (vnode) {
+        let inputs = vnode.attrs.inputs || [];
+        let outputs = vnode.attrs.outputs || [];
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize * 5;
         let style = inline.style({
             switch: {
-                id: vnode.attrs.id+"-body",
-                class: "body switch", 
+                id: vnode.attrs.id + "-body",
+                class: "body switch",
 
-                height: bodyHeight+"px", 
+                height: bodyHeight + "px",
                 gridTemplateColumns: "auto",
                 borderRadius: "0 0 4px 4px",
-                backgroundColor: "var(--sidebar-color)" 
+                backgroundColor: "var(--sidebar-color)"
             },
             cases: {
                 borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -206,7 +207,7 @@ const SwitchBody = {
             }
         });
         return m("div", style("switch"), [
-            m("div", {}, inputs.map((val,idx) => m(Port, {input: true, desc: val}))),
+            m("div", {}, inputs.map((val, idx) => m(Port, { input: true, desc: val }))),
             m("div", style("cases"), [
                 m(SwitchCase),
                 m(SwitchCase),
@@ -217,45 +218,45 @@ const SwitchBody = {
 }
 
 const SwitchCase = {
-    view: function(vnode) {
+    view: function (vnode) {
         return m("div", Object.assign(
-                decl.Declaration.style({}), 
-                {class: "case decl-container"}), [
+            decl.Declaration.style({}),
+            { class: "case decl-container" }), [
             m(misc.Grip),
             m(Textbox, "werfgewrf"),
-            m(OutflowEndpoint, {case: true, class: "case"})
+            m(OutflowEndpoint, { case: true, class: "case" })
         ])
     }
 }
 
 const PortsBody = {
-    view: function(vnode) {
-        let inputs = vnode.attrs.inputs||[];
-        let outputs = vnode.attrs.outputs||[];
+    view: function (vnode) {
+        let inputs = vnode.attrs.inputs || [];
+        let outputs = vnode.attrs.outputs || [];
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
         let style = inline.style({
-            id: vnode.attrs.id+"-body",
+            id: vnode.attrs.id + "-body",
             class: "body",
-            
-            height: bodyHeight+"px", 
-            display: "grid", 
+
+            height: bodyHeight + "px",
+            display: "grid",
             gridTemplateColumns: "auto auto",
             borderRadius: "0 0 4px 4px"
         });
         return m("div", style({}), [
-            m("div", {}, inputs.map((val,idx) => m(Port, {id: vnode.attrs.id, input: true, desc: val}))),
-            m("div", {}, outputs.map((val,idx) => m(Port, {id: vnode.attrs.id, output: true, desc: val, connects: vnode.attrs.connects})))
+            m("div", {}, inputs.map((val, idx) => m(Port, { id: vnode.attrs.id, input: true, desc: val }))),
+            m("div", {}, outputs.map((val, idx) => m(Port, { id: vnode.attrs.id, output: true, desc: val, connects: vnode.attrs.connects })))
         ])
     }
 }
 
 const Port = {
-    view: function(vnode) {
+    view: function (vnode) {
         let id = vnode.attrs.id;
         let connect = undefined;
         let style = {
-            paddingTop: "2px", 
+            paddingTop: "2px",
             height: "28px"
         }
         if (vnode.attrs.input === true) {
@@ -270,36 +271,36 @@ const Port = {
         if (vnode.attrs.connects) {
             connect = vnode.attrs.connects[val];
         }
-        if (val[val.length-1] == ">") {
-            val = val.substr(0, val.length-1);
+        if (val[val.length - 1] == ">") {
+            val = val.substr(0, val.length - 1);
             if (vnode.attrs.connects) {
                 connect = vnode.attrs.connects[val];
             }
-            return m("div", {style: style}, [m(OutflowEndpoint, {id: `${id}-${val}`, body: true, connect: connect}), val])
+            return m("div", { style: style }, [m(OutflowEndpoint, { id: `${id}-${val}`, body: true, connect: connect }), val])
         }
-        if (val[val.length-1] == "?") {
-            val = val.substr(0, val.length-1);
+        if (val[val.length - 1] == "?") {
+            val = val.substr(0, val.length - 1);
             return m(Textbox, val)
         } else {
-            return m("div", {style: style}, [m(Endpoint, {id: `${id}-${val}`, output: vnode.attrs.output, connect: connect}), val])
+            return m("div", { style: style }, [m(Endpoint, { id: `${id}-${val}`, output: vnode.attrs.output, connect: connect }), val])
         }
-        
+
     }
 }
 
 const InflowEndpoint = {
-    oncreate: function(vnode) {
+    oncreate: function (vnode) {
         jsPlumb.addEndpoint(vnode.dom, {
             endpoint: "Blank",
             isTarget: true,
             cssClass: "inflow",
-            width: 30, 
+            width: 30,
             height: 30,
             anchor: [0, 0.5, -1, 0, 0, 10],
             scope: "flow",
         });
     },
-    view: function(vnode) {
+    view: function (vnode) {
         let style = inline.style({
             wrap: {
                 class: "inflow",
@@ -366,34 +367,34 @@ function OutflowEndpoint(ivnode) {
         klass += ` ${ivnode.attrs.class}`
     }
     return {
-        oncreate: function(vnode) {
+        oncreate: function (vnode) {
             jsPlumb.addEndpoint(vnode.dom, {
-                endpoint:"Blank",
+                endpoint: "Blank",
                 isSource: true,
                 anchor: [0, 0, 1, 0, 4, 0],
                 cssClass: klass,
-                scope:"flow",
-                connectorStyle:{ stroke:"white", strokeWidth:10 },
-                connector:[ "Flowchart", { 
+                scope: "flow",
+                connectorStyle: { stroke: "white", strokeWidth: 10 },
+                connector: ["Flowchart", {
                     alwaysRespectStubs: true,
                     cornerRadius: 4,
                 }]
             });
             if (vnode.attrs.connect) {
                 jsPlumb.connect({
-                    source: vnode.attrs.id, 
+                    source: vnode.attrs.id,
                     target: vnode.attrs.connect,
-                    paintStyle:{ stroke:"white", strokeWidth:10 },
-                    connector:[ "Flowchart", { 
+                    paintStyle: { stroke: "white", strokeWidth: 10 },
+                    connector: ["Flowchart", {
                         alwaysRespectStubs: true,
                         cornerRadius: 4,
                     }],
-                    endpoint:"Blank",
+                    endpoint: "Blank",
                     anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
                 });
             }
         },
-        view: function(vnode) {
+        view: function (vnode) {
             let style = inline.style({
                 wrap: {
                     class: klass,
@@ -424,7 +425,7 @@ function OutflowEndpoint(ivnode) {
     }
 }
 
-const Endpoint = function(ivnode) {
+const Endpoint = function (ivnode) {
     let style = {
         class: "endpoint",
 
@@ -448,56 +449,56 @@ const Endpoint = function(ivnode) {
         style.class = "endpoint header";
     }
     return {
-        oncreate: function(vnode) {
+        oncreate: function (vnode) {
             if (vnode.attrs.output === true) {
                 if (vnode.attrs.header === true) {
-                    jsPlumb.addEndpoint(vnode.dom,  {
+                    jsPlumb.addEndpoint(vnode.dom, {
                         endpoint: "Blank",
                         cssClass: `${style.class} output`,
                         scope: "ports",
                         maxConnections: 1,
                         anchor: [0, 0, 1, 0, 14, 14],
                         isSource: true,
-                        connectorStyle: { stroke:"gray", strokeWidth:8 },
-                        connector: ["Bezier", {curviness: 100}]
+                        connectorStyle: { stroke: "gray", strokeWidth: 8 },
+                        connector: ["Bezier", { curviness: 100 }]
                     });
                 } else {
-                    jsPlumb.addEndpoint(vnode.dom,  {
+                    jsPlumb.addEndpoint(vnode.dom, {
                         endpoint: "Blank",
                         cssClass: `${style.class} output`,
                         scope: "ports",
                         maxConnections: -1,
                         anchor: [0, 0, 1, 0, 15, 12],
                         isSource: true,
-                        connectorStyle: { stroke:"gray", strokeWidth:8 },
-                        connector: ["Bezier", {curviness: 100}]
+                        connectorStyle: { stroke: "gray", strokeWidth: 8 },
+                        connector: ["Bezier", { curviness: 100 }]
                     });
                 }
             } else {
                 jsPlumb.addEndpoint(vnode.dom, {
-                    endpoint:"Blank",
+                    endpoint: "Blank",
                     isTarget: true,
                     cssClass: `${style.class} input`,
                     scope: "ports",
                     anchor: [0, 0, -1, 0, 12, 12],
-                    connectorStyle: { stroke:"gray", strokeWidth:8 },
-                    connector: ["Bezier", {curviness: 100}]
+                    connectorStyle: { stroke: "gray", strokeWidth: 8 },
+                    connector: ["Bezier", { curviness: 100 }]
                 });
             }
             if (vnode.attrs.connect) {
                 jsPlumb.connect({
-                    source: vnode.attrs.id, 
+                    source: vnode.attrs.id,
                     target: vnode.attrs.connect,
-                    paintStyle:{ stroke:"gray", strokeWidth:8 },
-                    connector:[ "Bezier", { 
+                    paintStyle: { stroke: "gray", strokeWidth: 8 },
+                    connector: ["Bezier", {
                         curviness: 100
                     }],
-                    endpoint:"Blank",
+                    endpoint: "Blank",
                     anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
                 });
             }
         },
-        view: function(vnode) {
+        view: function (vnode) {
             return m("div", inline.style(style)({}), m("div", inline.style({
                 width: "14px",
                 height: "14px",
@@ -511,16 +512,25 @@ const Endpoint = function(ivnode) {
     }
 }
 
-const Textbox = {
-    view: function(vnode) {
-        let outer = misc.Textbox.style("outer");
-        outer['style'].marginRight = "2px";
-        outer['style'].marginLeft = "1px";
-        let inner = misc.Textbox.style("inner");
-        inner['style'].paddingTop = "1px";
-        inner['style'].paddingBottom = "1px";
-        return m("div", outer, 
-                m("div", inner, vnode.children));
+function Textbox() {
+    return {
+        view: function (node) {
+            let { children } = node;
+
+            let outer = Style.from(misc.Textbox.outer());
+            outer.marginRight = "2px";
+            outer.marginLeft = "1px";
+
+            let inner = Style.from(misc.Textbox.inner());
+            inner.paddingTop = "1px";
+            inner.paddingBottom = "1px";
+
+            return <div class={outer.class()} style={outer}>
+                <div style={inner}>
+                    {children}
+                </div>
+            </div>
+        }
     }
 }
 

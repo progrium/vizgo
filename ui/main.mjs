@@ -5,14 +5,14 @@ import "/vnd/jquery-ui-position.min.js?0";
 import "/vnd/jquery-contextmenu-2.9.0.min.js?0";
 import "/vnd/jsPlumb-2.11.2.min.js?0";
 
-import * as hotweb from '/_hotweb.mjs'
-import * as app from '/lib/app.mjs';
+import * as hotweb from '/.hotweb/client.mjs'
+import * as app from '/lib/app.js';
 
 function wrap(cb) {
-    return {view: () => m(cb())};
+    return { view: () => m(cb()) };
 }
 
-jsPlumb.ready(function() {
+jsPlumb.ready(function () {
     hotweb.watchCSS();
     hotweb.watchHTML();
     hotweb.refresh(() => m.redraw())
