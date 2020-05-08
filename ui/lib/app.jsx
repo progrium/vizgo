@@ -1,6 +1,6 @@
-import * as decl from "/lib/decl.js";
-import * as block from "/lib/block.js";
-import { Style } from "./style.mjs";
+import * as decl from "./decl.js";
+import * as block from "./block.js";
+import { Style } from "./style.js";
 
 //deps: $, jsPlumb
 const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>

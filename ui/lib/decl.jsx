@@ -1,6 +1,5 @@
-import { Style } from "/lib/style.mjs";
-import * as inline from "/lib/inline.mjs";
-import * as misc from "/lib/misc.js";
+import { Style } from "./style.js";
+import * as atom from "./atom.js";
 
 export const Sidebar = {
     view: function () {
@@ -21,8 +20,8 @@ export const Sidebar = {
         let inner = Style.from({
             direction: "ltr"
         })
-        return <nav class="sidebar" style={outer}>
-            <div style={inner}>
+        return <nav class="sidebar" style={outer.style()}>
+            <div style={inner.style()}>
                 <FixedDeclaration><PackageDeclaration /></FixedDeclaration>
                 <div id="declarations">
                     <Declaration><ImportDeclarations /></Declaration>
@@ -49,7 +48,7 @@ export const Handle = {
         style.height = "100%";
         style.cursor = "ew-resize";
         style.userSelect = "none";
-        return <div class={style.class()} style={style} data-target=".sidebar" />
+        return <div class={style.class()} style={style.style()} data-target=".sidebar" />
     }
 }
 
@@ -58,7 +57,7 @@ export const Handle = {
 function FixedDeclaration() {
     return {
         view: function (node) {
-            return <div class="decl-container fixed" style={Base.declaration}>
+            return <div class="decl-container" style={Style.from(Base.declaration).style()}>
                 {node.children}
             </div>
         }
@@ -69,8 +68,8 @@ export function Declaration() {
     return {
         view: function (node) {
             let { children } = node;
-            return <div class="decl-container" style={Base.declaration}>
-                <misc.Grip />
+            return <div class="decl-container" style={Style.from(Base.declaration).style()}>
+                <atom.Grip />
                 {children}
             </div>
         }
@@ -84,16 +83,16 @@ function TypeDeclaration() {
     return {
         view: function (node) {
             let { attrs, children } = node;
-            return <div class={style.class()} style={style}>
-                <Label>Type</Label>
-                <Fieldbox type="struct">serverFoo</Fieldbox>
+            return <div class={style.class()} style={style.style()}>
+                <atom.Label>Type</atom.Label>
+                <atom.Fieldbox type="struct">serverFoo</atom.Fieldbox>
                 <div>
-                    <div class="decl-body" style={Base.declBody}>
-                        <Declaration><Fieldbox dark={true} type="string">Foobar</Fieldbox></Declaration>
-                        <Declaration><Fieldbox dark={true} type="bool">BooleanField</Fieldbox></Declaration>
-                        <Declaration><Fieldbox dark={true} type="int64">Number</Fieldbox></Declaration>
+                    <div class="decl-body" style={Style.from(Base.declBody).style()}>
+                        <Declaration><atom.Fieldbox dark={true} type="string">Foobar</atom.Fieldbox></Declaration>
+                        <Declaration><atom.Fieldbox dark={true} type="bool">BooleanField</atom.Fieldbox></Declaration>
+                        <Declaration><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></Declaration>
                     </div>
-                    <div class="decl-body" style={Base.declBody}>
+                    <div class="decl-body" style={Style.from(Base.declBody).style()}>
                         <Declaration><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
                         <Declaration><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
                     </div>
@@ -110,12 +109,12 @@ function MethodDeclaration() {
     return {
         view: function (node) {
             let { attrs, children } = node;
-            return <div class={style.class()} style={style}>
-                <Label>Method</Label>
-                <Fieldbox type={attrs.type}>{children}</Fieldbox>
-                <div class="decl-body" style={Base.declBody}>
-                    <Declaration><Fieldbox dark={true} type="http.ResponseWriter">rw</Fieldbox></Declaration>
-                    <Declaration><Fieldbox dark={true} type="http.Request">req</Fieldbox></Declaration>
+            return <div class={style.class()} style={style.style()}>
+                <atom.Label>Method</atom.Label>
+                <atom.Fieldbox type={attrs.type}>{children}</atom.Fieldbox>
+                <div class="decl-body" style={Style.from(Base.declBody).style()}>
+                    <Declaration><atom.Fieldbox dark={true} type="http.ResponseWriter">rw</atom.Fieldbox></Declaration>
+                    <Declaration><atom.Fieldbox dark={true} type="http.Request">req</atom.Fieldbox></Declaration>
                 </div>
             </div>
         }
@@ -128,10 +127,10 @@ function FuncDeclaration() {
 
     return {
         view: function () {
-            return <div class={style.class()} style={style}>
-                <Label>Function</Label>
-                <misc.Textbox>Foobar()</misc.Textbox>
-                <div class="decl-body" style={Base.declBody}></div>
+            return <div class={style.class()} style={style.style()}>
+                <atom.Label>Function</atom.Label>
+                <atom.Textbox>Foobar()</atom.Textbox>
+                <div class="decl-body" style={Style.from(Base.declBody).style()}></div>
             </div>
         }
     }
@@ -140,12 +139,12 @@ function FuncDeclaration() {
 function PackageDeclaration() {
     let style = Style.from(Base.decl);
     style.add("decl-package decl");
-
+    console.log(style)
     return {
         view: function () {
-            return <div class={style.class()} style={style}>
-                <Label>Package</Label>
-                <misc.Textbox dark={true}>foobar</misc.Textbox>
+            return <div class={style.class()} style={style.style()}>
+                <atom.Label>Package</atom.Label>
+                <atom.Textbox dark={true}>foobar</atom.Textbox>
             </div>
         }
     }
@@ -154,29 +153,7 @@ function PackageDeclaration() {
 
 
 
-function Fieldbox() {
-    return {
-        view: function (node) {
-            let { attrs, children } = node;
-            let style = Style.from(misc.Textbox.outer());
-            if (attrs.dark === true) {
-                style.backgroundColor = "#475054";
-            }
 
-            let type = new Style();
-            type.float = "right";
-            type.color = "lightgray";
-            type.fontSize = "smaller";
-
-            return <div class={style.class()} style={style}>
-                <div style={misc.Textbox.inner()}>
-                    <span>{children}</span>
-                    <span style={type}>{attrs.type}</span>
-                </div>
-            </div>
-        }
-    }
-}
 
 function ConstDeclarations() {
     let style = Style.from(Base.decl);
@@ -184,11 +161,11 @@ function ConstDeclarations() {
 
     return {
         view: function () {
-            return <div class={style.class()} style={style}>
-                <Label>Constants</Label>
+            return <div class={style.class()} style={style.style()}>
+                <atom.Label>Constants</atom.Label>
                 <div class="flex">
-                    <Fieldbox type="string">bazbox</Fieldbox>
-                    <misc.Textbox dark={true}>"Hello world!"</misc.Textbox>
+                    <atom.Fieldbox type="string">bazbox</atom.Fieldbox>
+                    <atom.Textbox dark={true}>"Hello world!"</atom.Textbox>
                 </div>
             </div>
         }
@@ -201,34 +178,21 @@ function ImportDeclarations() {
 
     return {
         view: function () {
-            return <div class={style.class()} style={style}>
+            return <div class={style.class()} style={style.style()}>
                 <div class="flex">
-                    <misc.Textbox>foo</misc.Textbox>
-                    <misc.Textbox dark={true}>github.com/progrium/tractor/foo</misc.Textbox>
+                    <atom.Textbox>foo</atom.Textbox>
+                    <atom.Textbox dark={true}>github.com/progrium/tractor/foo</atom.Textbox>
                 </div>
                 <div class="flex">
-                    <misc.Textbox>foo</misc.Textbox>
-                    <misc.Textbox dark={true}>github.com/progrium/tractor/foo</misc.Textbox>
+                    <atom.Textbox>foo</atom.Textbox>
+                    <atom.Textbox dark={true}>github.com/progrium/tractor/foo</atom.Textbox>
                 </div>
             </div>
         }
     }
 }
 
-function Label() {
-    return {
-        view: function (node) {
-            let { children } = node;
-            let style = new Style(this);
-            style.add("label");
-            style.marginLeft = "2px";
-            style.fontSize = "small";
-            return <div class={style.class()} style={style}>
-                {children}
-            </div>
-        }
-    }
-}
+
 
 
 const Base = {
@@ -256,24 +220,4 @@ const Base = {
         borderRight: "var(--pixel-size) solid #42494d",
         backgroundColor: "var(--sidebar-color)"
     }),
-
-    extend: (name, obj) => Object.assign(Base.style(name), obj),
-    style: inline.style({
-        decl: {
-            flexGrow: "1",
-            width: "100%"
-        },
-        declBody: {
-            class: "decl-body",
-
-            marginTop: "4px",
-            marginLeft: "10px",
-            minHeight: "30px",
-            borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
-            borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
-            borderTop: "var(--pixel-size) solid #42494d",
-            borderLeft: "var(--pixel-size) solid #42494d"
-        }
-
-    })
 }
