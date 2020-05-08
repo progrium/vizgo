@@ -1,6 +1,6 @@
-import * as decl from "/lib/decl.mjs";
-import * as block from "/lib/block.mjs";
-import * as inline from "/lib/inline.mjs";
+import * as decl from "./decl.js";
+import * as block from "./block.js";
+import { Style } from "./style.js";
 
 //deps: $, jsPlumb
 const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
@@ -27,15 +27,15 @@ const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
 // {id: "block19", outputs: ["defer>"], inflow: true, outflow: true, title: "defer", x: 29, y: 20},
 
 const BlockTypes = {
-    expr: {title: ""},
-    call: {inflow: true, outflow: true, title: "()"},
-    assign: {inflow: true, outflow: true, title: "Assign", inputs: [""], outputs: ["name?"]},
-    return: {inflow: true, outflow: false, title: "Return"},
-    defer: {inflow: true, outflow: true, title: "Defer", outputs: ["defer>"] },
-    for: {inflow: true, outflow: true, title: "For     ", inputs: ["exp"], outputs: ["loop>"]},
-    send: {inflow: true, outflow: true, title: "Send", inputs: ["ch", "send"]},
-    range: {inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "For-Range  "},
-    condition: {inflow: true, outflow: true, title: "Conditional", inputs: [""], outputs: ["if>", "else>"]},
+    expr: { title: "" },
+    call: { inflow: true, outflow: true, title: "()" },
+    assign: { inflow: true, outflow: true, title: "Assign", inputs: [""], outputs: ["name?"] },
+    return: { inflow: true, outflow: false, title: "Return" },
+    defer: { inflow: true, outflow: true, title: "Defer", outputs: ["defer>"] },
+    for: { inflow: true, outflow: true, title: "For     ", inputs: ["exp"], outputs: ["loop>"] },
+    send: { inflow: true, outflow: true, title: "Send", inputs: ["ch", "send"] },
+    range: { inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "For-Range  " },
+    condition: { inflow: true, outflow: true, title: "Conditional", inputs: [""], outputs: ["if>", "else>"] },
 };
 
 var blockCursor = [0, 14];
@@ -43,31 +43,30 @@ var blockCursor = [0, 14];
 export function App(initial) {
     let app = {
         blocks: [],
-        view: function(vnode) {
-            let style = inline.style({
-                class: "app",
-
-                position: "fixed",
-                padding: "0",
-                margin: "0",
-                top: "0",
-                left: "0",
-                width: "500%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "nowrap",
-                justifyContent: "flex-start",
-                alignContent: "stretch",
-                alignItems: "stretch"
-            })
-            return m("main", style({}), [
-                m(decl.Sidebar),
-                m(decl.Handle),
-                m(Grid, {blocks: vnode.state.blocks})
-            ])
+        view: function (node) {
+            let { state } = node;
+            let style = new Style(App);
+            style.add("app");
+            style.position = "fixed";
+            style.padding = "0";
+            style.margin = "0";
+            style.top = "0";
+            style.left = "0";
+            style.width = "500%";
+            style.height = "100%";
+            style.display = "flex";
+            style.flexDirection = "row";
+            style.flexWrap = "nowrap";
+            style.justifyContent = "flex-start";
+            style.alignContent = "stretch";
+            style.alignItems = "stretch";
+            return <main class={style.class()} style={style}>
+                <decl.Sidebar />
+                <decl.Handle />
+                <Grid blocks={state.blocks} />
+            </main>
         },
-        updateBlock: function(id, obj) {
+        updateBlock: function (id, obj) {
             app.blocks = app.blocks.map((el) => {
                 if (el.id !== id) {
                     return el;
@@ -76,14 +75,14 @@ export function App(initial) {
             })
             m.redraw();
         },
-        createBlock: function(obj) {
+        createBlock: function (obj) {
             let b = Object.assign(BlockTypes[obj.type]);
             let o = Object.assign(b, obj);
             if (o.id === undefined) {
                 o.id = genId();
             }
             if (o.x == undefined) {
-                o.x = 15 + (10*blockCursor[0]++);
+                o.x = 15 + (10 * blockCursor[0]++);
             }
             if (o.y == undefined) {
                 o.y = blockCursor[1];
@@ -91,15 +90,15 @@ export function App(initial) {
             app.blocks.push(o);
             m.redraw();
         },
-        oncreate: function(vnode) {
+        oncreate: function (vnode) {
             const selectTarget = (fromElement, selector) => {
                 if (!(fromElement instanceof HTMLElement)) {
                     return null;
                 }
-                
+
                 return fromElement.querySelector(selector);
             };
-            
+
             const resizeData = {
                 tracking: false,
                 startWidth: null,
@@ -109,21 +108,21 @@ export function App(initial) {
                 parentElement: null,
                 maxWidth: null,
             };
-            
+
             $(document.body).on('mousedown', '.handle', null, (event) => {
                 if (event.button !== 0) {
                     return;
                 }
-                
+
                 event.preventDefault();
                 event.stopPropagation();
-                
+
                 const handleElement = event.currentTarget;
                 if (!handleElement.parentElement) {
                     console.error(new Error("Parent element not found."));
                     return;
                 }
-                
+
                 // Use the target selector on the handle to get the resize target.
                 const targetSelector = handleElement.getAttribute('data-target');
                 const targetElement = selectTarget(handleElement.parentElement, targetSelector);
@@ -131,7 +130,7 @@ export function App(initial) {
                     console.error(new Error("Resize target element not found."));
                     return;
                 }
-                
+
                 resizeData.startWidth = $(targetElement).outerWidth();
                 resizeData.startCursorScreenX = event.screenX;
                 resizeData.resizeTarget = targetElement;
@@ -149,14 +148,14 @@ export function App(initial) {
                     jsPlumb.repaintEverything();
                 }
             });
-            
+
             $(window).on('mouseup', null, null, (event) => {
                 if (resizeData.tracking) {
                     resizeData.tracking = false;
                 }
             });
 
-            $(document).ready(function(){
+            $(document).ready(function () {
                 // sidebar declarations sorting
                 $("#declarations").sortable({
                     items: "> div",
@@ -177,78 +176,78 @@ export function App(initial) {
             })
         }
     }
-    app.createBlock({type: "range", connects: {"idx": "r-error"}});
-    app.createBlock({type: "expr", connect: "r-string", title: "s.listener"});
-    app.createBlock({type: "return", inputs: ["string", "error"], id: "r"});
-    app.createBlock({type: "assign", connect:"r-in"});
+    app.createBlock({ type: "range", connects: { "idx": "r-error" } });
+    app.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
+    app.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+    app.createBlock({ type: "assign", connect: "r-in" });
     return app;
 };
 
 const Grid = {
-    oncreate: function(vnode) {
+    oncreate: function (vnode) {
 
         $.contextMenu({
-            selector: '.grid', 
-            build: function($trigger, e) {
+            selector: '.grid',
+            build: function ($trigger, e) {
                 let mocksubitems = {
-                    "fold1-key1": {"name": "Foo bar"},
+                    "fold1-key1": { "name": "Foo bar" },
                     "fold2": {
-                        "name": "Sub group 2", 
+                        "name": "Sub group 2",
                         "items": {
-                            "fold2-key1": {"name": "alpha"},
-                            "fold2-key2": {"name": "bravo"},
-                            "fold2-key3": {"name": "charlie"}
+                            "fold2-key1": { "name": "alpha" },
+                            "fold2-key2": { "name": "bravo" },
+                            "fold2-key3": { "name": "charlie" }
                         }
                     },
-                    "fold1-key3": {"name": "delta"}
+                    "fold1-key3": { "name": "delta" }
                 };
                 return {
-                    callback: function(key, options) {
+                    callback: function (key, options) {
                         App.createBlock(BlockTemplates[key]);
                     },
                     items: {
-                        "expr": {name: "Expression"},
-                        "locals": {name: "Locals", items: mocksubitems},
-                        "imports": {name: "Imports", items: mocksubitems},
-                        "builtins": {name: "Builtins", items: mocksubitems},
-                        "operators": {name: "Operators", items: mocksubitems},
-                        "return": {name: "Return"},
-                        "loop": {name: "Loop"},
-                        "condition": {name: "Condition"},
-                        "assign": {name: "Assign"}
+                        "expr": { name: "Expression" },
+                        "locals": { name: "Locals", items: mocksubitems },
+                        "imports": { name: "Imports", items: mocksubitems },
+                        "builtins": { name: "Builtins", items: mocksubitems },
+                        "operators": { name: "Operators", items: mocksubitems },
+                        "return": { name: "Return" },
+                        "loop": { name: "Loop" },
+                        "condition": { name: "Condition" },
+                        "assign": { name: "Assign" }
                     }
                 };
             }
         });
 
         jsPlumb.setContainer(vnode.dom);
-        jsPlumb.bind("beforeDrop", function(params) {
+        jsPlumb.bind("beforeDrop", function (params) {
             console.log(params);
             return true;
         });
     },
-    view: function(vnode) {
-        let style = inline.style({
-            class: "grid",
+    view: function (node) {
+        let { attrs } = node;
+        let style = new Style(Grid);
+        style.add("grid");
+        style.backgroundSize = "var(--grid-size) var(--grid-size)";
+        style.backgroundColor = "var(--background-color)";
+        style.backgroundImage = "radial-gradient(#202020 2px, transparent 0)";
+        style.backgroundPosition;
+        "calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size))",
+            style.padding = "var(--grid-size) var(--grid-size)";
+        style.height = "100%";
+        style.order = "0";
+        style.flex = "1 1 auto";
+        style.alignSelf = "auto";
+        style.border = "1px solid var(--outline-color)";
 
-            backgroundSize: "var(--grid-size) var(--grid-size)",
-            backgroundColor: "var(--background-color)",
-            backgroundImage: "radial-gradient(#202020 2px, transparent 0)",
-            backgroundPosition:
-                "calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size))",
-            padding: "var(--grid-size) var(--grid-size)",
-            height: "100%",
-            order: "0",
-            flex: "1 1 auto",
-            alignSelf: "auto",
-            border: "1px solid var(--outline-color)"
-        })
-        return m("div", style({}),
-            vnode.attrs.blocks.map((attrs) => {
+        return <div class={style.class()} style={style}>
+            {attrs.blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
                 return m(block.Block, attrs)
-            })
-        )
+            })}
+        </div>
     }
 }
 

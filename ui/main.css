@@ -1,3 +1,6 @@
+@import url(/vnd/fontawesome/css/all.min.css);
+@import url(/vnd/tailwind-1.2.0.min.css);
+
 @import url(https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap) screen;
 @import "/vnd/jquery-contextmenu.css" screen;
 
