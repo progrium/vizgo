@@ -236,7 +236,7 @@ const PortsBody = {
         let outputs = attrs.outputs || [];
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
-        let style = new Style().setStyle({
+        let style = Style.from({
             height: bodyHeight + "px",
             display: "grid",
             gridTemplateColumns: "auto auto",

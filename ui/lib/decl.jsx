@@ -56,9 +56,9 @@ export const Handle = {
 
 function FixedDeclaration() {
     return {
-        view: function (node) {
+        view: function ({ children }) {
             return <div class="decl-container" style={Style.from(Base.declaration).style()}>
-                {node.children}
+                {children}
             </div>
         }
     }
@@ -66,8 +66,7 @@ function FixedDeclaration() {
 
 export function Declaration() {
     return {
-        view: function (node) {
-            let { children } = node;
+        view: function ({ children }) {
             return <div class="decl-container" style={Style.from(Base.declaration).style()}>
                 <atom.Grip />
                 {children}
@@ -81,8 +80,7 @@ function TypeDeclaration() {
     style.add("decl-type decl");
 
     return {
-        view: function (node) {
-            let { attrs, children } = node;
+        view: function () {
             return <div class={style.class()} style={style.style()}>
                 <atom.Label>Type</atom.Label>
                 <atom.Fieldbox type="struct">serverFoo</atom.Fieldbox>
