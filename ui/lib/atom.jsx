@@ -1,18 +1,12 @@
+import * as shapes from "./shapes.js";
 import { Style } from "./style.js";
 
 export function Grip() {
-    let style = new Style(Grip, {
-        backgroundColor: "transparent",
-        backgroundImage: "radial-gradient(#444 50%, transparent 50%)",
-        backgroundSize: "4px 4px",
-        backgroundRepeat: "repeat",
-        width: "8px",
-        marginRight: "4px",
-    });
     return {
-        view: () => m("div", style.attrs())
+        view: () => <shapes.VerticalGrip class="mr-1" />
     }
 }
+
 
 export function Label() {
     let style = new Style(Label, {

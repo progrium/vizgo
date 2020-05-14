@@ -1,6 +1,9 @@
 
 class Style {
     static defineClass(name, style, extend) {
+        // perhaps rename to declare? you can
+        // define more than classes with this...
+
         style = Style.from(style);
         if (extend) {
             style.extendStyle(extend);
@@ -56,6 +59,9 @@ class Style {
     }
 
     addClass(cls, condition = () => true) {
+        if (cls === undefined) {
+            return;
+        }
         switch (cls.constructor.name) {
             case "String":
                 break;
@@ -75,12 +81,20 @@ class Style {
     }
 
     extendStyle(style, condition = () => true) {
+        if (style === undefined) {
+            return;
+        }
         this._extends.push([Style.from(style), condition]);
         return this;
     }
 
-    setStyle(style) {
-        Object.assign(this, extractStyle(style));
+    setStyle(style, condition = () => true) {
+        if (style === undefined) {
+            return;
+        }
+        if (condition()) {
+            Object.assign(this, extractStyle(style));
+        }
         return this;
     }
 

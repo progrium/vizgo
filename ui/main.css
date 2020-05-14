@@ -111,3 +111,9 @@ nav::-webkit-scrollbar-thumb {
     background-color: white !important;
     opacity: 1 !important;
 }
+
+.selected {
+    background-color: rgb(75, 126, 28) !important;
+    margin-right: -12px;
+    padding-right: 16px !important;
+}

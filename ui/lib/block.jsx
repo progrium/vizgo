@@ -358,36 +358,56 @@ const InflowEndpoint = {
     }
 }
 
-function OutflowEndpoint(initial) {
-    let { attrs } = initial;
+export function OutflowEndpoint({ attrs }) {
+    let wrap = new Style(OutflowEndpoint, {
+        float: "right",
+        position: "relative",
+        top: "-9.9px",
+        left: "12px",
+        id: attrs.id
+    });
+    wrap.addClass("outflow");
+    wrap.addClass("body", () => attrs.body);
+    wrap.setStyle({
+        top: "12px",
+        left: "16px"
+    }, () => attrs.body)
+    wrap.addClass("case", () => attrs.case);
+    wrap.setStyle({
+        top: "13px",
+        left: "6px"
+    }, () => attrs.case)
+    wrap.addClass(attrs.class, () => attrs.class);
 
-    let klass = "outflow";
-    let backgroundColor = "var(--sidebar-color)";
-    let top = "-9.9px";
-    let left = "12px";
-    if (attrs.body) {
-        backgroundColor = "#475054";
-        top = "12px";
-        left = "16px";
-        klass += " body"
-    }
-    if (attrs.case) {
-        top = "13px";
-        left = "6px";
-        klass += " case"
-    }
-    if (attrs.class) {
-        klass += ` ${attrs.class}`
-    }
+    // wrap.setStyle({
+    //     position: "fixed",
+    // }, () => attrs.entry)
+
+
+    let before = Style.from({
+        position: "absolute",
+        zIndex: "1000",
+        marginLeft: "-16px",
+        marginTop: "-12.6px",
+        width: "23px",
+        height: "23px",
+        backgroundColor: (attrs.body) ? "#475054" : "var(--sidebar-color)",
+        borderRadius: "var(--corner-size)",
+        transform: "rotate(45deg)",
+        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid #42494d",
+        clipPath: "polygon(0 0, 100% 0, 100% 100%)",
+        WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
+    });
+
     return {
-        oncreate: function (node) {
-            let { dom, attrs } = node;
+        oncreate: function ({ dom, attrs }) {
 
             jsPlumb.addEndpoint(dom, {
                 endpoint: "Blank",
                 isSource: true,
                 anchor: [0, 0, 1, 0, 4, 0],
-                cssClass: klass,
+                // cssClass: klass,
                 scope: "flow",
                 connectorStyle: { stroke: "white", strokeWidth: 10 },
                 connector: ["Flowchart", {
@@ -410,35 +430,9 @@ function OutflowEndpoint(initial) {
                 });
             }
         },
-        view: function (node) {
-            let { attrs } = node;
-
-            let wrap = new Style(klass).setStyle({
-                float: "right",
-                position: "relative",
-                top: top,
-                left: left,
-                id: attrs.id
-            })
-
-            let before = new Style().setStyle({
-                position: "absolute",
-                zIndex: "1000",
-                marginLeft: "-16px",
-                marginTop: "-12.6px",
-                width: "23px",
-                height: "23px",
-                backgroundColor: backgroundColor,
-                borderRadius: "var(--corner-size)",
-                transform: "rotate(45deg)",
-                borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-                borderRight: "var(--pixel-size) solid #42494d",
-                clipPath: "polygon(0 0, 100% 0, 100% 100%)",
-                WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
-            })
-
-            return <div class={wrap.class()} style={wrap}>
-                <div style={before} />
+        view: function () {
+            return <div {...wrap.attrs()}>
+                <div style={before.style()} />
             </div>
         }
     }
@@ -546,3 +540,7 @@ function stylePropInt(el, prop) {
 function styleProp(el, prop) {
     return getComputedStyle(el).getPropertyValue(prop);
 }
+
+// Style.defineClass("OutflowEndpoint body", {
+//     backgroundColor: "#7d898f !important",
+// })

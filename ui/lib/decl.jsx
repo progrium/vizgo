@@ -1,10 +1,13 @@
 import { Style } from "./style.js";
 import * as atom from "./atom.js";
+import * as block from "./block.js";
+import * as shapes from "./shapes.js";
 
 export const Sidebar = {
     view: function () {
         let outer = Style.from({
             overflowY: "auto",
+            overflowX: "hidden",
             height: "100%",
             direction: "rtl",
             width: "var(--sidebar-width)",
@@ -20,55 +23,99 @@ export const Sidebar = {
         let inner = Style.from({
             direction: "ltr"
         })
+
+        let s = {
+            borderRadius: "var(--corner-size)",
+            borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+            borderRight: "var(--pixel-size) solid #42494d",
+        }
+        let s2 = {
+            borderTopLeftRadius: "var(--corner-size)",
+            borderBottomLeftRadius: "var(--corner-size)",
+            borderTop: "var(--pixel-size) solid white",
+            borderLeft: "var(--pixel-size) solid white",
+            borderBottom: "var(--pixel-size) solid black",
+            borderRight: "0",
+        }
+
         return <nav class="sidebar" style={outer.style()}>
             <div style={inner.style()}>
-                <FixedDeclaration><PackageDeclaration /></FixedDeclaration>
+                {/* <Declaration fixed={true}><shapes.Port /><shapes.ArrowHead color="white" /><shapes.ArrowTail /></Declaration> */}
+                <Declaration fixed={true}><PackageDeclaration /></Declaration>
                 <div id="declarations">
-                    <Declaration><ImportDeclarations /></Declaration>
+                    <Declaration fixed={true}><ImportDeclarations /></Declaration>
                     <Declaration><ConstDeclarations /></Declaration>
-                    <Declaration><TypeDeclaration /></Declaration>
                     <Declaration><TypeDeclaration /></Declaration>
                     <Declaration><FuncDeclaration /></Declaration>
                 </div>
             </div>
-        </nav>
-    }
-}
-
-export const Handle = {
-    view: function () {
-        let style = new Style(Handle);
-        style.add("handle");
-        style.content = '""';
-        style.flex = "0 0 auto";
-        style.position = "relative";
-        style.boxSizing = "border-box";
-        style.width = "2.5px";
-        style.backgroundColor = "grey";
-        style.height = "100%";
-        style.cursor = "ew-resize";
-        style.userSelect = "none";
-        return <div class={style.class()} style={style.style()} data-target=".sidebar" />
+        </nav >
     }
 }
 
 
-
-function FixedDeclaration() {
+export function Handle() {
+    let style = new Style(Handle, {
+        content: '""',
+        flex: "0 0 auto",
+        position: "relative",
+        boxSizing: "border-box",
+        width: "2.5px",
+        backgroundColor: "grey",
+        height: "100%",
+        cursor: "ew-resize",
+        userSelect: "none",
+    });
+    let blockStyle = Style.from({
+        background: "rgb(75, 126, 28) ",
+        width: "20px",
+        height: "150px",
+        borderTopRightRadius: "var(--corner-size)",
+        borderBottomRightRadius: "var(--corner-size)",
+        position: "absolute",
+        top: "400px",
+        zIndex: "100"
+    })
     return {
-        view: function ({ children }) {
-            return <div class="decl-container" style={Style.from(Base.declaration).style()}>
-                {children}
+        view: () => (
+            <div data-target=".sidebar" {...style.attrs()}>
+                <div id="handle-block" {...blockStyle.attrs()}>
+                    {/* <block.OutflowEndpoint entry={true} /> */}
+                </div>
             </div>
-        }
+        )
     }
 }
 
 export function Declaration() {
+    let selected = false;
+    let style = Style.from({
+        display: "flex",
+        padding: "4px",
+        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderBottom: "2px solid black",
+        borderRight: "var(--pixel-size) solid #42494d",
+        backgroundColor: "transparent"
+    });
     return {
-        view: function ({ children }) {
-            return <div class="decl-container" style={Style.from(Base.declaration).style()}>
-                <atom.Grip />
+        oncreate: function ({ dom }) {
+            if (selected && dom) {
+                $("#handle-block")[0].style['top'] = dom.offsetTop + "px";
+                $("#handle-block")[0].style['height'] = (dom.offsetHeight - 2) + "px";
+            }
+        },
+        view: function ({ attrs, children, dom }) {
+            let s = Style.from(style);
+            s.addClass("decl-container")
+            s.addClass("selected", () => selected === true);
+            function onclick(e) {
+                if (attrs.selectable) {
+                    selected = !selected;
+                }
+            }
+            return <div onclick={onclick} {...s.attrs()}>
+                {attrs.fixed !== true && <atom.Grip />}
                 {children}
             </div>
         }
@@ -91,7 +138,7 @@ function TypeDeclaration() {
                         <Declaration><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></Declaration>
                     </div>
                     <div class="decl-body" style={Style.from(Base.declBody).style()}>
-                        <Declaration><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
+                        <Declaration selectable={true}><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
                         <Declaration><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
                     </div>
                 </div>
@@ -101,16 +148,18 @@ function TypeDeclaration() {
 }
 
 function MethodDeclaration() {
-    let style = Style.from(Base.decl);
-    style.add("decl-func decl");
+    let style = Style.from({
+        flexGrow: "1",
+        width: "100%",
+    })
+    style.addClass("decl-func decl");
 
     return {
-        view: function (node) {
-            let { attrs, children } = node;
-            return <div class={style.class()} style={style.style()}>
+        view: function ({ attrs, children }) {
+            return <div {...style.attrs()}>
                 <atom.Label>Method</atom.Label>
                 <atom.Fieldbox type={attrs.type}>{children}</atom.Fieldbox>
-                <div class="decl-body" style={Style.from(Base.declBody).style()}>
+                <div class="decl-body" style={Base.declBody.style()}>
                     <Declaration><atom.Fieldbox dark={true} type="http.ResponseWriter">rw</atom.Fieldbox></Declaration>
                     <Declaration><atom.Fieldbox dark={true} type="http.Request">req</atom.Fieldbox></Declaration>
                 </div>
@@ -137,7 +186,6 @@ function FuncDeclaration() {
 function PackageDeclaration() {
     let style = Style.from(Base.decl);
     style.add("decl-package decl");
-    console.log(style)
     return {
         view: function () {
             return <div class={style.class()} style={style.style()}>
@@ -177,6 +225,7 @@ function ImportDeclarations() {
     return {
         view: function () {
             return <div class={style.class()} style={style.style()}>
+                <atom.Label>Imports</atom.Label>
                 <div class="flex">
                     <atom.Textbox>foo</atom.Textbox>
                     <atom.Textbox dark={true}>github.com/progrium/tractor/foo</atom.Textbox>
@@ -209,13 +258,5 @@ const Base = {
         borderLeft: "var(--pixel-size) solid #42494d"
     }),
 
-    declaration: Style.from({
-        display: "flex",
-        padding: "4px",
-        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderBottom: "2px solid black",
-        borderRight: "var(--pixel-size) solid #42494d",
-        backgroundColor: "var(--sidebar-color)"
-    }),
+
 }

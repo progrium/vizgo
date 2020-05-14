@@ -1,4 +1,5 @@
 import * as decl from "./decl.js";
+import * as atom from "./atom.js";
 import * as block from "./block.js";
 import { Style } from "./style.js";
 
@@ -25,6 +26,32 @@ const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
 // {id: "block17", inputs: ["string", "error"], inflow: true, title: "return", x: 29, y: 14},
 // {id: "block18", inflow: true, title: "continue", x: 29, y: 17},
 // {id: "block19", outputs: ["defer>"], inflow: true, outflow: true, title: "defer", x: 29, y: 20},
+
+
+let mocksession = {
+    Selected: "#main",
+    Package: {
+        Name: "main",
+        Imports: [
+            { Package: "fmt" }
+        ],
+        Functions: [
+            {
+                Name: "main",
+                In: [],
+                Out: [],
+                Entry: [
+                    { Name: "", Flow: true, Connect: "main.0" },
+                    { Name: "args", Type: "[]string" },
+                ],
+                Blocks: [
+                    { Type: "call", ID: "main.0", Label: "fmt.Println()", Position: [14, 14] },
+                    { Type: "return", ID: "main.return", Position: [24, 14] },
+                ]
+            }
+        ]
+    }
+}
 
 const BlockTypes = {
     expr: { title: "" },
