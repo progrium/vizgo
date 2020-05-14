@@ -1,5 +1,6 @@
 import { Style } from "./style.js";
 import * as atom from "./atom.js";
+import * as shapes from "./shapes.js";
 import * as decl from "./decl.js";
 
 export const Block = {
@@ -65,8 +66,7 @@ export const Block = {
             vnode.dom.firstChild.firstChild.focus();
         }
     },
-    view: function (node) {
-        let { attrs } = node;
+    view: function ({ attrs }) {
         let style = new Style("block");
 
         let flowBlock = false;
@@ -117,10 +117,9 @@ export const Block = {
 }
 
 const Header = {
-    view: function (node) {
-        let { attrs } = node;
+    view: function ({ attrs }) {
 
-        let outer = new Style().setStyle({
+        let outer = Style.from({
             height: "var(--grid-size)",
             borderRadius: "var(--corner-size)",
             color: "white",
@@ -129,15 +128,15 @@ const Header = {
             paddingRight: "10px",
             paddingTop: "0px"
         });
-        let flow = new Style().setStyle({
+        let flow = Style.from({
             backgroundColor: "var(--sidebar-color)",
             borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
             borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
             borderBottom: "var(--pixel-size) solid #42494d",
             borderRight: "var(--pixel-size) solid #42494d",
         })
-        let inner = new Style().setStyle({
-            height: "22px",
+        let inner = Style.from({
+            height: "var(--grid-size)",
             MozUserSelect: "none",
             paddingTop: "0.25rem",
             fontSize: "1rem"
@@ -174,7 +173,7 @@ const Header = {
             class: "header"
         };
         if (attrs.flow === true) {
-            headerAttrs["style"] = Style.from(flow).link(outer);
+            headerAttrs["style"] = Style.from(outer).extendStyle(flow);
             return m("div", headerAttrs, [
                 (attrs.inflow) ? m(InflowEndpoint, { id: attrs.id + "-in" }) : undefined,
                 title,
@@ -196,13 +195,13 @@ const SwitchBody = {
         let outputs = attrs.outputs || [];
         let gridSize = stylePropInt(document.documentElement, "--grid-size");
         let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize * 5;
-        let switch_ = new Style().setStyle({
+        let switch_ = Style.from({
             height: bodyHeight + "px",
             gridTemplateColumns: "auto",
             borderRadius: "0 0 4px 4px",
             backgroundColor: "var(--sidebar-color)"
         })
-        let cases = new Style().setStyle({
+        let cases = Style.from({
             borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
             borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
             borderTop: "var(--pixel-size) solid #42494d",
@@ -293,112 +292,55 @@ const Port = {
     }
 }
 
-const InflowEndpoint = {
-    oncreate: function (node) {
-        let { dom } = node;
+function InflowEndpoint() {
+    return {
+        oncreate: function ({ dom }) {
+            jsPlumb.addEndpoint(dom, {
+                endpoint: "Blank",
+                isTarget: true,
+                cssClass: "inflow",
+                width: 30,
+                height: 30,
+                anchor: [0, 0.5, -1, 0, 0, 10],
+                scope: "flow",
+            });
+        },
+        view: function ({ attrs }) {
+            let wrap = new Style("inflow", {
+                position: "absolute",
+                marginLeft: "-23px",
+                id: attrs.id
+            });
 
-        jsPlumb.addEndpoint(dom, {
-            endpoint: "Blank",
-            isTarget: true,
-            cssClass: "inflow",
-            width: 30,
-            height: 30,
-            anchor: [0, 0.5, -1, 0, 0, 10],
-            scope: "flow",
-        });
-    },
-    view: function (node) {
-        let { attrs } = node;
-
-        let wrap = new Style("inflow").setStyle({
-            marginLeft: "-20px",
-            top: "5px",
-            position: "relative",
-            id: attrs.id
-        })
-
-        let before = new Style().setStyle({
-            position: "absolute",
-            zIndex: "50",
-            borderRadius: "var(--corner-size)",
-            width: "30px",
-            height: "30px",
-            marginTop: "-5.9px",
-            marginLeft: "-7px",
-            clipPath: "polygon(0 0, 62% 0, 62% 100%, 0 100%, 52% 50%)",
-            WebkitClipPath: "polygon(0 0, 62% 0, 62% 100%, 0 100%, 52% 50%)",
-            backgroundColor: "var(--sidebar-color)",
-            borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-            borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
-            borderBottom: "var(--pixel-size) solid #42494d",
-            borderRight: "var(--pixel-size) solid #42494d",
-        })
-
-        let after = new Style().setStyle({
-            position: "absolute",
-            zIndex: "500",
-            marginLeft: "-17px",
-            marginTop: "-2px",
-            width: "22px",
-            height: "22px",
-            borderRadius: "var(--corner-size)",
-            transform: "rotate(45deg)",
-            borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
-            borderTop: "var(--pixel-size) solid #42494d",
-            backgroundColor: "var(--background-color)",
-            clipPath: "polygon(0 0, 100% 0, 100% 100%)",
-            WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
-            opacity: "0",
-        })
-
-        return <div class={wrap.class()} style={wrap}>
-            <div style={before}></div>
-            <div style={after}></div>
-        </div>
+            return <div {...wrap.attrs()}>
+                <shapes.ArrowTail color="#475054" />
+            </div>
+        }
     }
 }
 
 export function OutflowEndpoint({ attrs }) {
     let wrap = new Style(OutflowEndpoint, {
         float: "right",
-        position: "relative",
-        top: "-9.9px",
-        left: "12px",
-        id: attrs.id
+        marginRight: "-24px",
+        marginTop: "-28px",
+        // zIndex: "1000",
     });
-    wrap.addClass("outflow");
+
     wrap.addClass("body", () => attrs.body);
     wrap.setStyle({
-        top: "12px",
-        left: "16px"
+        marginTop: "0",
+        marginRight: "-28px",
     }, () => attrs.body)
+
     wrap.addClass("case", () => attrs.case);
     wrap.setStyle({
         top: "13px",
         left: "6px"
     }, () => attrs.case)
+
     wrap.addClass(attrs.class, () => attrs.class);
 
-    // wrap.setStyle({
-    //     position: "fixed",
-    // }, () => attrs.entry)
-
-
-    let before = Style.from({
-        position: "absolute",
-        zIndex: "1000",
-        marginLeft: "-16px",
-        marginTop: "-12.6px",
-        width: "23px",
-        height: "23px",
-        backgroundColor: (attrs.body) ? "#475054" : "var(--sidebar-color)",
-        borderRadius: "var(--corner-size)",
-        transform: "rotate(45deg)",
-        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderRight: "var(--pixel-size) solid #42494d",
-        clipPath: "polygon(0 0, 100% 0, 100% 100%)",
-        WebkitClipPath: "polygon(0 0, 100% 0, 100% 100%)",
-    });
 
     return {
         oncreate: function ({ dom, attrs }) {
@@ -430,25 +372,19 @@ export function OutflowEndpoint({ attrs }) {
                 });
             }
         },
-        view: function () {
-            return <div {...wrap.attrs()}>
-                <div style={before.style()} />
+        view: () => (
+            <div id={attrs.id} {...wrap.attrs()}>
+                <shapes.ArrowHead color="#475054" />
             </div>
-        }
+        )
     }
 }
 
 function Endpoint(initial) {
     let { output, header } = initial.attrs;
+    let size = initial.attrs.size || 28
 
     let style = new Style(Endpoint);
-    style.add("endpoint");
-    style.width = "28px";
-    style.height = "28px";
-    style.backgroundColor = "#475054";
-    style.borderRadius = "50%";
-    style.marginTop = "-1px";
-
     if (output === true) {
         style.float = "right";
         style.marginRight = "-29px";
@@ -462,71 +398,57 @@ function Endpoint(initial) {
         style.addClass("endpoint header");
     }
     return {
-        oncreate: function (node) {
-            let { attrs, dom } = node;
+        oncreate: function ({ attrs, dom }) {
             let { output, header, connect, id } = attrs;
 
-            if (output === true) {
-                if (header === true) {
-                    jsPlumb.addEndpoint(dom, {
-                        endpoint: "Blank",
-                        cssClass: `${style.class()} output`,
-                        scope: "ports",
-                        maxConnections: 1,
-                        anchor: [0, 0, 1, 0, 14, 14],
-                        isSource: true,
-                        connectorStyle: { stroke: "gray", strokeWidth: 8 },
-                        connector: ["Bezier", { curviness: 100 }]
-                    });
-                } else {
-                    jsPlumb.addEndpoint(dom, {
-                        endpoint: "Blank",
-                        cssClass: `${style.class()} output`,
-                        scope: "ports",
-                        maxConnections: -1,
-                        anchor: [0, 0, 1, 0, 15, 12],
-                        isSource: true,
-                        connectorStyle: { stroke: "gray", strokeWidth: 8 },
-                        connector: ["Bezier", { curviness: 100 }]
-                    });
-                }
-            } else {
-                jsPlumb.addEndpoint(dom, {
+            function exprEndpoint(dom, style, params) {
+                jsPlumb.addEndpoint(dom, Object.assign({
                     endpoint: "Blank",
-                    isTarget: true,
-                    cssClass: `${style.class()} input`,
+                    cssClass: `${style.class()} output`,
                     scope: "ports",
-                    anchor: [0, 0, -1, 0, 12, 12],
                     connectorStyle: { stroke: "gray", strokeWidth: 8 },
                     connector: ["Bezier", { curviness: 100 }]
-                });
+                }, params));
             }
-            if (connect) {
+
+            function connectExpr(id, connect) {
                 jsPlumb.connect({
+                    endpoint: "Blank",
                     source: id,
                     target: connect,
                     paintStyle: { stroke: "gray", strokeWidth: 8 },
-                    connector: ["Bezier", {
-                        curviness: 100
-                    }],
-                    endpoint: "Blank",
+                    connector: ["Bezier", { curviness: 100 }],
                     anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
                 });
             }
+
+            if (output === true) {
+                if (header === true) {
+                    exprEndpoint(dom, style, {
+                        maxConnections: 1,
+                        anchor: [0, 0, 1, 0, 14, 14],
+                        isSource: true,
+                    })
+                } else {
+                    exprEndpoint(dom, style, {
+                        maxConnections: -1,
+                        anchor: [0, 0, 1, 0, 15, 12],
+                        isSource: true,
+                    })
+                }
+            } else {
+                exprEndpoint(dom, style, {
+                    isTarget: true,
+                    cssClass: `${style.class()} input`,
+                    anchor: [0, 0, -1, 0, 12, 12],
+                })
+            }
+            if (connect) {
+                connectExpr(id, connect);
+            }
         },
         view: function () {
-            let inner = Style.from({
-                width: "14px",
-                height: "14px",
-                left: "7px",
-                top: "7px",
-                position: "relative",
-                backgroundColor: "#2a2a2c",
-                borderRadius: "50%"
-            });
-            return <div class={style.class()} style={style}>
-                <div style={inner} />
-            </div>
+            return <shapes.Ring color="#475054" fill="#2a2a2c" size={size} {...style.attrs()} />
         }
     }
 }

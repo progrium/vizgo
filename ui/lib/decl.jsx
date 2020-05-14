@@ -74,13 +74,18 @@ export function Handle() {
         borderBottomRightRadius: "var(--corner-size)",
         position: "absolute",
         top: "400px",
-        zIndex: "100"
+        zIndex: "100",
+        top: "-1000px"
     })
     return {
+        oncreate: ({ dom }) => {
+            // $(dom).hide();
+        },
         view: () => (
             <div data-target=".sidebar" {...style.attrs()}>
                 <div id="handle-block" {...blockStyle.attrs()}>
-                    {/* <block.OutflowEndpoint entry={true} /> */}
+                    <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-5 my-1" />
+                    <shapes.Ring color="rgb(75, 126, 28)" fill="#374044" class="ml-2 my-1" />
                 </div>
             </div>
         )
@@ -88,7 +93,6 @@ export function Handle() {
 }
 
 export function Declaration() {
-    let selected = false;
     let style = Style.from({
         display: "flex",
         padding: "4px",
@@ -99,19 +103,14 @@ export function Declaration() {
         backgroundColor: "transparent"
     });
     return {
-        oncreate: function ({ dom }) {
-            if (selected && dom) {
-                $("#handle-block")[0].style['top'] = dom.offsetTop + "px";
-                $("#handle-block")[0].style['height'] = (dom.offsetHeight - 2) + "px";
-            }
-        },
-        view: function ({ attrs, children, dom }) {
-            let s = Style.from(style);
-            s.addClass("decl-container")
-            s.addClass("selected", () => selected === true);
-            function onclick(e) {
-                if (attrs.selectable) {
-                    selected = !selected;
+        view: function (node) {
+            let { attrs, children } = node;
+            let s = Style.from({}).extendStyle(style);
+            s.addClass("decl-container");
+            s.addClass("selected", () => attrs.selected === true);
+            function onclick() {
+                if (attrs.selectable && attrs.onselect) {
+                    attrs.onselect(node.dom, attrs.idx);
                 }
             }
             return <div onclick={onclick} {...s.attrs()}>
@@ -126,8 +125,23 @@ function TypeDeclaration() {
     let style = Style.from(Base.decl);
     style.add("decl-type decl");
 
+    let methods = [
+        { name: "DoFoobar", type: "string, error" },
+        { name: "DoNOTFoobar", type: "bool" }
+    ]
+
+    let selected = -1;
+
     return {
         view: function () {
+
+            function onselect(dom, idx) {
+                selected = idx;
+                let i = (selected >= 0) ? 1 : -1;
+                $("#handle-block")[0].style['top'] = (i * dom.offsetTop) + "px";
+                $("#handle-block")[0].style['height'] = (dom.offsetHeight - 2) + "px";
+            }
+
             return <div class={style.class()} style={style.style()}>
                 <atom.Label>Type</atom.Label>
                 <atom.Fieldbox type="struct">serverFoo</atom.Fieldbox>
@@ -138,8 +152,7 @@ function TypeDeclaration() {
                         <Declaration><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></Declaration>
                     </div>
                     <div class="decl-body" style={Style.from(Base.declBody).style()}>
-                        <Declaration selectable={true}><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
-                        <Declaration><MethodDeclaration type="string, error">DoFoobar()</MethodDeclaration></Declaration>
+                        {methods.map((mtd, idx) => <Declaration key={idx} idx={idx} selected={selected === idx} onselect={onselect} selectable={true}><MethodDeclaration type={mtd.type}>{mtd.name}()</MethodDeclaration></Declaration>)}
                     </div>
                 </div>
             </div>

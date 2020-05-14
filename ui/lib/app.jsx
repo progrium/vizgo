@@ -109,7 +109,7 @@ export function App(initial) {
                 o.id = genId();
             }
             if (o.x == undefined) {
-                o.x = 15 + (10 * blockCursor[0]++);
+                o.x = 20 + (10 * blockCursor[0]++);
             }
             if (o.y == undefined) {
                 o.y = blockCursor[1];

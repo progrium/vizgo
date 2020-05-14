@@ -3,7 +3,7 @@ import { Style } from "./style.js";
 
 export function Grip() {
     return {
-        view: () => <shapes.VerticalGrip class="mr-1" />
+        view: () => <shapes.VerticalDots class="mr-1" />
     }
 }
 

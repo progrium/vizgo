@@ -1,10 +1,10 @@
 import { Style } from "./style.js";
 
-export const VerticalGrip = {
+export const VerticalDots = {
     view: ({ attrs }) => {
         let color = attrs.color || "#444";
 
-        let style = new Style('VerticalGrip', {
+        let style = new Style('VerticalDots', {
             backgroundImage: `radial-gradient(${color} 50%, transparent 50%)`,
             backgroundColor: "transparent",
             backgroundRepeat: "repeat",
@@ -18,33 +18,23 @@ export const VerticalGrip = {
     }
 }
 
-export const Port = {
+export const Ring = {
     view: ({ attrs }) => {
         let color = attrs.color || "#444";
-        let fill = attrs.fill || "#000";
+        let fill = attrs.fill || "rgba(0,0,0,0)";
         let size = attrs.size || 28;
 
-        let style = new Style('Port', {
+        let style = new Style('Ring', {
             width: `${size}px`,
             height: `${size}px`,
             backgroundColor: color, //"#475054"
             borderRadius: "50%",
+            background: `radial-gradient(circle at center, ${fill} 35%, ${color} 0)`,
         });
         style.addClass(attrs.class);
         style.setStyle(attrs.style);
 
-        let inner = Style.from({
-            position: "relative",
-            width: `${size / 2}px`,
-            height: `${size / 2}px`,
-            left: `${size / 4}px`,
-            top: `${size / 4}px`,
-            backgroundColor: fill, //"#2a2a2c"
-            borderRadius: "50%"
-        });
-
-        return m("div", style.attrs(),
-            m("div", { style: inner.style() }))
+        return m("div", style.attrs())
     }
 }
 
