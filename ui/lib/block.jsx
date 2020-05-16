@@ -301,7 +301,7 @@ function InflowEndpoint() {
                 cssClass: "inflow",
                 width: 30,
                 height: 30,
-                anchor: [0, 0.5, -1, 0, 0, 10],
+                anchor: [0, 0.5, -1, 0, 0, 0],
                 scope: "flow",
             });
         },
@@ -348,7 +348,7 @@ export function OutflowEndpoint({ attrs }) {
             jsPlumb.addEndpoint(dom, {
                 endpoint: "Blank",
                 isSource: true,
-                anchor: [0, 0, 1, 0, 4, 0],
+                anchor: [0, 0, 1, 0, 4, 14],
                 // cssClass: klass,
                 scope: "flow",
                 connectorStyle: { stroke: "white", strokeWidth: 10 },

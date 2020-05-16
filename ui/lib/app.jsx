@@ -136,7 +136,7 @@ export function App(initial) {
                 maxWidth: null,
             };
 
-            $(document.body).on('mousedown', '.handle', null, (event) => {
+            $(document.body).on('mousedown', '.Handle', null, (event) => {
                 if (event.button !== 0) {
                     return;
                 }
@@ -188,7 +188,7 @@ export function App(initial) {
                     items: "> div",
                     revert: 150,
                     tolerance: "intersect",
-                    handle: "div.grip",
+                    handle: ".VerticalDots",
                     containment: "parent",
                     axis: "y",
                 });
@@ -196,7 +196,7 @@ export function App(initial) {
                     items: "> div",
                     revert: 150,
                     tolerance: "pointer",
-                    handle: "div.grip",
+                    handle: ".VerticalDots",
                     containment: "parent",
                     axis: "y",
                 });
