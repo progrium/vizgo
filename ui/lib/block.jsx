@@ -301,7 +301,7 @@ function InflowEndpoint() {
                 cssClass: "inflow",
                 width: 30,
                 height: 30,
-                anchor: [0, 0.5, -1, 0, 0, -0],
+                anchor: [0, 0.5, -1, 0, 0, 0],
                 scope: "flow",
             });
         },
@@ -329,7 +329,7 @@ export function OutflowEndpoint({ attrs }) {
 
     wrap.addClass("body", () => attrs.body);
     wrap.setStyle({
-        marginTop: "-2px",
+        marginTop: "0",
         marginRight: "-28px",
     }, () => attrs.body)
 
