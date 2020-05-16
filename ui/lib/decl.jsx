@@ -6,6 +6,7 @@ import * as shapes from "./shapes.js";
 export const Sidebar = {
     view: function () {
         let outer = Style.from({
+            userSelect: "none",
             overflowY: "auto",
             overflowX: "hidden",
             height: "100%",
