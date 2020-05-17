@@ -20,27 +20,25 @@ export function Label() {
 
 export function Textbox() {
     return {
-        view: function (node) {
-            let { attrs, children } = node;
-
+        view: function ({ attrs, children }) {
             let style = new Style(Textbox);
-            style.addClass("input-outer")
+            style.addClass("input-outer");
             style.addClass("dark", () => attrs.dark);
 
-            return <div class={style.class()} style={style.style()}>
-                <div style={inputInner.style()}>
-                    {children}
+            return (
+                <div class={style.class()} style={style.style()}>
+                    <div style={inputInner.style()}>
+                        {children}
+                    </div>
                 </div>
-            </div>
+            )
         }
     }
 }
 
 export function BlockTextbox() {
     return {
-        view: function (node) {
-            let { children } = node;
-
+        view: function ({children}) {
             let outer = new Style(BlockTextbox, {
                 marginRight: "4px",
                 marginLeft: "2px",
@@ -54,11 +52,13 @@ export function BlockTextbox() {
             });
             inner.extendStyle(inputInner);
 
-            return <div class={outer.class()} style={outer.style()}>
-                <div style={inner.style()}>
-                    {children}
+            return (
+                <div class={outer.class()} style={outer.style()}>
+                    <div style={inner.style()}>
+                        {children}
+                    </div>
                 </div>
-            </div>
+            )
         }
     }
 }
@@ -66,9 +66,7 @@ export function BlockTextbox() {
 
 export function Fieldbox() {
     return {
-        view: function (node) {
-            let { attrs, children } = node;
-
+        view: function ({ attrs, children }) {
             let style = new Style(Fieldbox);
             style.addClass("input-outer");
             style.addClass("dark", () => attrs.dark);
@@ -80,12 +78,14 @@ export function Fieldbox() {
                 fontSize: "smaller"
             });
 
-            return <div class={style.class()} style={style.style()}>
-                <div class="input-inner">
-                    <span>{children}</span>
-                    <span style={type}>{attrs.type}</span>
+            return (
+                <div class={style.class()} style={style.style()}>
+                    <div class="input-inner">
+                        <span>{children}</span>
+                        <span style={type}>{attrs.type}</span>
+                    </div>
                 </div>
-            </div>
+            )
         }
     }
 }
