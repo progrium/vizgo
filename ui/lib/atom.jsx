@@ -1,105 +1,83 @@
 import * as shapes from "./shapes.js";
 import { Style } from "./style.js";
 
-export function Grip() {
-    return {
-        view: ({attrs}) => {
-            let style = new Style(Grip);
-            style.addClass(attrs.class);
-            style.setStyle(attrs.style);
-            style.addClass("mr-1");
-            return <shapes.Dots cols={2} {...style.attrs()} />
-        }
-    }
+var m = h;
+
+export function Grip({attrs}) {
+    let style = new Style(Grip);
+    style.addClass(attrs.class);
+    style.setStyle(attrs.style);
+    style.addClass("mr-1");
+    return <shapes.Dots cols={2} {...style.attrs()} />
 }
 
 
-export function Label() {
-    return {
-        view: ({attrs, children}) => {
-            let style = new Style(Label, {
-                marginLeft: "2px",
-                fontSize: "small",
-            });
-            style.addClass(attrs.class);
-            style.setStyle(attrs.style);
-            return m("div", style.attrs(), children)
-        }
-    }
+export function Label({attrs, children}) {
+    let style = new Style(Label, {
+        marginLeft: "2px",
+        fontSize: "small",
+    });
+    style.addClass(attrs.class);
+    style.setStyle(attrs.style);
+    return h("div", style.attrs(), children)
 }
 
-export function Textbox() {
-    return {
-        view: function ({ attrs, children }) {
-            let style = new Style(Textbox);
-            style.addClass("input-outer");
-            style.addClass("dark", () => attrs.dark);
+export function Textbox({ attrs, children }) {
+    let style = new Style(Textbox);
+    style.addClass("input-outer");
+    style.addClass("dark", () => attrs.dark);
+    style.addClass("light", () => !attrs.dark);
 
-            return (
-                <div class={style.class()} style={style.style()}>
-                    <div style={inputInner.style()}>
-                        {children}
-                    </div>
-                </div>
-            )
-        }
-    }
+    return (
+        <div class={style.class()} style={style.style()}>
+            <div style={inputInner.style()}>
+                {children}
+            </div>
+        </div>
+    )
 }
 
-export function BlockTextbox() {
-    return {
-        view: function ({children}) {
-            let outer = new Style(BlockTextbox, {
-                marginRight: "4px",
-                marginLeft: "2px",
-            }, inputOuter)
-            outer.addClass("light");
+export function BlockTextbox({children}) {
+    let outer = new Style(BlockTextbox, {
+        marginRight: "4px",
+        marginLeft: "2px",
+    }, inputOuter)
+    outer.addClass("light");
 
-            let inner = Style.from({
-                paddingTop: "1px",
-                paddingBottom: "1px",
-                paddingLeft: "4px"
-            });
-            inner.extendStyle(inputInner);
+    let inner = Style.from({
+        paddingTop: "1px",
+        paddingBottom: "1px",
+        paddingLeft: "4px"
+    });
+    inner.extendStyle(inputInner);
 
-            return (
-                <div class={outer.class()} style={outer.style()}>
-                    <div style={inner.style()}>
-                        {children}
-                    </div>
-                </div>
-            )
-        }
-    }
+    return (
+        <div class={outer.class()} style={outer.style()}>
+            <div style={inner.style()}>
+                {children}
+            </div>
+        </div>
+    )
 }
 
 
-export function Fieldbox() {
-    return {
-        view: function ({ attrs, children }) {
-            let style = new Style(Fieldbox);
-            style.addClass("input-outer");
-            style.addClass("dark", () => attrs.dark);
-            style.addClass("light", () => !attrs.dark);
-            style.addClass(attrs.class);
-            style.setStyle(attrs.style);
+export function Fieldbox({ attrs, style, children }) {
+    style.addClass("input-outer");
+    style.addClass("dark", () => attrs.dark);
+    style.addClass("light", () => !attrs.dark);
 
-            let type = Style.from({
-                float: "right",
-                color: "lightgray",
-                fontSize: "smaller"
-            });
+    let type = Style.from({
+        color: "lightgray",
+    });
 
-            return (
-                <div class={style.class()} style={style.style()}>
-                    <div class="input-inner">
-                        <span>{children}</span>
-                        <span style={type}>{attrs.type}</span>
-                    </div>
-                </div>
-            )
-        }
-    }
+    return (
+        <div>
+            <div class="input-inner flex flex-row items-center">
+                <span class="flex-grow">{children}</span>
+                <span class="text-right text-xs" style={type}>{attrs.type}</span>
+            </div>
+        </div>
+    )
 }
 
 

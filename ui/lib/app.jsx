@@ -52,10 +52,10 @@ class App {
     constructor() {
         this.blocks = [];
 
-        this.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
-        this.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
-        this.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
-        this.createBlock({ type: "assign", connect: "r-in" });
+        // this.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
+        // this.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
+        // this.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+        // this.createBlock({ type: "assign", connect: "r-in" });
     }
 
     oncreate(vnode) {
@@ -96,9 +96,10 @@ class App {
             height: "100%",
             display: "flex",
         });
-        
         return <main {...style.attrs()}>
             {h(sidebar.Sidebar, {package: mocksession.Package})}
+            {/* <sidebar.Sidebar package={mocksession.Package} /> */}
+            {/* <decl.Sidebar package={mocksession.Package} /> */}
             <Divider />
             <Grid blocks={node.state.blocks} />
         </main>

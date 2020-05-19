@@ -46,7 +46,7 @@ function isClass(obj) {
 }
 
 var _h = {};
-export function h(tag, attrs, children) {
+export function h(tag, attrs, ...children) {
     if (typeof tag === "function" && !isClass(tag) && _h[tag] == undefined) {
         _h[tag] = wrap(tag)
     }
@@ -57,3 +57,4 @@ export function h(tag, attrs, children) {
 }
 h.redraw = m.redraw;
 h.mount = m.mount;
+window.h = h;
