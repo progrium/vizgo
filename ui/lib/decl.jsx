@@ -4,6 +4,13 @@ import * as block from "./block.js";
 import * as shapes from "./shapes.js";
 
 export const Sidebar = {
+    oncreate: function({dom}) {
+        dom.addEventListener("scroll", function(e) {
+            // console.log("scroll", e.target.scrollTop);
+            $("#handle-block")[0].style['top'] = (400-e.target.scrollTop) + "px"; //(i * dom.offsetTop) + "px";
+            // $("#handle-block")[0].style['height'] = (dom.offsetHeight - 2) + "px";
+        })
+    },
     view: function () {
         let outer = Style.from({
             userSelect: "none",
@@ -41,13 +48,12 @@ export const Sidebar = {
 
         return <nav class="sidebar" style={outer.style()}>
             <div style={inner.style()}>
-                {/* <Declaration fixed={true}><shapes.Port /><shapes.ArrowHead color="white" /><shapes.ArrowTail /></Declaration> */}
                 <Declaration fixed={true}><PackageDeclaration /></Declaration>
                 <div id="declarations">
                     <Declaration fixed={true}><ImportDeclarations /></Declaration>
-                    <Declaration><ConstDeclarations /></Declaration>
-                    <Declaration><TypeDeclaration /></Declaration>
-                    <Declaration><FuncDeclaration /></Declaration>
+                    <Declaration fixed={true}><ConstDeclarations /></Declaration>
+                    <Declaration fixed={true}><TypeDeclaration /></Declaration>
+                    <Declaration fixed={true}><FuncDeclaration /></Declaration>
                 </div>
             </div>
         </nav >
@@ -55,40 +61,41 @@ export const Sidebar = {
 }
 
 
-export function Handle() {
-    let style = new Style(Handle, {
-        content: '""',
-        flex: "0 0 auto",
-        position: "relative",
-        boxSizing: "border-box",
-        width: "2.5px",
-        backgroundColor: "grey",
-        height: "100%",
-        cursor: "ew-resize",
-        userSelect: "none",
-    });
-    let blockStyle = Style.from({
-        background: "rgb(75, 126, 28) ",
-        width: "20px",
-        height: "150px",
-        borderTopRightRadius: "var(--corner-size)",
-        borderBottomRightRadius: "var(--corner-size)",
-        position: "absolute",
-        top: "400px",
-        zIndex: "100",
-        top: "-1000px"
-    })
+
+
+export function EntryEndpoint() {
     return {
-        oncreate: ({ dom }) => {
-            // $(dom).hide();
+        oncreate: function ({ dom, attrs }) {
+
+            jsPlumb.addEndpoint(dom, {
+                endpoint: "Blank",
+                isSource: true,
+                anchor: [0, 0, 1, 0, 0, 14],
+                cssClass: "entry",
+                scope: "flow",
+                connectorStyle: { stroke: "white", strokeWidth: 10 },
+                connector: ["Flowchart", {
+                    alwaysRespectStubs: true,
+                    cornerRadius: 4,
+                }]
+            });
+
+            // if (attrs.connect) {
+            //     jsPlumb.connect({
+            //         source: attrs.id,
+            //         target: attrs.connect,
+            //         paintStyle: { stroke: "white", strokeWidth: 10 },
+            //         connector: ["Flowchart", {
+            //             alwaysRespectStubs: true,
+            //             cornerRadius: 4,
+            //         }],
+            //         endpoint: "Blank",
+            //         anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
+            //     });
+            // }
         },
         view: () => (
-            <div data-target=".sidebar" {...style.attrs()}>
-                <div id="handle-block" {...blockStyle.attrs()}>
-                    <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-5 my-1" />
-                    <shapes.Ring color="rgb(75, 126, 28)" fill="#374044" class="ml-2 my-1" />
-                </div>
-            </div>
+            <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-3 my-8" />
         )
     }
 }
@@ -97,6 +104,8 @@ export function Declaration() {
     let style = Style.from({
         display: "flex",
         padding: "4px",
+        paddingLeft: "8px",
+        paddingRight: "8px",
         borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderBottom: "2px solid black",
@@ -123,7 +132,11 @@ export function Declaration() {
 }
 
 function TypeDeclaration() {
-    let style = Style.from(Base.decl);
+    let style = new Style(TypeDeclaration, {
+        flexGrow: "1",
+        width: "100%",
+        paddingTop: "4px",
+    });
     style.add("decl-type decl");
 
     let methods = [
@@ -143,17 +156,49 @@ function TypeDeclaration() {
                 $("#handle-block")[0].style['height'] = (dom.offsetHeight - 2) + "px";
             }
 
+            let fieldStyle = Style.from({
+                marginTop: "8px",
+                minHeight: "30px",
+                paddingLeft: "4px",
+            })
+
+            let methodsStyle = Style.from({
+                marginTop: "8px",
+                minHeight: "30px",
+                marginLeft: "4px",
+            })
+
+            let methodStyle = Style.from({
+                paddingTop: "8px",
+                paddingLeft: "10px",
+                paddingRight: "10px",
+                paddingBottom: "8px",
+                borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+                borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+                borderTop: "var(--pixel-size) solid #42494d",
+                borderLeft: "var(--pixel-size) solid #42494d"
+            })
+
+            let gripStyle = Style.from({
+                marginTop: "4px", 
+                marginBottom: "4px",
+            })
             return <div class={style.class()} style={style.style()}>
-                <atom.Label>Type</atom.Label>
+                <GripLabel class="mb-1">Type</GripLabel>
                 <atom.Fieldbox type="struct">serverFoo</atom.Fieldbox>
                 <div>
-                    <div class="decl-body" style={Style.from(Base.declBody).style()}>
-                        <Declaration><atom.Fieldbox dark={true} type="string">Foobar</atom.Fieldbox></Declaration>
-                        <Declaration><atom.Fieldbox dark={true} type="bool">BooleanField</atom.Fieldbox></Declaration>
-                        <Declaration><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></Declaration>
+                    <div style={fieldStyle.style()}>
+                        <Grippable style={gripStyle.style()}><atom.Fieldbox dark={true} type="string">Foobar</atom.Fieldbox></Grippable>
+                        <Grippable style={gripStyle.style()}><atom.Fieldbox dark={true} type="bool">BooleanField</atom.Fieldbox></Grippable>
+                        <Grippable style={gripStyle.style()}><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></Grippable>
                     </div>
-                    <div class="decl-body" style={Style.from(Base.declBody).style()}>
-                        {methods.map((mtd, idx) => <Declaration key={idx} idx={idx} selected={selected === idx} onselect={onselect} selectable={true}><MethodDeclaration type={mtd.type}>{mtd.name}()</MethodDeclaration></Declaration>)}
+                    <div style={methodsStyle.style()}>
+                        {methods.map((mtd, idx) => 
+                            // <Declaration  fixed={true}
+                            //     key={idx} 
+                            //     idx={idx}></Declaration>
+                            <div style={methodStyle.style()}><MethodDeclaration type={mtd.type}>{mtd.name}()</MethodDeclaration></div>
+                            )}
                     </div>
                 </div>
             </div>
@@ -168,14 +213,24 @@ function MethodDeclaration() {
     })
     style.addClass("decl-func decl");
 
+    let fieldStyle = Style.from({
+        marginTop: "8px",
+        minHeight: "30px",
+        paddingLeft: "4px",
+    })
+    let gripStyle = Style.from({
+        marginTop: "4px", 
+        marginBottom: "4px",
+    })
+
     return {
         view: function ({ attrs, children }) {
             return <div {...style.attrs()}>
-                <atom.Label>Method</atom.Label>
+                <GripLabel class="mb-1">Method</GripLabel>
                 <atom.Fieldbox type={attrs.type}>{children}</atom.Fieldbox>
-                <div class="decl-body" style={Base.declBody.style()}>
-                    <Declaration><atom.Fieldbox dark={true} type="http.ResponseWriter">rw</atom.Fieldbox></Declaration>
-                    <Declaration><atom.Fieldbox dark={true} type="http.Request">req</atom.Fieldbox></Declaration>
+                <div style={fieldStyle.style()}>
+                    <Grippable style={gripStyle.style()}><atom.Fieldbox dark={true} class="text-xs" type="http.ResponseWriter">rw</atom.Fieldbox></Grippable>
+                    <Grippable style={gripStyle.style()}><atom.Fieldbox dark={true} class="text-xs" type="http.Request">req</atom.Fieldbox></Grippable>
                 </div>
             </div>
         }
@@ -187,13 +242,13 @@ function FuncDeclaration() {
     style.add("decl-func decl");
 
     return {
-        view: function () {
-            return <div class={style.class()} style={style.style()}>
-                <atom.Label>Function</atom.Label>
+        view: () => (
+            <div class={style.class()} style={style.style()}>
+                <GripLabel class="mb-1">Function</GripLabel>
                 <atom.Textbox>Foobar()</atom.Textbox>
                 <div class="decl-body" style={Style.from(Base.declBody).style()}></div>
             </div>
-        }
+        )
     }
 }
 
@@ -210,8 +265,43 @@ function PackageDeclaration() {
     }
 }
 
+export function Grippable() {
+    return {
+        view: function ({attrs, children}) {
+            let style = new Style(Grippable);
+            style.addClass(attrs.class);
+            style.setStyle(attrs.style);
+            style.addClass("flex");
+            return (
+                <div class={style.class()}>
+                    <atom.Grip style={style.style()} />
+                    <div class="flex-grow">
+                        {children}
+                    </div>
+                </div>
+            )
+        }
+    }
+}
 
-
+function GripLabel() {
+    return {
+        view: function({attrs, children}) {
+            let style = new Style(GripLabel, {
+                position: "relative",
+            });
+            style.addClass(attrs.class);
+            style.setStyle(attrs.style);
+            style.addClass("flex items-end");
+            return (
+                <div {...style.attrs()}>
+                    <atom.Label class="px-1 absolute" style={{left: "6px", background: "var(--sidebar-color)"}}>{children}</atom.Label>
+                    <shapes.Dots rows={3} class="mb-1" />
+                </div>
+            )
+        }
+    }
+}
 
 
 
@@ -222,7 +312,7 @@ function ConstDeclarations() {
     return {
         view: function () {
             return <div class={style.class()} style={style.style()}>
-                <atom.Label>Constants</atom.Label>
+                <GripLabel class="mb-1">Constants</GripLabel>
                 <div class="flex">
                     <atom.Fieldbox type="string">bazbox</atom.Fieldbox>
                     <atom.Textbox dark={true}>"Hello world!"</atom.Textbox>

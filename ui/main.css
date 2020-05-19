@@ -25,7 +25,9 @@ body {
     background-color: var(--background-color);
 }
 
-
+.ArrowHead div {
+    z-index: 10;
+}
 
 nav::-webkit-scrollbar {
     background-color: transparent;

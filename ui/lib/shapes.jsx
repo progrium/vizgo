@@ -1,22 +1,34 @@
 import { Style } from "./style.js";
 
-export const VerticalDots = {
+export const Dots = {
     view: ({ attrs }) => {
         let color = attrs.color || "#444";
+        let size = attrs.size || 4;
+        let cols = attrs.cols;
+        let rows = attrs.rows;
 
         let style = new Style('VerticalDots', {
             backgroundImage: `radial-gradient(${color} 50%, transparent 50%)`,
             backgroundColor: "transparent",
             backgroundRepeat: "repeat",
-            backgroundSize: "4px 4px",
-            width: "8px",
+            backgroundSize: `${size}px ${size}px`,
+            width: "100%",
         });
+        
+        style.setStyle({
+            width: `${size*cols}px`,
+        }, () => cols !== undefined)
+        style.setStyle({
+            height: `${size*rows}px`,
+        }, () => rows !== undefined)
+        
         style.addClass(attrs.class);
         style.setStyle(attrs.style);
 
         return m("div", style.attrs())
     }
 }
+
 
 export const Ring = {
     view: ({ attrs }) => {
@@ -64,6 +76,7 @@ export const ArrowHead = {
             top: `${offsetY}px`,
             clipPath: trianglePath,
             WebkitClipPath: trianglePath,
+            zIndex: "10",
         });
         triangle.setStyle(attrs.style);
 

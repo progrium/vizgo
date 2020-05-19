@@ -72,7 +72,7 @@ export const Block = {
         let flowBlock = false;
         let exprBlock = false;
         if (attrs.inflow || attrs.outflow) {
-            style.add("flow")
+            style.addClass("flow")
             flowBlock = true;
         }
         if (!attrs.inflow && !attrs.outflow && !attrs.outputs) {
@@ -308,11 +308,10 @@ function InflowEndpoint() {
         view: function ({ attrs }) {
             let wrap = new Style("inflow", {
                 position: "absolute",
-                marginLeft: "-23px",
-                id: attrs.id
+                marginLeft: "-23px"
             });
 
-            return <div {...wrap.attrs()}>
+            return <div id={attrs.id} {...wrap.attrs()}>
                 <shapes.ArrowTail color="#475054" />
             </div>
         }
@@ -320,24 +319,31 @@ function InflowEndpoint() {
 }
 
 export function OutflowEndpoint({ attrs }) {
-    let wrap = new Style(OutflowEndpoint, {
-        float: "right",
+    let wrap = new Style(OutflowEndpoint);
+    wrap.setStyle({
         marginRight: "-24px",
         marginTop: "-28px",
-        // zIndex: "1000",
-    });
+        float: "right",
+    }, () => !attrs.case && !attrs.body && !attrs.entry)
 
     wrap.addClass("body", () => attrs.body);
     wrap.setStyle({
         marginTop: "0",
         marginRight: "-28px",
+        float: "right",
     }, () => attrs.body)
 
     wrap.addClass("case", () => attrs.case);
     wrap.setStyle({
         top: "13px",
-        left: "6px"
+        left: "6px",
+        float: "right",
     }, () => attrs.case)
+
+    wrap.addClass("entry", () => attrs.entry);
+    wrap.setStyle({
+        position: "relative",
+    }, () => attrs.entry)
 
     wrap.addClass(attrs.class, () => attrs.class);
 
@@ -372,11 +378,12 @@ export function OutflowEndpoint({ attrs }) {
                 });
             }
         },
-        view: () => (
-            <div id={attrs.id} {...wrap.attrs()}>
-                <shapes.ArrowHead color="#475054" />
+        view: ({attrs}) => {
+            let color = attrs.color || "#475054";   
+            return <div id={attrs.id} {...wrap.attrs()}>
+                <shapes.ArrowHead color={color} />
             </div>
-        )
+        }
     }
 }
 

@@ -3,18 +3,28 @@ import { Style } from "./style.js";
 
 export function Grip() {
     return {
-        view: () => <shapes.VerticalDots class="mr-1" />
+        view: ({attrs}) => {
+            let style = new Style(Grip);
+            style.addClass(attrs.class);
+            style.setStyle(attrs.style);
+            style.addClass("mr-1");
+            return <shapes.Dots cols={2} {...style.attrs()} />
+        }
     }
 }
 
 
 export function Label() {
-    let style = new Style(Label, {
-        marginLeft: "2px",
-        fontSize: "small",
-    });
     return {
-        view: (node) => m("div", style.attrs(), node.children)
+        view: ({attrs, children}) => {
+            let style = new Style(Label, {
+                marginLeft: "2px",
+                fontSize: "small",
+            });
+            style.addClass(attrs.class);
+            style.setStyle(attrs.style);
+            return m("div", style.attrs(), children)
+        }
     }
 }
 
@@ -71,6 +81,8 @@ export function Fieldbox() {
             style.addClass("input-outer");
             style.addClass("dark", () => attrs.dark);
             style.addClass("light", () => !attrs.dark);
+            style.addClass(attrs.class);
+            style.setStyle(attrs.style);
 
             let type = Style.from({
                 float: "right",

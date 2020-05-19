@@ -1,32 +1,13 @@
 import * as decl from "./decl.js";
+import * as sidebar from "./sidebar.js";
 import * as atom from "./atom.js";
 import * as block from "./block.js";
 import { Style } from "./style.js";
+import { h } from "./h.js";
 
 //deps: $, jsPlumb
 const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
     s(d.now() / 1000) + ' '.repeat(h).replace(/./g, () => s(m.random() * h))
-
-// {id: "block1", title: "s.listener", x:15, y: 0},
-// {id: "block2", title: "s", x: 15, y: 1},
-// {id: "block3", title: "req", x: 15, y: 2},
-// {id: "block4", inputs: ["one"], title: "globalOptionsHandler{}", x: 15, y: 3},
-// {id: "block5", inputs: ["one", "two"], inflow: true, outflow: true, title: "handler.ServeHTTP()", x: 15, y: 5},
-// {id: "block6", inflow: true, outflow: true, title: "s.mu.Lock()", x: 15, y: 8},
-// {id: "block7", inflow: true, outflow: true, title: "assignment", inputs: [""], outputs: ["name?"], x: 15, y: 9},
-// {id: "block8", inflow: true, outflow: true, title: "conditional", inputs: [""], outputs: ["if>", "else>"], x: 15, y: 11},
-// {id: "block9", inputs: ["oneeeeeee", "two", "three"], outputs: ["oneeeeeeeee", "two"],  inflow: true, outflow: true, title: "foobar()", x: 15, y: 14},
-// {id: "block10", inputs: ["one?"], inflow: true, outflow: true, title: "switch", x: 15, y: 18},
-// {id: "block11", inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "for range  ", x: 15, y: 24},
-// {id: "block12", inputs: ["ch", "send"], inflow: true, outflow: true, title: "send", x: 26, y: 2},
-// {id: "block13", inputs: ["exp"], outputs: ["loop>"], inflow: true, outflow: true, title: "for     ", x: 26, y: 6},
-// {id: "block14", inputs: ["", ""], title: "and", x: 26, y: 9},
-// {id: "block15", inputs: [""], title: "not", x: 29, y: 9},
-// {id: "block16", inputs: ["", ""], title: "multiply", x: 29, y: 12},
-// {id: "block17", inputs: ["string", "error"], inflow: true, title: "return", x: 29, y: 14},
-// {id: "block18", inflow: true, title: "continue", x: 29, y: 17},
-// {id: "block19", outputs: ["defer>"], inflow: true, outflow: true, title: "defer", x: 29, y: 20},
-
 
 let mocksession = {
     Selected: "#main",
@@ -67,186 +48,88 @@ const BlockTypes = {
 
 var blockCursor = [0, 14];
 
-export function App(initial) {
-    let app = {
-        blocks: [],
-        view: function (node) {
-            let { state } = node;
-            let style = new Style(App);
-            style.add("app");
-            style.position = "fixed";
-            style.padding = "0";
-            style.margin = "0";
-            style.top = "0";
-            style.left = "0";
-            style.width = "500%";
-            style.height = "100%";
-            style.display = "flex";
-            style.flexDirection = "row";
-            style.flexWrap = "nowrap";
-            style.justifyContent = "flex-start";
-            style.alignContent = "stretch";
-            style.alignItems = "stretch";
-            return <main class={style.class()} style={style}>
-                <decl.Sidebar />
-                <decl.Handle />
-                <Grid blocks={state.blocks} />
-            </main>
-        },
-        updateBlock: function (id, obj) {
-            app.blocks = app.blocks.map((el) => {
-                if (el.id !== id) {
-                    return el;
-                }
-                return Object.assign(el, obj);
-            })
-            m.redraw();
-        },
-        createBlock: function (obj) {
-            let b = Object.assign(BlockTypes[obj.type]);
-            let o = Object.assign(b, obj);
-            if (o.id === undefined) {
-                o.id = genId();
-            }
-            if (o.x == undefined) {
-                o.x = 20 + (10 * blockCursor[0]++);
-            }
-            if (o.y == undefined) {
-                o.y = blockCursor[1];
-            }
-            app.blocks.push(o);
-            m.redraw();
-        },
-        oncreate: function (vnode) {
-            const selectTarget = (fromElement, selector) => {
-                if (!(fromElement instanceof HTMLElement)) {
-                    return null;
-                }
+class App {
+    constructor() {
+        this.blocks = [];
 
-                return fromElement.querySelector(selector);
-            };
-
-            const resizeData = {
-                tracking: false,
-                startWidth: null,
-                startCursorScreenX: null,
-                handleWidth: 10,
-                resizeTarget: null,
-                parentElement: null,
-                maxWidth: null,
-            };
-
-            $(document.body).on('mousedown', '.Handle', null, (event) => {
-                if (event.button !== 0) {
-                    return;
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-
-                const handleElement = event.currentTarget;
-                if (!handleElement.parentElement) {
-                    console.error(new Error("Parent element not found."));
-                    return;
-                }
-
-                // Use the target selector on the handle to get the resize target.
-                const targetSelector = handleElement.getAttribute('data-target');
-                const targetElement = selectTarget(handleElement.parentElement, targetSelector);
-                if (!targetElement) {
-                    console.error(new Error("Resize target element not found."));
-                    return;
-                }
-
-                resizeData.startWidth = $(targetElement).outerWidth();
-                resizeData.startCursorScreenX = event.screenX;
-                resizeData.resizeTarget = targetElement;
-                resizeData.parentElement = handleElement.parentElement;
-                resizeData.maxWidth = $(handleElement.parentElement).innerWidth() - resizeData.handleWidth;
-                resizeData.tracking = true;
-            });
-
-            $(window).on('mousemove', null, null, (event) => {
-                if (resizeData.tracking) {
-                    const cursorScreenXDelta = event.screenX - resizeData.startCursorScreenX;
-                    const snappedCursorScreenXDelta = cursorScreenXDelta - (cursorScreenXDelta % 30);
-                    const newWidth = resizeData.startWidth + snappedCursorScreenXDelta;
-                    $(resizeData.resizeTarget).outerWidth(newWidth);
-                    jsPlumb.repaintEverything();
-                }
-            });
-
-            $(window).on('mouseup', null, null, (event) => {
-                if (resizeData.tracking) {
-                    resizeData.tracking = false;
-                }
-            });
-
-            $(document).ready(function () {
-                // sidebar declarations sorting
-                $("#declarations").sortable({
-                    items: "> div",
-                    revert: 150,
-                    tolerance: "intersect",
-                    handle: ".VerticalDots",
-                    containment: "parent",
-                    axis: "y",
-                });
-                $(".decl-body").sortable({
-                    items: "> div",
-                    revert: 150,
-                    tolerance: "pointer",
-                    handle: ".VerticalDots",
-                    containment: "parent",
-                    axis: "y",
-                });
-            })
-        }
+        this.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
+        this.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
+        this.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+        this.createBlock({ type: "assign", connect: "r-in" });
     }
-    app.createBlock({ type: "range", connects: { "idx": "r-error" } });
-    app.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
-    app.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
-    app.createBlock({ type: "assign", connect: "r-in" });
-    return app;
-};
+
+    oncreate(vnode) {
+        // initApp()   
+    }
+
+    updateBlock(id, obj) {
+        this.blocks = this.blocks.map((el) => {
+            if (el.id !== id) {
+                return el;
+            }
+            return Object.assign(el, obj);
+        })
+        m.redraw();
+    }
+
+    createBlock(obj) {
+        let b = Object.assign(BlockTypes[obj.type]);
+        let o = Object.assign(b, obj);
+        if (o.id === undefined) {
+            o.id = genId();
+        }
+        if (o.x == undefined) {
+            o.x = 20 + (10 * blockCursor[0]++);
+        }
+        if (o.y == undefined) {
+            o.y = blockCursor[1];
+        }
+        this.blocks.push(o);
+        m.redraw();
+    }
+
+    view(node) {
+        let style = new Style(App, {
+            position: "fixed",
+            overflow: "auto",
+            width: "500%",
+            height: "100%",
+            display: "flex",
+        });
+        
+        return <main {...style.attrs()}>
+            {h(sidebar.Sidebar, {package: mocksession.Package})}
+            <Divider />
+            <Grid blocks={node.state.blocks} />
+        </main>
+    }
+}
+
+export { App }
+
+export function Divider() {
+    let style = new Style(Divider, {
+        content: '""',
+        flex: "0 0 auto",
+        position: "relative",
+        boxSizing: "border-box",
+        width: "2.5px",
+        backgroundColor: "grey",
+        height: "100%",
+        cursor: "ew-resize",
+        userSelect: "none",
+    });
+    return {
+        view: () => (
+            <div id="split-handle">
+                <div data-target=".sidebar" {...style.attrs()}></div>
+            </div>
+        )
+    }
+}
 
 const Grid = {
     oncreate: function (vnode) {
-
-        $.contextMenu({
-            selector: '.grid',
-            build: function ($trigger, e) {
-                let mocksubitems = {
-                    "fold1-key1": { "name": "Foo bar" },
-                    "fold2": {
-                        "name": "Sub group 2",
-                        "items": {
-                            "fold2-key1": { "name": "alpha" },
-                            "fold2-key2": { "name": "bravo" },
-                            "fold2-key3": { "name": "charlie" }
-                        }
-                    },
-                    "fold1-key3": { "name": "delta" }
-                };
-                return {
-                    callback: function (key, options) {
-                        App.createBlock(BlockTemplates[key]);
-                    },
-                    items: {
-                        "expr": { name: "Expression" },
-                        "locals": { name: "Locals", items: mocksubitems },
-                        "imports": { name: "Imports", items: mocksubitems },
-                        "builtins": { name: "Builtins", items: mocksubitems },
-                        "operators": { name: "Operators", items: mocksubitems },
-                        "return": { name: "Return" },
-                        "loop": { name: "Loop" },
-                        "condition": { name: "Condition" },
-                        "assign": { name: "Assign" }
-                    }
-                };
-            }
-        });
-
         jsPlumb.setContainer(vnode.dom);
         jsPlumb.bind("beforeDrop", function (params) {
             console.log(params);
@@ -255,21 +138,36 @@ const Grid = {
     },
     view: function (node) {
         let { attrs } = node;
-        let style = new Style(Grid);
-        style.add("grid");
-        style.backgroundSize = "var(--grid-size) var(--grid-size)";
-        style.backgroundColor = "var(--background-color)";
-        style.backgroundImage = "radial-gradient(#202020 2px, transparent 0)";
-        style.backgroundPosition;
-        "calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size))",
-            style.padding = "var(--grid-size) var(--grid-size)";
-        style.height = "100%";
-        style.order = "0";
-        style.flex = "1 1 auto";
-        style.alignSelf = "auto";
-        style.border = "1px solid var(--outline-color)";
+        let style = new Style(Grid, {
+            backgroundSize: "var(--grid-size) var(--grid-size)",
+            backgroundColor: "var(--background-color)",
+            backgroundImage: "radial-gradient(#202020 2px, transparent 0)",
+            backgroundPosition: "calc(-0.5 * var(--grid-size)) calc(-0.5 * var(--grid-size))",
+            padding: "var(--grid-size) var(--grid-size)",
+            height: "100%",
+            order: "0",
+            flex: "1 1 auto",
+            alignSelf: "auto",
+            border: "1px solid var(--outline-color)",
+        });
+        
 
-        return <div class={style.class()} style={style}>
+        let blockStyle = Style.from({
+            background: "rgb(75, 126, 28) ",
+            width: "16px",
+            height: "150px",
+            borderTopRightRadius: "var(--corner-size)",
+            borderBottomRightRadius: "var(--corner-size)",
+            position: "absolute",
+            top: "400px",
+            marginLeft: "-34px",
+            
+        })
+
+        return <div {...style.attrs()}>
+            <div id="handle-block" {...blockStyle.attrs()}>
+                    <decl.EntryEndpoint />
+            </div>
             {attrs.blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
                 return m(block.Block, attrs)

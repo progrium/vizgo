@@ -49,14 +49,6 @@ class Style {
         }
     }
 
-    // deprecated
-    add(cls, condition = () => true) {
-        this.addClass(cls, condition);
-    }
-    // deprecated
-    link(style, condition = () => true) {
-        this.extendStyle(style, condition);
-    }
 
     addClass(cls, condition = () => true) {
         if (cls === undefined) {
