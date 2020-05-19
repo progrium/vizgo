@@ -1,7 +1,6 @@
 import { Style } from "./style.js";
 import * as atom from "./atom.js";
 import * as shapes from "./shapes.js";
-import * as decl from "./decl.js";
 
 export const Block = {
     checkposition: function (vnode) {
@@ -220,7 +219,7 @@ const SwitchBody = {
 
 const SwitchCase = {
     view: function () {
-        return <div class="case decl-container" style={decl.Base.declaration}>
+        return <div class="case decl-container">
             <atom.Grip />
             <atom.Textbox>weofij</atom.Textbox>
             <OutflowEndpoint case={true} class="case" />

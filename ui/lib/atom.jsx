@@ -3,6 +3,72 @@ import { Style } from "./style.js";
 
 var m = h;
 
+export function Stack({attrs,style,children}) {
+    var axis = attrs.axis || "v";
+
+    style.addClass("flex");
+    style.addClass("flex-row", () => axis == "h");
+    style.addClass("flex-col", () => axis == "v");
+
+    return (
+        <div>{children}</div>
+    )
+}
+
+export function Grippable({children}) {
+    return (
+        <Stack axis="h">
+            <Grip class="mt-1 mb-1" />
+            <div class="flex-grow">
+                {children}
+            </div>
+        </Stack>
+    )
+}
+
+export function GripLabel({style, children}) {
+    style.addClass("flex items-end mb-1");
+    return (
+        <div>
+            <Label class="pr-2">{children}</Label>
+            <shapes.Dots rows={3} class="mb-1" />
+        </div>
+    )
+}
+
+export function Subpanel({style,children}) {
+    style.setStyle({
+        paddingTop: "8px",
+        paddingLeft: "10px",
+        paddingRight: "10px",
+        paddingBottom: "8px",
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderTop: "var(--pixel-size) solid #42494d",
+        borderLeft: "var(--pixel-size) solid #42494d",
+        backgroundColor: "transparent"
+    })
+    return (
+        <div>{children}</div>
+    )
+}
+
+export function Panel({style,children}) {
+    style.setStyle({
+        padding: "8px",
+        paddingTop: "4px",
+        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderBottom: "2px solid black",
+        borderRight: "var(--pixel-size) solid #42494d",
+        backgroundColor: "transparent"
+    })
+    return (
+        <div>{children}</div>
+    )
+}
+
+
 export function Grip({attrs}) {
     let style = new Style(Grip);
     style.addClass(attrs.class);

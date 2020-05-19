@@ -1,5 +1,5 @@
-import * as decl from "./decl.js";
 import * as sidebar from "./sidebar.js";
+import * as shapes from "./shapes.js";
 import * as atom from "./atom.js";
 import * as block from "./block.js";
 import { Style } from "./style.js";
@@ -13,24 +13,24 @@ let mocksession = {
     Selected: "#main",
     Package: {
         Name: "main",
-        Imports: [
-            { Package: "fmt" }
-        ],
-        Functions: [
-            {
+        Declarations: [
+            { Type: "imports", Imports: [
+                { Package: "fmt" }
+            ]},
+            { Type: "function", Function: {
                 Name: "main",
-                In: [],
-                Out: [],
-                Entry: [
-                    { Name: "", Flow: true, Connect: "main.0" },
-                    { Name: "args", Type: "[]string" },
+                In: [
                 ],
+                Out: [
+                ],
+                Entry: "main.0",
                 Blocks: [
                     { Type: "call", ID: "main.0", Label: "fmt.Println()", Position: [14, 14] },
                     { Type: "return", ID: "main.return", Position: [24, 14] },
                 ]
-            }
+            }}    
         ]
+        
     }
 }
 
@@ -98,8 +98,6 @@ class App {
         });
         return <main {...style.attrs()}>
             {h(sidebar.Sidebar, {package: mocksession.Package})}
-            {/* <sidebar.Sidebar package={mocksession.Package} /> */}
-            {/* <decl.Sidebar package={mocksession.Package} /> */}
             <Divider />
             <Grid blocks={node.state.blocks} />
         </main>
@@ -167,7 +165,7 @@ const Grid = {
 
         return <div {...style.attrs()}>
             <div id="handle-block" {...blockStyle.attrs()}>
-                    <decl.EntryEndpoint />
+                    <EntryEndpoint />
             </div>
             {attrs.blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
@@ -177,6 +175,43 @@ const Grid = {
     }
 }
 
+
+function EntryEndpoint() {
+    return {
+        oncreate: function ({ dom, attrs }) {
+
+            jsPlumb.addEndpoint(dom, {
+                endpoint: "Blank",
+                isSource: true,
+                anchor: [0, 0, 1, 0, 0, 14],
+                cssClass: "entry",
+                scope: "flow",
+                connectorStyle: { stroke: "white", strokeWidth: 10 },
+                connector: ["Flowchart", {
+                    alwaysRespectStubs: true,
+                    cornerRadius: 4,
+                }]
+            });
+
+            // if (attrs.connect) {
+            //     jsPlumb.connect({
+            //         source: attrs.id,
+            //         target: attrs.connect,
+            //         paintStyle: { stroke: "white", strokeWidth: 10 },
+            //         connector: ["Flowchart", {
+            //             alwaysRespectStubs: true,
+            //             cornerRadius: 4,
+            //         }],
+            //         endpoint: "Blank",
+            //         anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
+            //     });
+            // }
+        },
+        view: () => (
+            <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-3 my-8" />
+        )
+    }
+}
 
 
 
