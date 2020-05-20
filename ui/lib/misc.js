@@ -83,7 +83,7 @@ export function initApp() {
         });
     })
 }
-function contextMenu() {
+export function contextMenu() {
     $.contextMenu({
         selector: '.grid',
         build: function ($trigger, e) {

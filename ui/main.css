@@ -109,11 +109,6 @@ nav::-webkit-scrollbar-thumb {
 .jtk-endpoint-anchor.jtk-connected.endpoint div {
     background-color: gray !important;
 }
-.jtk-endpoint-anchor.jtk-connected.inflow div:last-child {
-    background-color: white !important;
-    opacity: 1 !important;
-}
-
 .selected {
     background-color: rgb(75, 126, 28) !important;
     margin-right: -12px;

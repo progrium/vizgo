@@ -264,6 +264,7 @@ function InflowEndpoint({ attrs, style, hooks }) {
 
 export function OutflowEndpoint({ attrs, style, hooks }) {
     hooks.oncreate = ({ dom, attrs }) => {
+        let block = App.getBlockById(attrs.id)
         jsPlumb.addEndpoint(dom, {
             endpoint: "Blank",
             isSource: true,
@@ -343,7 +344,7 @@ function Endpoint({attrs, style, hooks, vnode}) {
         marginLeft: "-28px",
     }, () => output === false);
     style.setStyle({
-        marginTop: "-25px",
+        marginTop: "-29px",
         marginRight: "-24px",
     }, () => header === true);
     style.addClass("endpoint header", () => header === true);

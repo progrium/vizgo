@@ -3,10 +3,11 @@ import * as main from '../com/main.js';
 
 import { Style } from "./style.js";
 import { h } from "./h.js";
-import { initApp } from './misc.js';
+import { initApp, contextMenu } from './misc.js';
 
 class App {
     static init() {
+        contextMenu() // doesn't seem to work
         initApp()
         App.blocks = [];
 
@@ -22,10 +23,10 @@ class App {
 
         App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
-        // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
-        // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
+        App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
+        App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
         
-        // App.createBlock({ type: "assign", connect: "r-in" });
+        App.createBlock({ type: "assign", connect: "r-in" });
     }
 
     static switchGrid(dom, fn) {
@@ -84,8 +85,8 @@ class App {
         let block = App.getBlockById(attrs.id)
 
         let fontSize = Style.propInt("font-size", dom);
-        attrs.title = (attrs.title||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
-        let textWidth = attrs.title.length * fontSize * 0.8;
+        block.title = (block.title||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+        let textWidth = block.title.length * fontSize * 0.8;
 
         if (block.title == "switch") {
             textWidth *= 3;
