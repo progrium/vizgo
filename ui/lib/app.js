@@ -19,7 +19,7 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        App.createBlock({ type: "return", inputs: ["stringGGGGGGGGGGGG", "error"], id: "r" });
+        App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
         // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
         // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
@@ -43,6 +43,15 @@ class App {
         m.redraw();
     }
 
+    static getBlockById (id) {
+        for (let block of App.blocks) {
+            if (block.id === id) {
+                return block
+            }
+        }
+        console.log(`Block with id "${id}" doesn't exist!`)
+    }
+
     static createBlock(obj) {
         const blockCursor = [0, 14];
 
@@ -61,16 +70,7 @@ class App {
         m.redraw();
     }
 
-    static getBlockById (id) {
-        for (let block of App.blocks) {
-            if (block.id === id) {
-                return block
-            }
-        }
-        console.log(`Block with id "${id}" doesn't exist!`)
-    }
-
-    static checkPosition({ dom }) {
+    static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
         let blockPosition = +`${dom.style.left.replace("px", "")}`
         if (blockPosition <= $(".Sidebar").innerWidth()) {
             blockPosition += $(".Sidebar").innerWidth() - blockPosition + 30
@@ -91,22 +91,23 @@ class App {
         }
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
 
-        let calculateEndpointWidth = (block, endpoint, fontSize) => {
-            if (block[endpoint]) {
-                for (let i = 0; i < Math.max(block[endpoint].length); i++) {
-                    if (i < block[endpoint].length) {
-                        let outputMath = "outputs" ? 0.9 : 1
-                        return (Math.max(Math.ceil((block[endpoint][i].length * fontSize * 0.8) / 40), 2) * 30) / outputMath
+        let calculateEndpointWidth = (endpoint, fontSize, outputs=false) => {
+            if (endpoint) {
+                for (let i = 0; i < Math.max(endpoint.length); i++) {
+                    if (i < endpoint.length) {
+                        let outputMath = outputs ? 0.9 : 1
+                        return (Math.max(Math.ceil((endpoint[i].length * fontSize * 0.8) / 40), 2) * 30) / outputMath
                     };
                 };
             };
             return 0
         }
-    
-        let inputs = calculateEndpointWidth(block, "inputs", fontSize)
-        let outputs = calculateEndpointWidth(block, "outputs", fontSize)
-        if (inputs + outputs > newWidth) {
-            newWidth = (Math.max(Math.ceil((inputs + outputs) / 30), 2) * 30)
+        if (block.inputs || block.outputs) {
+            let inputs = calculateEndpointWidth(block.inputs, fontSize)
+            let outputs = calculateEndpointWidth(block.outputs, fontSize, true)    
+            if (inputs + outputs > newWidth) {
+                newWidth = (Math.max(Math.ceil((inputs + outputs) / 30), 2) * 30)
+            }
         }
 
         dom.style.width = newWidth + "px";
