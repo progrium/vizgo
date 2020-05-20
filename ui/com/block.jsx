@@ -107,6 +107,7 @@ function Header({ attrs, style }) {
         style: inner.style(),
         oninput: handlers.oninput,
         ondblclick: handlers.ondblclick,
+        contenteditable: "true",
     }, m.trust(attrs.title));
     let headerAttrs = {
         id: attrs.id + "-header",

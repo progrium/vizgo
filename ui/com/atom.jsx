@@ -154,7 +154,7 @@ export function Divider({style}) {
         userSelect: "none",
     });
     return (
-        <div data-target=".sidebar"></div>
+        <div data-target=".Sidebar"></div>
     )
 }
 
