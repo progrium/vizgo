@@ -15,8 +15,8 @@ export const session = {
                 ],
                 Entry: "main.0",
                 Blocks: [
-                    { Type: "call", ID: "main.0", Label: "fmt.Println()", Position: [14, 14] },
-                    { Type: "return", ID: "main.return", Position: [24, 14] },
+                    { type: "call", id: "main.0", label: "fmt.Println()", connect: "main.return", position: [16, 10] },
+                    { type: "return", id: "main.return", inputs: ["string", "error"], position: [24, 10] },
                 ]
             }],
             ["type", {
@@ -36,8 +36,7 @@ export const session = {
                         ],
                         Entry: "String.0",
                         Blocks: [
-                            { Type: "call", ID: "main.0", Label: "fmt.Println()", Position: [14, 14] },
-                            { Type: "return", ID: "main.return", Position: [24, 14] },
+                            { type: "return", id: "String.return", position: [20, 10] },
                         ]
                     }
                 ]

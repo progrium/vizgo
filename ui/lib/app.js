@@ -21,18 +21,17 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+        //App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
-        App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
-        App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
-        
-        App.createBlock({ type: "assign", connect: "r-in" });
+        // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
+        // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });        
+        // App.createBlock({ type: "assign", connect: "r-in" });
     }
 
     static switchGrid(dom, fn) {
-        console.log("switching", fn);
-        $("#handle-block")[0].style['top'] = dom.offsetTop + "px";
-        $("#handle-block")[0].style['height'] = dom.offsetHeight + "px";
+        App.setBlocks(fn.Blocks);
+        $("#entrypoint")[0].style['top'] = dom.offsetTop + "px";
+        $("#entrypoint")[0].style['height'] = dom.offsetHeight + "px";
     }
 
     static updateBlock(id, obj) {
@@ -54,6 +53,14 @@ class App {
         console.log(`Block with id "${id}" doesn't exist!`)
     }
 
+    static setBlocks(blocks) {
+        jsPlumb.reset();
+        App.blocks = blocks.map((b) => {
+            return Object.assign(clone(BlockTypes[b.type]), b);
+        });
+        m.redraw();
+    }
+
     static createBlock(obj) {
         const blockCursor = [0, 14];
 
@@ -62,11 +69,14 @@ class App {
         if (o.id === undefined) {
             o.id = genId();
         }
-        if (o.x == undefined) {
-            o.x = 20 + (10 * blockCursor[0]++);
+        if (o.position == undefined) {
+            o.position = blockCursor;
         }
-        if (o.y == undefined) {
-            o.y = blockCursor[1];
+        if (o.position[0] == undefined) {
+            o.position[0] = 20 + (10 * blockCursor[0]++);
+        }
+        if (o.position[1] == undefined) {
+            o.position[1] = blockCursor[1];
         }
         App.blocks.push(o);
         m.redraw();
@@ -136,6 +146,7 @@ class App {
 
     static endpointcreate({ attrs, style, dom }) {
         let { output, header, connect, id } = attrs;
+        jsPlumb.removeAllEndpoints(dom);
 
         function exprEndpoint(dom, style, params) {
             jsPlumb.addEndpoint(dom, Object.assign({
@@ -148,14 +159,16 @@ class App {
         }
 
         function connectExpr(id, connect) {
-            jsPlumb.connect({
-                endpoint: "Blank",
-                source: id,
-                target: connect,
-                paintStyle: { stroke: "gray", strokeWidth: 8 },
-                connector: ["Bezier", { curviness: 100 }],
-                anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
-            });
+            setTimeout(() => {
+                jsPlumb.connect({
+                    endpoint: "Blank",
+                    source: id,
+                    target: connect,
+                    paintStyle: { stroke: "gray", strokeWidth: 8 },
+                    connector: ["Bezier", { curviness: 100 }],
+                    anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
+                });
+            }, 20);
         }
 
         if (output === true) {
@@ -186,20 +199,23 @@ class App {
 
 }
 
+function clone(obj) {
+    return $.extend(true, {}, obj);
+}
+
 const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
     s(d.now() / 1000) + ' '.repeat(h).replace(/./g, () => s(m.random() * h))
 
-
 const BlockTypes = {
-    expr: { title: "" },
-    call: { inflow: true, outflow: true, title: "()" },
-    assign: { inflow: true, outflow: true, title: "Assign", inputs: [""], outputs: ["name?"] },
-    return: { inflow: true, outflow: false, title: "Return" },
-    defer: { inflow: true, outflow: true, title: "Defer", outputs: ["defer>"] },
-    for: { inflow: true, outflow: true, title: "For     ", inputs: ["exp"], outputs: ["loop>"] },
-    send: { inflow: true, outflow: true, title: "Send", inputs: ["ch", "send"] },
-    range: { inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, title: "For-Range  " },
-    condition: { inflow: true, outflow: true, title: "Conditional", inputs: [""], outputs: ["if>", "else>"] },
+    expr: { label: "" },
+    call: { inflow: true, outflow: true, label: "()" },
+    assign: { inflow: true, outflow: true, label: "Assign", inputs: [""], outputs: ["name?"] },
+    return: { inflow: true, outflow: false, label: "Return" },
+    defer: { inflow: true, outflow: true, label: "Defer", outputs: ["defer>"] },
+    for: { inflow: true, outflow: true, label: "For     ", inputs: ["exp"], outputs: ["loop>"] },
+    send: { inflow: true, outflow: true, label: "Send", inputs: ["ch", "send"] },
+    range: { inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, label: "For-Range  " },
+    condition: { inflow: true, outflow: true, label: "Conditional", inputs: [""], outputs: ["if>", "else>"] },
 };
 
 export { App }

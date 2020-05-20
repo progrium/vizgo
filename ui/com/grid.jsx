@@ -27,7 +27,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Entrypoint />    
+            <Entrypoint connect={(attrs.blocks.length>0) ? attrs.blocks[0].id : undefined} />    
             {attrs.blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
                 return <block.Block {...attrs} />
@@ -36,8 +36,9 @@ export function Grid({attrs,style,hooks,vnode}) {
     )
 }
 
-function Entrypoint({style,hooks}) {
-    hooks.oncreate = ({ dom, attrs }) => {
+function Entrypoint({attrs,style,hooks}) {
+    const update = ({ dom }) => {
+        jsPlumb.removeAllEndpoints(dom);
         jsPlumb.addEndpoint(dom, {
             endpoint: "Blank",
             isSource: true,
@@ -50,20 +51,24 @@ function Entrypoint({style,hooks}) {
                 cornerRadius: 4,
             }]
         });
-        // if (attrs.connect) {
-        //     jsPlumb.connect({
-        //         source: attrs.id,
-        //         target: attrs.connect,
-        //         paintStyle: { stroke: "white", strokeWidth: 10 },
-        //         connector: ["Flowchart", {
-        //             alwaysRespectStubs: true,
-        //             cornerRadius: 4,
-        //         }],
-        //         endpoint: "Blank",
-        //         anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
-        //     });
-        // }
+        if (attrs.connect) {
+            setTimeout(() => {
+                jsPlumb.connect({
+                    source: dom.id,
+                    target: attrs.connect,
+                    paintStyle: { stroke: "white", strokeWidth: 10 },
+                    connector: ["Flowchart", {
+                        alwaysRespectStubs: true,
+                        cornerRadius: 4,
+                    }],
+                    endpoint: "Blank",
+                    anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
+                });
+            }, 20);
+        }
     }
+    hooks.oncreate = update;
+    hooks.onupdate = update;
     style.setStyle({
         background: "rgb(75, 126, 28) ",
         width: "16px",
@@ -76,7 +81,7 @@ function Entrypoint({style,hooks}) {
         
     })
     return (
-        <div id="handle-block">
+        <div id="entrypoint">
             <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-3 my-8" />
         </div>
     )

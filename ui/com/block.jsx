@@ -10,21 +10,32 @@ export function Block({ attrs, style, hooks }) {
     hooks.oncreate = App.blockcreate;
     hooks.onupdate = App.autosize;
 
+    var inflow = attrs.inflow || false;
+    var outflow = attrs.outflow || false;
+    var inputs = attrs.inputs || [];
+    var outputs = attrs.outputs || [];
+    var [x, y] = attrs.position || [0,0];
+    var id = attrs.id || "";
+    var label = attrs.label || "";
+    var connect = attrs.connect || "";
+    var connects = attrs.connects || {};
+
+
     let flowBlock = false;
     let exprBlock = false;
-    if (attrs.inflow || attrs.outflow) {
+    if (inflow || outflow) {
         style.addClass("flow")
         flowBlock = true;
     }
-    if (!attrs.inflow && !attrs.outflow && !attrs.outputs) {
+    if (!inflow && !outflow && !outputs) {
         exprBlock = true;
     }
 
     let gridSize = Style.propInt("--grid-size");
     style.setStyle({
         marginLeft: "4px",
-        left: (attrs.x * gridSize) + "px",
-        top: (attrs.y * gridSize) + "px",
+        left: (x * gridSize) + "px",
+        top: (y * gridSize) + "px",
         width: "120px",
         position: "absolute",
         backgroundColor: "#475054",
@@ -34,24 +45,24 @@ export function Block({ attrs, style, hooks }) {
         borderRadius: "var(--corner-size)"
     });
     let headerAttrs = {
-        id: attrs.id,
-        title: attrs.title,
-        connect: attrs.connect,
+        id: id,
+        label: label,
+        connect: connect,
         flow: flowBlock,
         expr: exprBlock,
-        inflow: attrs.inflow,
-        outflow: attrs.outflow
+        inflow: inflow,
+        outflow: outflow
     };
     let bodyAttrs = {
-        id: attrs.id,
-        inputs: attrs.inputs,
-        outputs: attrs.outputs,
-        connects: attrs.connects
+        id: id,
+        inputs: inputs,
+        outputs: outputs,
+        connects: connects
     };
     return (
-        <div id={attrs.id}>
+        <div id={id}>
             <Header {...headerAttrs} />
-            {(attrs.title == "switch") ?
+            {(label == "switch") ?
                 <SwitchBody {...bodyAttrs} /> :
                 <PortsBody {...bodyAttrs} />
             }
@@ -85,7 +96,7 @@ function Header({ attrs, style }) {
     let handlers = {
         oninput: (e) => {
             let id = e.target.parentNode.parentNode.id;
-            App.updateBlock(id, { title: e.target.innerHTML });
+            App.updateBlock(id, { label: e.target.innerHTML });
         },
         ondblclick: (e) => {
             var node = e.srcElement;
@@ -108,7 +119,7 @@ function Header({ attrs, style }) {
         oninput: handlers.oninput,
         ondblclick: handlers.ondblclick,
         contenteditable: "true",
-    }, m.trust(attrs.title));
+    }, m.trust(attrs.label));
     let headerAttrs = {
         id: attrs.id + "-header",
         class: "header"
@@ -239,6 +250,7 @@ function Port({attrs, style}) {
 
 function InflowEndpoint({ attrs, style, hooks }) {
     hooks.oncreate = ({ dom }) => {
+        jsPlumb.removeAllEndpoints(dom);
         jsPlumb.addEndpoint(dom, {
             endpoint: "Blank",
             isTarget: true,
@@ -263,8 +275,9 @@ function InflowEndpoint({ attrs, style, hooks }) {
 }
 
 export function OutflowEndpoint({ attrs, style, hooks }) {
-    hooks.oncreate = ({ dom, attrs }) => {
-        let block = App.getBlockById(attrs.id)
+    const update = ({ dom }) => {
+        // let block = App.getBlockById(attrs.id.replace("-out", ""));
+        jsPlumb.removeAllEndpoints(dom);
         jsPlumb.addEndpoint(dom, {
             endpoint: "Blank",
             isSource: true,
@@ -278,20 +291,25 @@ export function OutflowEndpoint({ attrs, style, hooks }) {
             }]
         });
 
+        // console.log(attrs);
         if (attrs.connect) {
-            jsPlumb.connect({
-                source: attrs.id,
-                target: attrs.connect,
-                paintStyle: { stroke: "white", strokeWidth: 10 },
-                connector: ["Flowchart", {
-                    alwaysRespectStubs: true,
-                    cornerRadius: 4,
-                }],
-                endpoint: "Blank",
-                anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
-            });
+            setTimeout(() => {
+                jsPlumb.connect({
+                    source: attrs.id,
+                    target: attrs.connect,
+                    paintStyle: { stroke: "white", strokeWidth: 10 },
+                    connector: ["Flowchart", {
+                        alwaysRespectStubs: true,
+                        cornerRadius: 4,
+                    }],
+                    endpoint: "Blank",
+                    anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
+                });
+            }, 20);
         }
     }
+    hooks.oncreate = update;
+    hooks.onupdate = update;
 
     var color = attrs.color || "#475054";   
 
