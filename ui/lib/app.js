@@ -97,7 +97,7 @@ class App {
             if (endpoint) {
                 for (let i = 0; i < Math.max(endpoint.length); i++) {
                     if (i < endpoint.length) {
-                        let outputMath = outputs ? 0.9 : 1
+                        let outputMath = outputs ? 1 : 0.9
                         return (Math.max(Math.ceil((endpoint[i].length * fontSize * 0.8) / 40), 2) * 30) / outputMath
                     };
                 };
