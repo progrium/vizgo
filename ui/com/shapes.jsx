@@ -13,6 +13,7 @@ export function Dots({ attrs, style }) {
         backgroundColor: "transparent",
         backgroundRepeat: "repeat",
         backgroundSize: `${size}px ${size}px`,
+        opacity: "70%",
         width: "100%",
     });    
     style.setStyle({ width: `${size*cols}px` }, () => cols !== undefined)

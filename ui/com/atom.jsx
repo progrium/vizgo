@@ -79,6 +79,7 @@ export function Label({attrs, style, children}) {
     style.setStyle({
         marginLeft: "2px",
         fontSize: "small",
+        filter: "drop-shadow(1px 1px 0.5px #00000066)",
     });
     return <div>{children}</div>
 }
