@@ -7,16 +7,5 @@ import "/vnd/jsPlumb-2.11.2.min.js?0";
 
 import "/lib/h.js";
 
-import * as hotweb from '/.hotweb/client.mjs'
-import * as app from '/lib/app.js';
-
-function wrap(cb) {
-    return { view: () => h(cb()) };
-}
-
-jsPlumb.ready(function () {
-    hotweb.watchCSS();
-    hotweb.watchHTML();
-    hotweb.refresh(() => h.redraw())
-    h.mount(document.body, wrap(() => app.App));
-})
+import { App } from '/lib/app.js';
+App.init();

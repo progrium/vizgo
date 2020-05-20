@@ -1,5 +1,5 @@
 import * as shapes from "./shapes.js";
-import { Style } from "./style.js";
+import { Style } from "../lib/style.js";
 
 var m = h;
 
@@ -69,33 +69,27 @@ export function Panel({style,children}) {
 }
 
 
-export function Grip({attrs}) {
-    let style = new Style(Grip);
-    style.addClass(attrs.class);
-    style.setStyle(attrs.style);
+export function Grip({style,attrs}) {
     style.addClass("mr-1");
-    return <shapes.Dots cols={2} {...style.attrs()} />
+    return <shapes.Dots cols={2} />
 }
 
 
-export function Label({attrs, children}) {
-    let style = new Style(Label, {
+export function Label({attrs, style, children}) {
+    style.setStyle({
         marginLeft: "2px",
         fontSize: "small",
     });
-    style.addClass(attrs.class);
-    style.setStyle(attrs.style);
-    return h("div", style.attrs(), children)
+    return <div>{children}</div>
 }
 
-export function Textbox({ attrs, children }) {
-    let style = new Style(Textbox);
+export function Textbox({ attrs, style, children }) {
     style.addClass("input-outer");
     style.addClass("dark", () => attrs.dark);
     style.addClass("light", () => !attrs.dark);
 
     return (
-        <div class={style.class()} style={style.style()}>
+        <div>
             <div style={inputInner.style()}>
                 {children}
             </div>
@@ -103,12 +97,13 @@ export function Textbox({ attrs, children }) {
     )
 }
 
-export function BlockTextbox({children}) {
-    let outer = new Style(BlockTextbox, {
+export function BlockTextbox({style, children}) {
+    style.setStyle({
         marginRight: "4px",
         marginLeft: "2px",
-    }, inputOuter)
-    outer.addClass("light");
+    });
+    style.extendStyle(inputOuter);
+    style.addClass("light");
 
     let inner = Style.from({
         paddingTop: "1px",
@@ -118,7 +113,7 @@ export function BlockTextbox({children}) {
     inner.extendStyle(inputInner);
 
     return (
-        <div class={outer.class()} style={outer.style()}>
+        <div>
             <div style={inner.style()}>
                 {children}
             </div>
@@ -146,6 +141,22 @@ export function Fieldbox({ attrs, style, children }) {
     )
 }
 
+export function Divider({style}) {
+    style.setStyle({
+        content: '""',
+        flex: "0 0 auto",
+        position: "relative",
+        boxSizing: "border-box",
+        width: "2.5px",
+        backgroundColor: "grey",
+        height: "100%",
+        cursor: "ew-resize",
+        userSelect: "none",
+    });
+    return (
+        <div data-target=".sidebar"></div>
+    )
+}
 
 let inputOuter = Style.defineClass("input-outer", {
     borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",

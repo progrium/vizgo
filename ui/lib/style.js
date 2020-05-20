@@ -1,5 +1,14 @@
 
 class Style {
+    static propInt(prop, el=document.documentElement) {
+        return parseInt(Style.prop(prop, el), 10);
+    }
+    
+    static prop(prop, el=document.documentElement) {
+        return getComputedStyle(el).getPropertyValue(prop);
+    }
+
+
     static defineClass(name, style, extend) {
         // perhaps rename to declare? you can
         // define more than classes with this...

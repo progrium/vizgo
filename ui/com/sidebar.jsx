@@ -1,8 +1,4 @@
 import * as atom from "./atom.js";
-import * as shapes from "./shapes.js";
-
-import { Style } from "./style.js";
-import { h } from "./h.js";
 
 var m = h;
 
@@ -31,17 +27,17 @@ export function Sidebar({attrs, style}) {
                     <atom.Textbox dark={true}>{pkg.Name}</atom.Textbox>                    
                 </atom.Panel>
                 {pkg.Declarations.map((decl) => {
-                    switch (decl.Type) {
+                    switch (decl[0]) {
                     case "imports":
-                        return <Imports data={decl.Imports} />
+                        return <Imports data={decl[1]} />
                     case "constants":
-                        return <Constants data={decl.Constants} />
+                        return <Constants data={decl[1]} />
                     case "variables":
                         return <Constants />
                     case "function":
-                        return <Function data={decl.Function} />
+                        return <Function data={decl[1]} />
                     case "type":
-                        return <Type data={decl.Type} />
+                        return <Type data={decl[1]} />
                     default:
                         return <atom.Panel><textarea>{JSON.stringify(decl)}</textarea></atom.Panel>
                     }
@@ -51,38 +47,45 @@ export function Sidebar({attrs, style}) {
     )
 }
 
-function Type() {
+function Type({attrs}) {
+    var typ = attrs.data || {};
     return (
         <atom.Panel>
             <atom.GripLabel>Type</atom.GripLabel>
-            <atom.Fieldbox type="struct">serverFoo</atom.Fieldbox>
+            <atom.Fieldbox type={typ.Type}>{typ.Name}</atom.Fieldbox>
             <atom.Stack class="pl-1 mt-2">
-                <atom.Grippable><atom.Fieldbox dark={true} type="string">Foobar</atom.Fieldbox></atom.Grippable>
-                <atom.Grippable><atom.Fieldbox dark={true} type="bool">BooleanField</atom.Fieldbox></atom.Grippable>
-                <atom.Grippable><atom.Fieldbox dark={true} type="int64">Number</atom.Fieldbox></atom.Grippable>
+                {typ.Fields.map((field) =>
+                    <atom.Grippable><atom.Fieldbox dark={true} type={field[1]}>{field[0]}</atom.Fieldbox></atom.Grippable>
+                )}
             </atom.Stack>
             <atom.Stack class="pl-1 mt-2">
-                <atom.Subpanel>
-                    <atom.GripLabel>Method</atom.GripLabel>
-                    <FunctionBody />
-                </atom.Subpanel>
-                <atom.Subpanel>
-                    <atom.GripLabel>Method</atom.GripLabel>
-                    <FunctionBody />
-                </atom.Subpanel>
+                {typ.Methods.map((method) =>
+                    <Method data={method} />
+                )}
             </atom.Stack>
         </atom.Panel>
     )
 }
 
-function Function({attrs}) {
+function Function({attrs, vnode}) {
     var fn = attrs.data || {};
-    return (
-        <atom.Panel>
-            <atom.GripLabel>Function</atom.GripLabel>
-            <FunctionBody fn={fn} /> 
-        </atom.Panel>
-    )
+    var label = attrs.label || "Function";
+    var container = attrs.container || atom.Panel;
+
+    const onclick = () => App.switchGrid(vnode.dom, fn);
+
+    return h(container, {onclick: onclick}, (
+        <div>
+            <atom.GripLabel>{label}</atom.GripLabel>
+            <FunctionBody fn={fn} />
+        </div>
+    ));
+}
+
+function Method(vnode) {
+    vnode.attrs.label = "Method";
+    vnode.attrs.container = atom.Subpanel;
+    return Function(vnode)
 }
 
 function Constants() {
@@ -114,16 +117,16 @@ function Imports({attrs}) {
     )
 }
 
-function FunctionBody({attrs,style}) {
+function FunctionBody({attrs}) {
     var fn = attrs.fn || {};
 
-    let args = fn.In.map((e) => e[0]).join(", ");
-    let type = fn.Out.join(", ");
+    let args = (fn.In||[]).map((e) => e[0]).join(", ");
+    let type = (fn.Out||[]).join(", ");
     return (
         <div>
             <atom.Fieldbox type={type}>{fn.Name}({args})</atom.Fieldbox>
             <atom.Stack class="text-xs pl-1 mt-2">
-                {fn.In.map((arg) =>
+                {(fn.In||[]).map((arg) =>
                     <atom.Grippable><atom.Fieldbox dark={true} type={arg[1]}>{arg[0]}</atom.Fieldbox></atom.Grippable>
                 )}
             </atom.Stack>
