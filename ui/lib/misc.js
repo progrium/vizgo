@@ -17,7 +17,7 @@ function initApp() {
         maxWidth: null,
     };
 
-    $(document.body).on('mousedown', '.Handle', null, (event) => {
+    $(document.body).on('mousedown', '.Divider', null, (event) => {
         if (event.button !== 0) {
             return;
         }

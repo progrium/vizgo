@@ -19,7 +19,7 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+        App.createBlock({ type: "return", inputs: ["stringGGGGGGGGGGGG", "error"], id: "r" });
 
         // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
         // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });
@@ -61,66 +61,72 @@ class App {
         m.redraw();
     }
 
-    static checkposition(vnode) {
-        let vnodePosition = parseInt(vnode.dom.style.left.replace("px", ""))
-        if (vnodePosition <= $(".sidebar").innerWidth()) {
-            vnodePosition += $(".sidebar").innerWidth() - vnodePosition + 30
-            vnode.dom.style.left = vnodePosition + "px"
+    static getBlockById (id) {
+        for (let block of App.blocks) {
+            if (block.id === id) {
+                return block
+            }
+        }
+        console.log(`Block with id "${id}" doesn't exist!`)
+    }
+
+    static checkPosition({ dom }) {
+        let blockPosition = +`${dom.style.left.replace("px", "")}`
+        if (blockPosition <= $(".Sidebar").innerWidth()) {
+            blockPosition += $(".Sidebar").innerWidth() - blockPosition + 30
+            dom.style.left = blockPosition + "px"
         }
     }
 
-    static autosize(vnode) {
-        // TODO: simplify?
+    static autosize({ attrs, dom }) {
 
-        let fontSize = Style.propInt("font-size", vnode.dom);
-        vnode.attrs.title = (vnode.attrs.title||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
-        let textWidth = vnode.attrs.title.length * fontSize * 0.8;
+        let block = App.getBlockById(attrs.id)
 
-        if (vnode.attrs.title == "switch") {
+        let fontSize = Style.propInt("font-size", dom);
+        attrs.title = (attrs.title||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+        let textWidth = attrs.title.length * fontSize * 0.8;
+
+        if (block.title == "switch") {
             textWidth *= 3;
         }
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
-        let inputListLength, outputListLength = 0;
-        if (vnode.attrs.inputs) {
-            inputListLength = vnode.attrs.inputs.length
+
+        let calculateEndpointWidth = (block, endpoint, fontSize) => {
+            if (block[endpoint]) {
+                for (let i = 0; i < Math.max(block[endpoint].length); i++) {
+                    if (i < block[endpoint].length) {
+                        let outputMath = "outputs" ? 0.9 : 1
+                        return (Math.max(Math.ceil((block[endpoint][i].length * fontSize * 0.8) / 40), 2) * 30) / outputMath
+                    };
+                };
+            };
+            return 0
         }
-        if (vnode.attrs.outputs) {
-            outputListLength = vnode.attrs.outputs.length
+    
+        let inputs = calculateEndpointWidth(block, "inputs", fontSize)
+        let outputs = calculateEndpointWidth(block, "outputs", fontSize)
+        if (inputs + outputs > newWidth) {
+            newWidth = (Math.max(Math.ceil((inputs + outputs) / 30), 2) * 30)
         }
-        let i;
-        for (i = 0; i < Math.max(inputListLength, outputListLength); i++) {
-            let inputWidth, outputWidth = 0
-            if (vnode.attrs.inputs) {
-                if (i < vnode.attrs.inputs.length) {
-                    inputWidth = (Math.max(Math.ceil((vnode.attrs.inputs[i].length * fontSize * 0.8) / 40), 2) * 30) / 0.9
-                }
-            }
-            if (vnode.attrs.outputs) {
-                if (i < vnode.attrs.outputs.length) {
-                    outputWidth = (Math.max(Math.ceil((vnode.attrs.outputs[i].length * fontSize * 0.8) / 40), 2) * 30)
-                }
-            }
-            if (inputWidth + outputWidth > newWidth) {
-                newWidth = (Math.max(Math.ceil((inputWidth + outputWidth) / 30), 2) * 30)
-            }
-        };
-        vnode.dom.style.width = newWidth + "px";
+
+        dom.style.width = newWidth + "px";
         jsPlumb.repaintEverything();
     }
 
     static blockcreate(vnode) {
+        let {attrs, dom} = vnode
         let size = Style.propInt("--grid-size");
-        jsPlumb.draggable(vnode.dom, {
+        jsPlumb.draggable(dom, {
             grid: [size, size],
             containment: "parent",
         });
         $(window).on('mousemove', null, null, (event) => {
-            App.checkposition(vnode)
+            App.checkPosition(vnode)
         })
         App.autosize(vnode);
         // when creating a new empty expression block
-        if (vnode.attrs.title === "") {
-            vnode.dom.firstChild.firstChild.focus();
+        if (attrs.title === "") {
+            dom.firstChild.firstChild.focus(); // consider re-writing this
         }
     }
 
