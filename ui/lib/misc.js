@@ -1,5 +1,5 @@
 
-function initApp() {
+export function initApp() {
     const selectTarget = (fromElement, selector) => {
         if (!(fromElement instanceof HTMLElement)) {
             return null;
@@ -65,19 +65,19 @@ function initApp() {
 
     $(document).ready(function () {
         // sidebar declarations sorting
-        $("#declarations").sortable({
+        $(".Stack.flex.flex-col").sortable({
             items: "> div",
             revert: 150,
             tolerance: "intersect",
-            handle: ".VerticalDots",
+            handle: ".Dots.mb-1",
             containment: "parent",
             axis: "y",
         });
-        $(".decl-body").sortable({
+        $(".Stack.flex.flex-col.pl-1.mt-2").sortable({
             items: "> div",
             revert: 150,
             tolerance: "pointer",
-            handle: ".VerticalDots",
+            handle: ".Dots.Grip.mr-1.mt-1.mb-1",
             containment: "parent",
             axis: "y",
         });

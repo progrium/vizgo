@@ -3,15 +3,16 @@ import * as main from '../com/main.js';
 
 import { Style } from "./style.js";
 import { h } from "./h.js";
+import { initApp } from './misc.js';
 
 class App {
     static init() {
+        initApp()
         App.blocks = [];
 
         function wrap(cb) {
             return { view: () => h(cb()) };
         }
-
         jsPlumb.ready(function () {
             hotweb.watchCSS();
             hotweb.watchHTML();
