@@ -60,7 +60,7 @@ function Type({attrs}) {
             </atom.Stack>
             <atom.Stack class="pl-1 mt-2">
                 {typ.Methods.map((method) =>
-                    <Method data={method} />
+                    <Method data={method} type={typ} />
                 )}
             </atom.Stack>
         </atom.Panel>
@@ -72,9 +72,11 @@ function Function({attrs, vnode}) {
     var label = attrs.label || "Function";
     var container = attrs.container || atom.Panel;
 
-    const onclick = () => App.switchGrid(vnode.dom, fn);
+    let name = (attrs.type) ? `${attrs.type.Name}-${fn.Name}`: fn.Name;
 
-    return h(container, {onclick: onclick}, (
+    const onclick = () => App.switchGrid(name);
+
+    return h(container, {id: name, onclick: onclick}, (
         <div>
             <atom.GripLabel>{label}</atom.GripLabel>
             <FunctionBody fn={fn} />

@@ -1,16 +1,16 @@
 import * as block from "./block.js";
 import * as shapes from "./shapes.js";
+import { App } from "../lib/app.js";
 
 var m = h;
 
 export function Grid({attrs,style,hooks,vnode}) {
     hooks.oncreate = () => {
         jsPlumb.setContainer(vnode.dom);
-        jsPlumb.bind("beforeDrop", function (params) {
-            console.log(params);
-            return true;
-        });
     }
+
+    var blocks = attrs.blocks || [];
+    var entry = attrs.entry || "";
 
     style.setStyle({
         backgroundSize: "var(--grid-size) var(--grid-size)",
@@ -27,8 +27,8 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Entrypoint connect={(attrs.blocks.length>0) ? attrs.blocks[0].id : undefined} />    
-            {attrs.blocks.map((attrs) => {
+            <Entrypoint connect={entry} />    
+            {blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
                 return <block.Block {...attrs} />
             })}
@@ -36,41 +36,12 @@ export function Grid({attrs,style,hooks,vnode}) {
     )
 }
 
-function Entrypoint({attrs,style,hooks}) {
-    const update = ({ dom }) => {
-        jsPlumb.removeAllEndpoints(dom);
-        jsPlumb.addEndpoint(dom, {
-            endpoint: "Blank",
-            isSource: true,
-            anchor: [0, 0, 1, 0, 0, 14],
-            cssClass: "entry",
-            scope: "flow",
-            connectorStyle: { stroke: "white", strokeWidth: 10 },
-            connector: ["Flowchart", {
-                alwaysRespectStubs: true,
-                cornerRadius: 4,
-            }]
-        });
-        if (attrs.connect) {
-            setTimeout(() => {
-                jsPlumb.connect({
-                    source: dom.id,
-                    target: attrs.connect,
-                    paintStyle: { stroke: "white", strokeWidth: 10 },
-                    connector: ["Flowchart", {
-                        alwaysRespectStubs: true,
-                        cornerRadius: 4,
-                    }],
-                    endpoint: "Blank",
-                    anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
-                });
-            }, 20);
-        }
-    }
+function Entrypoint({attrs,style,hooks,vnode}) {
+    const update = () => App.updateFlow(attrs, "entrypoint-out");
     hooks.oncreate = update;
     hooks.onupdate = update;
     style.setStyle({
-        background: "rgb(75, 126, 28) ",
+        background: "var(--sidebar-color)", //rgb(75, 126, 28)
         width: "16px",
         height: "150px",
         borderTopRightRadius: "var(--corner-size)",
@@ -82,7 +53,7 @@ function Entrypoint({attrs,style,hooks}) {
     })
     return (
         <div id="entrypoint">
-            <shapes.ArrowHead color="rgb(75, 126, 28)" class="ml-3 my-8" />
+            <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-3 my-8" />
         </div>
     )
 }

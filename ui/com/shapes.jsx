@@ -76,7 +76,7 @@ export function ArrowTail({ attrs, style }) {
 
     let side = base / Math.sqrt(2);
     let height = Math.sqrt(Math.pow(side, 2) - (Math.pow(base, 2) / 4));
-    // let offsetY = (side / 2) - (height / 2) + 1;
+    let offsetY = (side / 2) - (height / 2) + 1;
 
     style.setStyle({
         width: `${height}px`,
@@ -94,23 +94,24 @@ export function ArrowTail({ attrs, style }) {
     })
     //tail.setStyle(attrs.style);
 
-    // let trianglePath = "polygon(0 0, 100% 0, 100% 100%)";
-    // let triangle = Style.from({
-    //     transform: "rotate(45deg)",
-    //     position: "relative",
-    //     width: `${side}px`,
-    //     height: `${side}px`,
-    //     backgroundColor: "transparent",
-    //     left: `-${side / 2}px`,
-    //     top: `${offsetY}px`,
-    //     clipPath: trianglePath,
-    //     WebkitClipPath: trianglePath,
-    //     opacity: "0"
-    // });
+    let trianglePath = "polygon(0 0, 100% 0, 100% 100%)";
+    let triangle = Style.from({
+        transform: "rotate(45deg)",
+        position: "relative",
+        width: `${side}px`,
+        height: `${side}px`,
+        backgroundColor: "#fff",
+        left: `-${side / 2}px`,
+        top: `${offsetY}px`,
+        clipPath: trianglePath,
+        WebkitClipPath: trianglePath,
+        display: "none",
+    });
 
     return (
         <div>
             <div style={tail.style()} />
+            <div class="arrow" style={triangle.style()} />
         </div>
     )
 }

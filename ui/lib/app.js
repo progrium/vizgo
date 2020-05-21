@@ -1,25 +1,34 @@
 import * as hotweb from '/.hotweb/client.mjs'
 import * as main from '../com/main.js';
 
+import { Remote } from "./remote.js";
 import { Style } from "./style.js";
 import { h } from "./h.js";
-import { initApp, contextMenu } from './misc.js';
+import { initApp, contextMenu, findFn } from './misc.js';
+import { session } from "./mock.js";
+
 
 class App {
     static init() {
         contextMenu() // doesn't seem to work
         initApp()
+
         App.blocks = [];
+        App.entry = "";
+        App.session = session;
 
         function wrap(cb) {
             return { view: () => h(cb()) };
         }
-        jsPlumb.ready(function () {
+        
+        jsPlumb.bind("ready", function () {
             hotweb.watchCSS();
             hotweb.watchHTML();
             hotweb.refresh(() => h.redraw())
             h.mount(document.body, wrap(() => main.Main));
         })
+
+        App.switchGrid(App.session.Selected);
 
         //App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
@@ -28,21 +37,44 @@ class App {
         // App.createBlock({ type: "assign", connect: "r-in" });
     }
 
-    static switchGrid(dom, fn) {
-        App.setBlocks(fn.Blocks);
-        $("#entrypoint")[0].style['top'] = dom.offsetTop + "px";
-        $("#entrypoint")[0].style['height'] = dom.offsetHeight + "px";
+    static switchGrid(name) {
+        Remote.select(name);
+        $("#entrypoint")[0].style['top'] = $(`#${name}`)[0].offsetTop + "px";
+        $("#entrypoint")[0].style['height'] = $(`#${name}`)[0].offsetHeight + "px";
+
+        jsPlumb.reset();
+        jsPlumb.bind("connectionDetached", function (params, e) {
+            if (e === undefined) {
+                return;
+            }
+            let src = params.sourceId.replace("-out", "");
+            let dst = params.targetId.replace("-in", "");
+            Remote.disconnect(src, dst);
+        });
+        jsPlumb.bind("connection", function (params, e) {
+            if (e === undefined) {
+                return;
+            }
+            let src = params.sourceId.replace("-out", "");
+            let dst = params.targetId.replace("-in", "");
+            Remote.connect(src, dst);
+        });
+
+        App.reloadGrid();
     }
 
-    static updateBlock(id, obj) {
-        App.blocks = App.blocks.map((el) => {
-            if (el.id !== id) {
-                return el;
-            }
-            return Object.assign(el, obj);
-        })
+    static reloadGrid() {
+
+        let fn = findFn(App.session, App.session.Selected);
+        App.entry = fn.Entry;
+        App.blocks = fn.Blocks.map((b) => {
+            return Object.assign(clone(BlockTypes[b.type]), b);
+        });
+
+        jsPlumb.repaintEverything();
         m.redraw();
     }
+
 
     static getBlockById (id) {
         for (let block of App.blocks) {
@@ -51,14 +83,6 @@ class App {
             }
         }
         console.log(`Block with id "${id}" doesn't exist!`)
-    }
-
-    static setBlocks(blocks) {
-        jsPlumb.reset();
-        App.blocks = blocks.map((b) => {
-            return Object.assign(clone(BlockTypes[b.type]), b);
-        });
-        m.redraw();
     }
 
     static createBlock(obj) {
@@ -92,13 +116,19 @@ class App {
 
     static autosize({ attrs, dom }) {
 
+        // let size = Style.propInt("--grid-size");
+        // jsPlumb.draggable(dom, {
+        //     grid: [size, size],
+        //     containment: "parent",
+        // });
+
         let block = App.getBlockById(attrs.id)
 
         let fontSize = Style.propInt("font-size", dom);
-        block.title = (block.title||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
-        let textWidth = block.title.length * fontSize * 0.8;
+        block.label = (block.label||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+        let textWidth = block.label.length * fontSize * 0.8;
 
-        if (block.title == "switch") {
+        if (block.label == "switch") {
             textWidth *= 3;
         }
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
@@ -138,7 +168,7 @@ class App {
         })
         App.autosize(vnode);
         // when creating a new empty expression block
-        if (attrs.title === "") {
+        if (attrs.label === "") {
             dom.firstChild.firstChild.focus(); // consider re-writing this
         }
     }
@@ -197,7 +227,49 @@ class App {
         }
     }
 
+    static updateFlow( attrs, source ) {
+        
+        jsPlumb.removeAllEndpoints(source);
+        
+        if (attrs.connect) {
+
+            setTimeout(() => {
+                jsPlumb.connect({
+                    source: source,
+                    target: attrs.connect+"-in",
+                    paintStyle: { stroke: "white", strokeWidth: 10 },
+                    connector: ["Flowchart", {
+                        alwaysRespectStubs: true,
+                        cornerRadius: 4,
+                    }],
+                    detachable: true,
+                    maxConnections:1,
+                    endpoint: ["Rectangle", {
+                        cssClass:"endpoint-anchor", 
+                    }],
+                    endpointStyle:{ fill:"white" },
+                    anchors: [[0, 0, 1, 0, 4, 13], [0, 0.5, -1, 0, 0, 0]]
+                });
+            }, 30);
+        } else {
+            jsPlumb.addEndpoint(source, {
+                endpoint: ["Rectangle", {
+                    cssClass:"endpoint-anchor",
+                }],
+                endpointStyle:{ fill:"white" },
+                isSource: true,
+                anchor: [0, 0, 1, 0, 4, 14],
+                scope: "flow",
+                connectorStyle: { stroke: "white", strokeWidth: 10 },
+                connector: ["Flowchart", {
+                    alwaysRespectStubs: true,
+                    cornerRadius: 4,
+                }]
+            });
+        }
+    }
 }
+
 
 function clone(obj) {
     return $.extend(true, {}, obj);

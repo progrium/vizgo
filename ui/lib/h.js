@@ -30,10 +30,17 @@ function wrap(v) {
             applyHooks(output, input.hooks);
             applyStyle(output, style)
             applyEvents(output, input.attrs);
+            applyId(output, input.attrs);
             
             return output;
         }
     }  
+}
+
+function applyId(vnode, attrs) {
+    if (attrs.id) {
+        vnode.attrs.id = attrs.id;
+    }
 }
 
 function applyAttrs(style, attrs) {

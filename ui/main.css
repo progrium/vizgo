@@ -2,7 +2,7 @@
 @import url(/vnd/tailwind-1.2.0.min.css);
 
 @import url(https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap) screen;
-@import "/vnd/jquery-contextmenu.css" screen;
+@import "/vnd/jquery-contextmenu-2.9.2.css" screen;
 
 :root {
     --background-color: #2D3639;
@@ -28,6 +28,23 @@ body {
 .ArrowHead div {
     z-index: 10;
 }
+.jtk-connected .ArrowTail .arrow {
+    display: block !important;
+}
+
+.jtk-endpoint-anchor {
+    z-index: 10;
+    
+}
+.endpoint-anchor {
+    opacity: 0;
+}
+.endpoint-anchor.jtk-dragging {
+    transform: rotate(45deg);
+    opacity: 100;
+}
+
+
 
 nav::-webkit-scrollbar {
     background-color: transparent;
@@ -73,44 +90,3 @@ nav::-webkit-scrollbar-thumb {
 
 
 
-
-.jtk-endpoint {
-    /* border: 1px solid green; */
-    z-index: 100;
-    height: 28px !important;
-    width: 28px !important;
-}
-.jtk-endpoint.output {
-    margin-left: -12px;
-    margin-top: -12px;
-}
-.jtk-endpoint.output {
-    margin-left: -12px;
-    margin-top: -12px;
-}
-.jtk-endpoint.output.header {
-    margin-left: -14px;
-    margin-top: -14px;
-}
-.jtk-endpoint.input {
-    margin-left: -18px;
-    margin-top: -13px;
-}
-.jtk-endpoint.inflow {
-    margin-top: -16px;
-    margin-left: -14px;
-}
-.jtk-endpoint.outflow {
-    margin-left: -12px;
-    margin-top: -17px;
-    
-}
-
-.jtk-endpoint-anchor.jtk-connected.endpoint div {
-    background-color: gray !important;
-}
-.selected {
-    background-color: rgb(75, 126, 28) !important;
-    margin-right: -12px;
-    padding-right: 16px !important;
-}

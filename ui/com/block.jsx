@@ -249,22 +249,26 @@ function Port({attrs, style}) {
 }
 
 function InflowEndpoint({ attrs, style, hooks }) {
-    hooks.oncreate = ({ dom }) => {
+    let update = ({ dom }) => {
         jsPlumb.removeAllEndpoints(dom);
         jsPlumb.addEndpoint(dom, {
-            endpoint: "Blank",
+            endpoint: ["Rectangle", {
+                cssClass:"endpoint-anchor", 
+            }],
+            endpointStyle:{ fill:"white" },
             isTarget: true,
-            cssClass: "inflow",
             width: 30,
             height: 30,
             anchor: [0, 0.5, -1, 0, 0, 0],
             scope: "flow",
         });
     };
+    hooks.oncreate = update;
+    hooks.onupdate = update;
 
     style.setStyle({
         position: "absolute",
-        marginLeft: "-23px"
+        marginLeft: "-22px"
     });
 
     return (
@@ -274,48 +278,16 @@ function InflowEndpoint({ attrs, style, hooks }) {
     )
 }
 
-export function OutflowEndpoint({ attrs, style, hooks }) {
-    const update = ({ dom }) => {
-        // let block = App.getBlockById(attrs.id.replace("-out", ""));
-        jsPlumb.removeAllEndpoints(dom);
-        jsPlumb.addEndpoint(dom, {
-            endpoint: "Blank",
-            isSource: true,
-            anchor: [0, 0, 1, 0, 4, 14],
-            // cssClass: klass,
-            scope: "flow",
-            connectorStyle: { stroke: "white", strokeWidth: 10 },
-            connector: ["Flowchart", {
-                alwaysRespectStubs: true,
-                cornerRadius: 4,
-            }]
-        });
-
-        // console.log(attrs);
-        if (attrs.connect) {
-            setTimeout(() => {
-                jsPlumb.connect({
-                    source: attrs.id,
-                    target: attrs.connect,
-                    paintStyle: { stroke: "white", strokeWidth: 10 },
-                    connector: ["Flowchart", {
-                        alwaysRespectStubs: true,
-                        cornerRadius: 4,
-                    }],
-                    endpoint: "Blank",
-                    anchors: [[0, 0, 1, 0, 4, 0], [0, 0.5, -1, 0, 0, 10]]
-                });
-            }, 20);
-        }
-    }
+export function OutflowEndpoint({ attrs, style, hooks, vnode }) {
+    const update = () => App.updateFlow(attrs, vnode.dom.id);
     hooks.oncreate = update;
     hooks.onupdate = update;
 
     var color = attrs.color || "#475054";   
 
     style.setStyle({
-        marginRight: "-24px",
-        marginTop: "-28px",
+        marginRight: "-23px",
+        marginTop: "-28.5px",
         float: "right",
     }, () => !attrs.case && !attrs.body && !attrs.entry)
 

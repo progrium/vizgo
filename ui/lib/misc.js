@@ -6,6 +6,7 @@ export function initApp() {
         }
         return fromElement.querySelector(selector);
     };
+  
 
     const resizeData = {
         tracking: false,
@@ -117,4 +118,26 @@ export function contextMenu() {
             };
         }
     });
+}
+
+
+export function findFn(sess, fn) {
+    let decls = sess.Package.Declarations;
+    for (let decl of decls) {
+        if (fn.includes("-")) {
+            let [cls, name] = fn.split("-");
+            if (decl[0] == "type" && decl[1].Name == cls) {
+                for (let m of decl[1].Methods) {
+                    if (m.Name == name) {
+                        return m;
+                    }        
+                }
+            }
+        } else {
+            if (decl[0] == "function" && decl[1].Name == fn) {
+                return decl[1];
+            }
+        }
+    }
+    console.warn(fn, "not found");
 }

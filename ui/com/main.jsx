@@ -1,8 +1,8 @@
 import * as atom from "./atom.js";
 import * as grid from "./grid.js";
 import * as sidebar from "./sidebar.js";
+import { App } from "../lib/app.js";
 
-import { session } from "../lib/mock.js";
 
 var m = h;
 
@@ -16,9 +16,9 @@ export function Main({style}) {
     });
     return (
         <main>
-            <sidebar.Sidebar package={session.Package} />
+            <sidebar.Sidebar package={App.session.Package} />
             <atom.Divider />
-            <grid.Grid blocks={App.blocks} />
+            <grid.Grid blocks={App.blocks} entry={App.entry} />
         </main>
     )
 }
