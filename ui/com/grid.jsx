@@ -13,6 +13,8 @@ export function Grid({attrs,style,hooks,vnode}) {
     var entry = attrs.entry || "";
 
     style.setStyle({
+        userSelect: "none",
+        MozUserSelect: "none",
         backgroundSize: "var(--grid-size) var(--grid-size)",
         backgroundColor: "var(--background-color)",
         backgroundImage: "radial-gradient(#202020 2px, transparent 0)",

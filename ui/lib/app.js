@@ -109,7 +109,7 @@ class App {
     static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
         let blockPosition = +`${dom.style.left.replace("px", "")}`
         if (blockPosition <= $(".Sidebar").innerWidth()) {
-            blockPosition += $(".Sidebar").innerWidth() - blockPosition + 30
+            blockPosition += 30
             dom.style.left = blockPosition + "px"
         }
     }
@@ -156,17 +156,16 @@ class App {
         jsPlumb.repaintEverything();
     }
 
-    static blockcreate(vnode) {
-        let {attrs, dom} = vnode
+    static blockcreate({attrs, dom}) {
         let size = Style.propInt("--grid-size");
         jsPlumb.draggable(dom, {
             grid: [size, size],
             containment: "parent",
         });
         $(window).on('mousemove', null, null, (event) => {
-            App.checkPosition(vnode)
+            App.checkPosition({ dom })
         })
-        App.autosize(vnode);
+        App.autosize({attrs, dom});
         // when creating a new empty expression block
         if (attrs.label === "") {
             dom.firstChild.firstChild.focus(); // consider re-writing this
@@ -248,7 +247,7 @@ class App {
                         cssClass:"endpoint-anchor", 
                     }],
                     endpointStyle:{ fill:"white" },
-                    anchors: [[0, 0, 1, 0, 4, 13], [0, 0.5, -1, 0, 0, 0]]
+                    anchors: [[0, 0, 1, 0, 4, 13.5], [0, 0.5, -1, 0, 4.5, 0]]
                 });
             }, 30);
         } else {

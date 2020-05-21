@@ -89,6 +89,7 @@ function Header({ attrs, style }) {
     })
     let inner = Style.from({
         height: "var(--grid-size)",
+        userSelect: "none",
         MozUserSelect: "none",
         paddingTop: "0.25rem",
         fontSize: "1rem"
@@ -96,21 +97,15 @@ function Header({ attrs, style }) {
     let handlers = {
         oninput: (e) => {
             let id = e.target.parentNode.parentNode.id;
-            App.updateBlock(id, { label: e.target.innerHTML });
+            App.updateBlock(id, { label: e.target.innerHTML }); // We'll need to re-write this later, because it doesn't actually save the text
         },
         ondblclick: (e) => {
             var node = e.srcElement;
-            if (document.body.createTextRange) {
-                const range = document.body.createTextRange();
-                range.moveToElementText(node);
-                range.select();
-            } else if (window.getSelection) {
-                const selection = window.getSelection();
-                const range = document.createRange();
-                range.selectNodeContents(node);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            }
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            selection.removeAllRanges();
+            selection.addRange(range);
         }
     }
     let title = h("div", {
