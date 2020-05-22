@@ -97,7 +97,8 @@ function Header({ attrs, style }) {
     let handlers = {
         oninput: (e) => {
             let id = e.target.parentNode.parentNode.id;
-            App.updateBlock(id, { label: e.target.innerHTML }); // We'll need to re-write this later, because it doesn't actually save the text
+            let block = App.getBlockById(id) 
+            block.label = e.target.innerHTML
         },
         ondblclick: (e) => {
             var node = e.srcElement;
