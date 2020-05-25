@@ -2,8 +2,6 @@ import * as block from "./block.js";
 import * as shapes from "./shapes.js";
 import { App } from "../lib/app.js";
 
-var m = h;
-
 export function Grid({attrs,style,hooks,vnode}) {
     hooks.oncreate = () => {
         jsPlumb.setContainer(vnode.dom);
@@ -29,7 +27,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Entrypoint connect={entry} />    
+            <Entrypoint connect={(entry)?`${entry}-in`:undefined} />    
             {blocks.map((attrs) => {
                 attrs["key"] = attrs["id"];
                 return <block.Block {...attrs} />
@@ -39,7 +37,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 }
 
 function Entrypoint({attrs,style,hooks,vnode}) {
-    const update = () => App.updateFlow(attrs, "entrypoint-out");
+    const update = () => App.Outflow_onupdate(attrs, "entrypoint-out");
     hooks.oncreate = update;
     hooks.onupdate = update;
     style.setStyle({

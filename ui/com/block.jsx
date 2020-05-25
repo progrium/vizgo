@@ -4,14 +4,12 @@ import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
 import { App } from "../lib/app.js";
 
-var m = h;
-
 export function Block({ attrs, style, hooks }) {
-    hooks.oncreate = App.blockcreate;
-    hooks.onupdate = App.autosize;
+    hooks.oncreate = App.Block_oncreate;
+    hooks.onupdate = App.Block_onupdate;
 
-    var inflow = attrs.inflow || false;
-    var outflow = attrs.outflow || false;
+    var flow = (attrs.flow === undefined) ? true : attrs.flow;
+    var out = (attrs.out === undefined) ? true : attrs.out;
     var inputs = attrs.inputs || [];
     var outputs = attrs.outputs || [];
     var [x, y] = attrs.position || [0,0];
@@ -20,21 +18,10 @@ export function Block({ attrs, style, hooks }) {
     var connect = attrs.connect || "";
     var connects = attrs.connects || {};
 
-
-    let flowBlock = false;
-    let exprBlock = false;
-    if (inflow || outflow) {
-        style.addClass("flow")
-        flowBlock = true;
-    }
-    if (!inflow && !outflow && !outputs) {
-        exprBlock = true;
-    }
-
     let gridSize = Style.propInt("--grid-size");
     style.setStyle({
         marginLeft: "4px",
-        left: (x * gridSize) + "px",
+        left: (x * gridSize + $("nav")[0].offsetWidth) + "px",
         top: (y * gridSize) + "px",
         width: "120px",
         position: "absolute",
@@ -44,64 +31,45 @@ export function Block({ attrs, style, hooks }) {
         filter: "drop-shadow(3px 3px 5px #111)",
         borderRadius: "var(--corner-size)"
     });
-    let headerAttrs = {
-        id: id,
-        label: label,
-        connect: connect,
-        flow: flowBlock,
-        expr: exprBlock,
-        inflow: inflow,
-        outflow: outflow
-    };
-    let bodyAttrs = {
-        id: id,
-        inputs: inputs,
-        outputs: outputs,
-        connects: connects
-    };
     return (
         <div id={id}>
-            <Header {...headerAttrs} />
-            {(label == "switch") ?
-                <SwitchBody {...bodyAttrs} /> :
-                <PortsBody {...bodyAttrs} />
-            }
+            <Header 
+                block={id} 
+                label={label} 
+                out={out} 
+                flow={flow} 
+                connect={connect} />
+            {h((label == "switch") ? SwitchBody : PortsBody, {
+                block: id,
+                inputs: inputs,
+                outputs: outputs,
+                connects: connects
+            })}
         </div>
     )
 }
 
-function Header({ attrs, style }) {
+function Title({attrs, style}) {
+    var text = attrs.text || "";
+
     style.setStyle({
         height: "var(--grid-size)",
-        borderRadius: "var(--corner-size)",
-        color: "white",
-        textAlign: "left",
-        paddingLeft: "10px",
-        paddingRight: "10px",
-        paddingTop: "0px"
-    });
-    let flow = Style.from({
-        backgroundColor: "var(--sidebar-color)",
-        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderBottom: "var(--pixel-size) solid #42494d",
-        borderRight: "var(--pixel-size) solid #42494d",
-    })
-    let inner = Style.from({
-        height: "var(--grid-size)",
-        userSelect: "none",
         MozUserSelect: "none",
         paddingTop: "0.25rem",
-        fontSize: "1rem"
     })
-    let handlers = {
-        oninput: (e) => {
-            let id = e.target.parentNode.parentNode.id;
-            let block = App.getBlockById(id) 
-            block.label = e.target.innerHTML
-        },
-        ondblclick: (e) => {
-            var node = e.srcElement;
+
+    const oninput = (e) => {
+        let id = e.target.parentNode.parentNode.id;
+        App.updateBlock(id, { label: e.target.innerHTML });
+    }
+    
+    const ondblclick = (e) => {
+        var node = e.srcElement;
+        if (document.body.createTextRange) {
+            const range = document.body.createTextRange();
+            range.moveToElementText(node);
+            range.select();
+        } else if (window.getSelection) {
             const selection = window.getSelection();
             const range = document.createRange();
             range.selectNodeContents(node);
@@ -109,34 +77,123 @@ function Header({ attrs, style }) {
             selection.addRange(range);
         }
     }
-    let title = h("div", {
-        class: "title",
-        style: inner.style(),
-        oninput: handlers.oninput,
-        ondblclick: handlers.ondblclick,
-        contenteditable: "true",
-    }, m.trust(attrs.label));
-    let headerAttrs = {
-        id: attrs.id + "-header",
-        class: "header"
-    };
-    if (attrs.flow === true) {
-        headerAttrs["style"] = Style.from(style).extendStyle(flow);
-        return h("div", headerAttrs, [
-            (attrs.inflow) ? h(InflowEndpoint, { id: attrs.id + "-in" }) : undefined,
-            title,
-            (attrs.outflow) ? h(OutflowEndpoint, { id: attrs.id + "-out", connect: attrs.connect }) : undefined
-        ]);
+
+    return (
+        <div oninput={oninput} ondblclick={ondblclick} contenteditable>
+            {h.trust(text)}
+        </div>
+    )
+}
+
+function Header({ attrs, style }) {
+    var block = attrs.block || "";
+    var label = attrs.label || "";
+    var flow = (attrs.flow === undefined) ? true : attrs.flow;
+    var out = (attrs.out === undefined) ? true : attrs.out;
+    var connect = attrs.connect || undefined;
+
+    style.setStyle({
+        height: "var(--grid-size)",
+        borderRadius: "var(--corner-size)",
+        color: "white",
+
+        paddingLeft: "10px",
+        paddingRight: "10px",
+    });
+    
+    if (!flow) {
+        return (
+            <div>
+                <Title text={label} />
+                <Endpoint
+                    id={`${block}-expr`}
+                    connect={connect}
+                    header={true}
+                    output={true} />
+            </div>
+        )
     }
-    if (attrs.expr === true) {
-        return h("div", headerAttrs, [title, h(Endpoint, { id: attrs.id + "-out", connect: attrs.connect, output: true, header: true })]);
+    return (
+        <div>
+            <InflowEndpoint block={block} />
+            <Title text={label} />
+            {out && <OutflowEndpoint block={block} connect={connect} />}
+        </div>
+    )
+}
+
+
+function InflowEndpoint({ attrs, style, hooks }) {
+    hooks.oncreate = App.Inflow_onupdate;
+    hooks.onupdate = App.Inflow_onupdate;
+
+    var block = attrs.block || "";
+
+    style.setStyle({
+        position: "absolute",
+        marginLeft: "-22px"
+    });
+
+    return (
+        <div id={`${block}-in`}>
+            <shapes.ArrowTail color="#475054" />
+        </div>
+    )
+}
+
+export function OutflowEndpoint({ attrs, style, hooks, vnode }) {
+    const update = () => App.Outflow_onupdate(attrs, vnode.dom.id);
+    hooks.oncreate = update;
+    hooks.onupdate = update;
+
+    var color = attrs.color || "#475054";   
+    var case_ = attrs.case || false;
+    var body = attrs.body || false;
+    var entry = attrs.entry || false;
+    var name = attrs.name || undefined;
+    var block = attrs.block || "";
+
+    let id = `${block}-out`;
+    if (name) {
+        id += `-${name}`;
     }
-    return h("div", headerAttrs, title);
+
+    style.setStyle({
+        marginRight: "-23px",
+        marginTop: "-28.5px",
+        float: "right",
+    }, () => !case_ && !body && !entry)
+
+    style.addClass("body", () => body);
+    style.setStyle({
+        marginTop: "0",
+        marginRight: "-28px",
+        float: "right",
+    }, () => body)
+
+    style.addClass("case", () => case_);
+    style.setStyle({
+        top: "13px",
+        left: "6px",
+        float: "right",
+    }, () => case_)
+
+    style.addClass("entry", () => entry);
+    style.setStyle({
+        position: "relative",
+    }, () => entry)
+
+    return (
+        <div id={id}>
+            <shapes.ArrowHead color={color} />
+        </div>
+    ) 
 }
 
 function SwitchBody({attrs}) {
     var inputs = attrs.inputs || [];
     var outputs = attrs.outputs || [];
+    var block = attrs.block || "";
     
     let gridSize = Style.propInt("--grid-size");
     let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize * 5;
@@ -154,8 +211,8 @@ function SwitchBody({attrs}) {
     });
 
     return (
-        <div id={attrs.id + "-body"} class="body switch" style={switch_}>
-            <div>{inputs.map((val, idx) => h(Port, { input: true, desc: val }))}</div>
+        <div id={`${block}-body`} class="body switch" style={switch_}>
+            <div>{inputs.map((val, idx) => h(Port, { key: idx, block: block, type: "in", desc: val }))}</div>
             <div style={cases}>
                 <SwitchCase />
                 <SwitchCase />
@@ -178,6 +235,8 @@ function SwitchCase() {
 function PortsBody({attrs, style}) {
     var inputs = attrs.inputs || [];
     var outputs = attrs.outputs || [];
+    var block = attrs.block || "";
+    var connects = attrs.connects || {};
     
     let gridSize = Style.propInt("--grid-size");
     let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
@@ -187,139 +246,88 @@ function PortsBody({attrs, style}) {
         gridTemplateColumns: "auto auto",
         borderRadius: "0 0 4px 4px"
     });
-    return <div class="body" id={attrs.id + "-body"}>
-        <div>{inputs.map((val, idx) => h(Port, { id: attrs.id, input: true, desc: val }))}</div>
-        <div>{outputs.map((val, idx) => h(Port, { id: attrs.id, output: true, desc: val, connects: attrs.connects }))}</div>
-    </div>
+    return (
+        <div class="body" id={`${block}-body`}>
+            <div>{inputs.map((val, idx) => h(Port, { key: idx, block: block, type: "in", desc: val }))}</div>
+            <div>{outputs.map((val, idx) => h(Port, { key: idx, block: block, type: "out", desc: val, connects: connects }))}</div>
+        </div>
+    )
+}
+
+function parsePortName(desc) {
+    let name = desc;
+    let punctuation = desc[desc.length - 1];
+    if ([">", "?"].includes(punctuation)) {
+        name = name.substr(0, name.length - 1);
+    }
+    return [name, punctuation];
 }
 
 function Port({attrs, style}) {
-    var connect = undefined;
-    if (attrs.output === true) {
-        var id = `${attrs.id}-out`;
-    } else {
-        var id = attrs.id;
+    var connects = attrs.connects || {};
+    var block = attrs.block || "";
+    var type = attrs.type || "";
+    var desc = attrs.desc || "";
+
+    let [name, flag] = parsePortName(desc);
+    let id = `${block}-${type}-${name}`;
+    let connect = undefined;
+    if (connects) {
+        connect = connects[name];
     }
 
-    let val = attrs.desc;
-    let punctuation = val[val.length - 1];
-    if ([">", "?"].includes(punctuation)) {
-        val = val.substr(0, val.length - 1);
-    }
-    if (attrs.connects) {
-        connect = attrs.connects[val];
-    }
-    
     style.setStyle({
         paddingTop: "2px",
         height: "28px"
     });
     style.setStyle({
         marginLeft: "15px"
-    }, () => attrs.input === true)
+    }, () => type === "in")
     style.setStyle({
         marginRight: "15px",
         textAlign: "right",
-    }, () => attrs.output === true)
+    }, () => type === "out")
     
-    switch (punctuation) {
-    case ">":
+    if (flag === ">") {
         return (
             <div>
-                <OutflowEndpoint id={`${id}-${val}`} body={true} connect={connect} />
-                {val}
-            </div>
-        )
-    case "?":
-        return (
-            <atom.BlockTextbox>{val}</atom.BlockTextbox>
-        )
-    default:
-        return (
-            <div>
-                <Endpoint id={`${id}-${val}`} output={attrs.output} connect={connect} />
-                {val}
+                <OutflowEndpoint 
+                    id={id} 
+                    body={true} 
+                    connect={connect} />
+                {name}
             </div>
         )
     }
-}
-
-function InflowEndpoint({ attrs, style, hooks }) {
-    let update = ({ dom }) => {
-        jsPlumb.removeAllEndpoints(dom);
-        jsPlumb.addEndpoint(dom, {
-            endpoint: ["Rectangle", {
-                cssClass:"endpoint-anchor", 
-            }],
-            endpointStyle:{ fill:"white" },
-            isTarget: true,
-            width: 30,
-            height: 30,
-            anchor: [0, 0.5, -1, 0, 0, 0],
-            scope: "flow",
-        });
-    };
-    hooks.oncreate = update;
-    hooks.onupdate = update;
-
-    style.setStyle({
-        position: "absolute",
-        marginLeft: "-22px"
-    });
-
+    if (flag === "?") {
+        return (
+            <atom.BlockTextbox>{name}</atom.BlockTextbox>
+        )
+    }
     return (
-        <div id={attrs.id}>
-            <shapes.ArrowTail color="#475054" />
+        <div>
+            <Endpoint 
+                id={id} 
+                output={(type === "out")} 
+                connect={connect} />
+            {name}
         </div>
     )
 }
 
-export function OutflowEndpoint({ attrs, style, hooks, vnode }) {
-    const update = () => App.updateFlow(attrs, vnode.dom.id);
-    hooks.oncreate = update;
-    hooks.onupdate = update;
-
-    var color = attrs.color || "#475054";   
-
-    style.setStyle({
-        marginRight: "-23px",
-        marginTop: "-28.5px",
-        float: "right",
-    }, () => !attrs.case && !attrs.body && !attrs.entry)
-
-    style.addClass("body", () => attrs.body);
-    style.setStyle({
-        marginTop: "0",
-        marginRight: "-28px",
-        float: "right",
-    }, () => attrs.body)
-
-    style.addClass("case", () => attrs.case);
-    style.setStyle({
-        top: "13px",
-        left: "6px",
-        float: "right",
-    }, () => attrs.case)
-
-    style.addClass("entry", () => attrs.entry);
-    style.setStyle({
-        position: "relative",
-    }, () => attrs.entry)
-
-    return (
-        <div id={attrs.id}>
-            <shapes.ArrowHead color={color} />
-        </div>
-    ) 
-}
-
 
 function Endpoint({attrs, style, hooks, vnode}) {
-    hooks.oncreate = () => App.endpointcreate(vnode);
+    hooks.oncreate = () => App.Endpoint_oncreate(vnode);
 
     var output = attrs.output || false;
     var header = attrs.header || false;
+    var connect = attrs.connect || undefined;
     var size = attrs.size || 28;
+
+    let fill = "#2a2a2c";
+    if (connect) {
+        fill = "red";
+    }
 
     style.setStyle({
         float: "right",
@@ -336,6 +344,8 @@ function Endpoint({attrs, style, hooks, vnode}) {
     style.addClass("endpoint header", () => header === true);
 
     return (
-        <shapes.Ring color="#475054" fill="#2a2a2c" size={size} />
+        <div>
+            <shapes.Ring color="#475054" fill={fill} size={size} />
+        </div>
     )
 }

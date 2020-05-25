@@ -1,8 +1,6 @@
 import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
 
-var m = h;
-
 export function Stack({attrs,style,children}) {
     var axis = attrs.axis || "v";
 
@@ -57,9 +55,10 @@ export function Panel({style,children}) {
     style.setStyle({
         padding: "8px",
         paddingTop: "4px",
+        paddingBottom: "20px",
         borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderBottom: "1px solid black",
         borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
-        borderBottom: "2px solid black",
         borderRight: "var(--pixel-size) solid #42494d",
         backgroundColor: "transparent"
     })
@@ -89,10 +88,14 @@ export function Textbox({ attrs, style, children }) {
     style.addClass("dark", () => attrs.dark);
     style.addClass("light", () => !attrs.dark);
 
+    const oninput = () => {
+        console.log(attrs["data-path"]);
+    }
+
     return (
         <div>
-            <div style={inputInner.style()}>
-                {children}
+            <div contenteditable oninput={oninput} style={inputInner.style()}>
+                {h.trust(children)}
             </div>
         </div>
     )
@@ -124,20 +127,35 @@ export function BlockTextbox({style, children}) {
 
 
 export function Fieldbox({ attrs, style, children }) {
+    var value = attrs.value || "";
+
     style.addClass("input-outer");
     style.addClass("dark", () => attrs.dark);
     style.addClass("light", () => !attrs.dark);
 
     let type = Style.from({
         color: "lightgray",
+        backgroundColor: "transparent",
+        textAlign: "right",
+        width: "80px",
     });
-
     return (
         <div>
             <div class="input-inner flex flex-row items-center">
-                <span class="flex-grow">{children}</span>
-                <span class="text-right text-xs" style={type}>{attrs.type}</span>
+                <span contenteditable class="flex-grow">{h.trust(value)}</span>
+                <span class="text-right text-xs ml-2">
+                    <input list="types" type="text" class="flex-auto" style={type.style()} value={attrs.type} />
+                </span>
             </div>
+            <datalist id="types">
+                <option value="struct" />
+                <option value="bool" />
+                <option value="string" />
+                <option value="int" />
+                <option value="float" />
+                <option value="map[string]string" />
+                <option value="[]blah" />
+            </datalist>
         </div>
     )
 }
@@ -178,7 +196,7 @@ let inputInner = Style.defineClass("input-inner", {
 })
 
 Style.defineClass("dark", {
-    backgroundColor: "#475054 !important",
+    backgroundColor: "#585f62 !important", //475054
 })
 
 Style.defineClass("light", {

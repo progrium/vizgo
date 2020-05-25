@@ -4,14 +4,15 @@ import * as main from '../com/main.js';
 import { Remote } from "./remote.js";
 import { Style } from "./style.js";
 import { h } from "./h.js";
-import { initApp, contextMenu, findFn } from './misc.js';
+import { setupDivider, setupSortables, setupContextMenu, findFn } from './misc.js';
 import { session } from "./mock.js";
 
 
 class App {
     static init() {
-        contextMenu() // doesn't seem to work
-        initApp()
+        setupContextMenu(); // doesn't seem to work
+        setupDivider();
+        setupSortables();
 
         App.blocks = [];
         App.entry = "";
@@ -28,13 +29,17 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        App.switchGrid(App.session.Selected);
+        App.switchGrid(App.selected());
 
         App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
         // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
         // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });        
         // App.createBlock({ type: "assign", connect: "r-in" });
+    }
+
+    static selected() {
+        return App.session.Selected;
     }
 
     static switchGrid(name) {
@@ -50,6 +55,7 @@ class App {
             let src = params.sourceId.replace("-out", "");
             let dst = params.targetId.replace("-in", "");
             Remote.disconnect(src, dst);
+            
         });
         jsPlumb.bind("connection", function (params, e) {
             if (e === undefined) {
@@ -64,8 +70,8 @@ class App {
     }
 
     static reloadGrid() {
+        let fn = findFn(App.session, App.selected());
 
-        let fn = findFn(App.session, App.session.Selected);
         App.entry = fn.Entry;
         App.blocks = fn.Blocks.map((b) => {
             return Object.assign(clone(BlockTypes[b.type]), b);
@@ -114,15 +120,12 @@ class App {
         }
     }
 
-    static autosize({ attrs, dom }) {
+    static Block_onupdate({ attrs, dom }) {
+        var id = attrs.id || "";
+        
+        let block = App.getBlockById(id);
 
-        // let size = Style.propInt("--grid-size");
-        // jsPlumb.draggable(dom, {
-        //     grid: [size, size],
-        //     containment: "parent",
-        // });
-
-        let block = App.getBlockById(attrs.id)
+        // this can all be cleaned up
 
         let fontSize = Style.propInt("font-size", dom);
         block.label = (block.label||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
@@ -152,7 +155,8 @@ class App {
         jsPlumb.repaintEverything();
     }
 
-    static blockcreate({attrs, dom}) {
+    static Block_oncreate(vnode) {
+        let {attrs, dom} = vnode
         let size = Style.propInt("--grid-size");
         jsPlumb.draggable(dom, {
             grid: [size, size],
@@ -161,7 +165,7 @@ class App {
         $(window).on('mousemove', null, null, (event) => {
             App.checkPosition({ dom })
         })
-        App.autosize({attrs, dom});
+        App.Block_onupdate(vnode);
         // when creating a new empty expression block
         if (attrs.label === "") {
             dom.firstChild.firstChild.focus(); // consider re-writing this
@@ -169,41 +173,55 @@ class App {
     }
 
 
-    static endpointcreate({ attrs, style, dom }) {
+    static Endpoint_oncreate({ attrs, style, dom, vnode }) {
+        if (vnode.state.connected) {
+            // otherwise this hook is called twice for some reason
+            return;
+        }
         let { output, header, connect, id } = attrs;
         jsPlumb.removeAllEndpoints(dom);
+        
+        // console.log(`oncreate ${id} to ${connect}`);
+        vnode.state.connected = true;
 
-        function exprEndpoint(dom, style, params) {
-            jsPlumb.addEndpoint(dom, Object.assign({
-                endpoint: "Blank",
-                cssClass: `${style.class()} output`,
-                scope: "ports",
-                connectorStyle: { stroke: "gray", strokeWidth: 8 },
-                connector: ["Bezier", { curviness: 100 }]
-            }, params));
-        }
-
-        function connectExpr(id, connect) {
+        if (connect) {
             setTimeout(() => {
                 jsPlumb.connect({
-                    endpoint: "Blank",
+                    endpoint: ["Dot", {
+                        cssClass: `endpoint-anchor output`,
+                        scope: "ports",
+                    }],
                     source: id,
                     target: connect,
                     paintStyle: { stroke: "gray", strokeWidth: 8 },
                     connector: ["Bezier", { curviness: 100 }],
                     anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
                 });
+                
             }, 20);
+        } 
+
+        function exprEndpoint(dom, style, params) {
+            jsPlumb.addEndpoint(dom, Object.assign({
+                endpoint: "Dot",
+                cssClass: `endpoint-anchor output`,
+                scope: "ports",
+                connectorStyle: { stroke: "gray", strokeWidth: 8 },
+                connector: ["Bezier", { curviness: 100 }]
+            }, params));
         }
 
         if (output === true) {
+            // output port
             if (header === true) {
+                // expression out
                 exprEndpoint(dom, style, {
                     maxConnections: 1,
                     anchor: [0, 0, 1, 0, 14, 14],
                     isSource: true,
                 })
             } else {
+                // normal out
                 exprEndpoint(dom, style, {
                     maxConnections: -1,
                     anchor: [0, 0, 1, 0, 15, 12],
@@ -211,27 +229,41 @@ class App {
                 })
             }
         } else {
+            // input port
             exprEndpoint(dom, style, {
                 isTarget: true,
-                cssClass: `${style.class()} input`,
+                cssClass: `endpoint-anchor input`,
                 anchor: [0, 0, -1, 0, 12, 12],
             })
         }
-        if (connect) {
-            connectExpr(id, connect);
-        }
+    
     }
 
-    static updateFlow( attrs, source ) {
+    static Inflow_onupdate({ dom }) {
+        jsPlumb.removeAllEndpoints(dom);
+        jsPlumb.addEndpoint(dom, {
+            endpoint: ["Rectangle", {
+                cssClass:"endpoint-anchor", 
+            }],
+            endpointStyle:{ fill:"white" },
+            isTarget: true,
+            width: 30,
+            height: 30,
+            anchor: [0, 0.5, -1, 0, 0, 0],
+            scope: "flow",
+        });
+    };
+
+    static Outflow_onupdate( attrs, source ) {
         
         jsPlumb.removeAllEndpoints(source);
         
         if (attrs.connect) {
-
             setTimeout(() => {
+                //console.log(`connecting ${source} to ${attrs.connect}`);
                 jsPlumb.connect({
                     source: source,
-                    target: attrs.connect+"-in",
+                    target: attrs.connect,
                     paintStyle: { stroke: "white", strokeWidth: 10 },
                     connector: ["Flowchart", {
                         alwaysRespectStubs: true,
@@ -274,15 +306,45 @@ const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
     s(d.now() / 1000) + ' '.repeat(h).replace(/./g, () => s(m.random() * h))
 
 const BlockTypes = {
-    expr: { label: "" },
-    call: { inflow: true, outflow: true, label: "()" },
-    assign: { inflow: true, outflow: true, label: "Assign", inputs: [""], outputs: ["name?"] },
-    return: { inflow: true, outflow: false, label: "Return" },
-    defer: { inflow: true, outflow: true, label: "Defer", outputs: ["defer>"] },
-    for: { inflow: true, outflow: true, label: "For     ", inputs: ["exp"], outputs: ["loop>"] },
-    send: { inflow: true, outflow: true, label: "Send", inputs: ["ch", "send"] },
-    range: { inputs: ["range"], outputs: ["loop>", "idx", "val"], inflow: true, outflow: true, label: "For-Range  " },
-    condition: { inflow: true, outflow: true, label: "Conditional", inputs: [""], outputs: ["if>", "else>"] },
+    expr: { 
+        flow: false, 
+        label: "" 
+    },
+    call: { 
+        label: "()" 
+    },
+    assign: { 
+        label: "Assign", 
+        inputs: [""], 
+        outputs: ["name?"] 
+    },
+    return: { 
+        out: false, 
+        label: "Return" 
+    },
+    defer: { 
+        label: "Defer", 
+        outputs: ["defer>"] 
+    },
+    for: { 
+        label: "For     ", 
+        inputs: ["exp"], 
+        outputs: ["loop>"] 
+    },
+    send: { 
+        label: "Send", 
+        inputs: ["ch", "send"] 
+    },
+    range: { 
+        label: "For-Range  ", 
+        inputs: ["range"], 
+        outputs: ["loop>", "idx", "val"] 
+    },
+    condition: { 
+        label: "Conditional", 
+        inputs: [""], 
+        outputs: ["if>", "else>"] 
+    },
 };
 
 export { App }

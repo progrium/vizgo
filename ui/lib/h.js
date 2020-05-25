@@ -28,13 +28,22 @@ function wrap(v) {
             
             applyAttrs(style, input.attrs);
             applyHooks(output, input.hooks);
-            applyStyle(output, style)
+            applyStyle(output, style);
             applyEvents(output, input.attrs);
             applyId(output, input.attrs);
+            applyData(output, input.attrs);
             
             return output;
         }
     }  
+}
+
+function applyData(vnode, attrs) {
+    for (let attr in attrs) {
+        if (attr.startsWith("data-")) {
+            vnode.attrs[attr] = attrs[attr];
+        }
+    }
 }
 
 function applyId(vnode, attrs) {

@@ -31,7 +31,9 @@ body {
 .jtk-connected .ArrowTail .arrow {
     display: block !important;
 }
-
+.Endpoint.jtk-connected {
+    
+}
 .jtk-endpoint-anchor {
     z-index: 10;
     
@@ -45,7 +47,18 @@ body {
     --webkit-clip-path: polygon(0 0, 100% 0, 100% 100%);
     opacity: 1;
 }
-
+.Function.selected {
+    border: 0 !important;
+    margin-bottom: 1px;
+    border-top: 1px solid #42494d !important;
+}
+.Method.selected {
+    /* border: 0 !important; */
+    margin-bottom: -1px;
+    /* border-top: 2px solid #585f62 !important; */
+    border-top: 2px solid #27292a !important;
+    border-left: 2px solid #27292a !important;
+}
 
 
 nav::-webkit-scrollbar {

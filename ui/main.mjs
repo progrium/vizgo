@@ -8,4 +8,5 @@ import "/vnd/jsPlumb-2.11.2.min.js?0";
 import "/lib/h.js";
 
 import { App } from '/lib/app.js';
+
 App.init();

@@ -1,12 +1,12 @@
+import { Remote } from "./remote.js";
 
-export function initApp() {
+export function setupDivider() {
     const selectTarget = (fromElement, selector) => {
         if (!(fromElement instanceof HTMLElement)) {
             return null;
         }
         return fromElement.querySelector(selector);
     };
-  
 
     const resizeData = {
         tracking: false,
@@ -63,7 +63,9 @@ export function initApp() {
             resizeData.tracking = false;
         }
     });
+}
 
+export function setupSortables() {
     $(document).ready(function () {
         // sidebar declarations sorting
         $(".Stack.flex.flex-col").sortable({
@@ -73,6 +75,9 @@ export function initApp() {
             handle: ".Dots.mb-1",
             containment: "parent",
             axis: "y",
+            change: (e,ui) => {
+                console.log(Array.from(ui.helper[0].parentNode.children).indexOf(ui.helper[0]))
+            },
         });
         $(".Stack.flex.flex-col.pl-1.mt-2").sortable({
             items: "> div",
@@ -81,28 +86,33 @@ export function initApp() {
             handle: ".Dots.Grip.mr-1.mt-1.mb-1",
             containment: "parent",
             axis: "y",
+            change: (e,ui) => {
+                console.log(Array.from(ui.helper[0].parentNode.children).indexOf(ui.helper[0]))
+            },
         });
     })
 }
-export function contextMenu() {
+
+export function setupContextMenu() {
+    let mocksubitems = {
+        "fold1-key1": { "name": "Foo bar" },
+        "fold2": {
+            "name": "Sub group 2",
+            "items": {
+                "fold2-key1": { "name": "alpha" },
+                "fold2-key2": { "name": "bravo" },
+                "fold2-key3": { "name": "charlie" }
+            }
+        },
+        "fold1-key3": { "name": "delta" }
+    };
+
     $.contextMenu({
-        selector: '.grid',
+        selector: '.Grid',
         build: function ($trigger, e) {
-            let mocksubitems = {
-                "fold1-key1": { "name": "Foo bar" },
-                "fold2": {
-                    "name": "Sub group 2",
-                    "items": {
-                        "fold2-key1": { "name": "alpha" },
-                        "fold2-key2": { "name": "bravo" },
-                        "fold2-key3": { "name": "charlie" }
-                    }
-                },
-                "fold1-key3": { "name": "delta" }
-            };
             return {
                 callback: function (key, options) {
-                    App.createBlock(BlockTemplates[key]);
+                    Remote.create(key, e.originalEvent.offsetX, e.originalEvent.offsetY);
                 },
                 items: {
                     "expr": { name: "Expression" },
@@ -120,6 +130,25 @@ export function contextMenu() {
     });
 }
 
+
+export function nextBlockID(fn, selected) {
+    let number = fn.Blocks.length;
+    let name = `${selected}.${number}`;
+    while (findBlock(fn, name)) {
+        number++;
+        name = `${selected}.${number}`;
+    }
+    return name;
+}
+
+export function findBlock(fn, id) {
+    for (let b in fn.Blocks) {
+        if (b.id === id) {
+            return b;
+        }
+    }
+    return;
+}
 
 export function findFn(sess, fn) {
     let decls = sess.Package.Declarations;

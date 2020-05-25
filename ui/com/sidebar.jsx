@@ -1,6 +1,5 @@
 import * as atom from "./atom.js";
-
-var m = h;
+import { App } from "../lib/app.js";
 
 export function Sidebar({attrs, style}) {
     var pkg = attrs.package || {};
@@ -24,20 +23,20 @@ export function Sidebar({attrs, style}) {
             <atom.Stack style={{direction:"ltr"}}>
                 <atom.Panel>
                     <atom.GripLabel>Package</atom.GripLabel>
-                    <atom.Textbox dark={true}>{pkg.Name}</atom.Textbox>                    
+                    <atom.Textbox data-path="/Package/Name" dark={true}>{pkg.Name}</atom.Textbox>                    
                 </atom.Panel>
-                {pkg.Declarations.map((decl) => {
+                {pkg.Declarations.map((decl,idx) => {
                     switch (decl[0]) {
                     case "imports":
-                        return <Imports data={decl[1]} />
+                        return <Imports data={decl[1]} idx={idx} />
                     case "constants":
-                        return <Constants data={decl[1]} />
+                        return <Constants data={decl[1]} idx={idx} />
                     case "variables":
-                        return <Constants />
+                        return <Constants idx={idx} />
                     case "function":
-                        return <Function data={decl[1]} />
+                        return <Function data={decl[1]} idx={idx} />
                     case "type":
-                        return <Type data={decl[1]} />
+                        return <Type data={decl[1]} idx={idx} />
                     default:
                         return <atom.Panel><textarea>{JSON.stringify(decl)}</textarea></atom.Panel>
                     }
@@ -49,37 +48,70 @@ export function Sidebar({attrs, style}) {
 
 function Type({attrs}) {
     var typ = attrs.data || {};
+    var idx = attrs.idx || 0;
+
+    let dataPath = `/Package/Declarations/${idx}/1/`;
     return (
         <atom.Panel>
             <atom.GripLabel>Type</atom.GripLabel>
-            <atom.Fieldbox type={typ.Type}>{typ.Name}</atom.Fieldbox>
+            <atom.Fieldbox data-path={dataPath+"Name"} type={typ.Type} value={typ.Name}></atom.Fieldbox>
             <atom.Stack class="pl-1 mt-2">
-                {typ.Fields.map((field) =>
-                    <atom.Grippable><atom.Fieldbox dark={true} type={field[1]}>{field[0]}</atom.Fieldbox></atom.Grippable>
+                {typ.Fields.map((field,idx) =>
+                    <atom.Grippable>
+                        <atom.Fieldbox 
+                            data-path={dataPath+`Fields/${idx}`}
+                            dark={true} 
+                            type={field[1]} 
+                            value={field[0]}></atom.Fieldbox>
+                    </atom.Grippable>
                 )}
             </atom.Stack>
             <atom.Stack class="pl-1 mt-2">
                 {typ.Methods.map((method) =>
-                    <Method data={method} type={typ} />
+                    <Method data={method} type={typ} basepath={dataPath+`Methods/${idx}/`} />
                 )}
             </atom.Stack>
         </atom.Panel>
     )
 }
 
-function Function({attrs, vnode}) {
+function Function({attrs, style}) {
     var fn = attrs.data || {};
     var label = attrs.label || "Function";
     var container = attrs.container || atom.Panel;
+    var idx = attrs.idx || 0;
+    var basePath = attrs.basepath || `/Package/Declarations/${idx}/1/`;
+    
 
     let name = (attrs.type) ? `${attrs.type.Name}-${fn.Name}`: fn.Name;
+    let args = (fn.In||[]).map((e) => e[0]).join(", ");
+    let type = (fn.Out||[]).join(", ");
+    let signature = `${fn.Name}(${args})`;
+
+    style.addClass("selected", () => name === App.selected())
 
     const onclick = () => App.switchGrid(name);
 
     return h(container, {id: name, onclick: onclick}, (
         <div>
             <atom.GripLabel>{label}</atom.GripLabel>
-            <FunctionBody fn={fn} />
+            <div>
+                <atom.Fieldbox 
+                    data-path={basePath+"Name"} 
+                    type={type} 
+                    value={signature}></atom.Fieldbox>
+                <atom.Stack class="text-xs pl-1 mt-2">
+                    {(fn.In||[]).map((arg, idx) =>
+                        <atom.Grippable>
+                            <atom.Fieldbox 
+                                data-path={basePath+`In/${idx}`} 
+                                dark={true} 
+                                type={arg[1]} 
+                                value={arg[0]}></atom.Fieldbox>
+                        </atom.Grippable>
+                    )}
+                </atom.Stack>
+            </div>
         </div>
     ));
 }
@@ -95,7 +127,7 @@ function Constants() {
         <atom.Panel>
             <atom.GripLabel>Constants</atom.GripLabel>
             <atom.Stack axis="h">
-                <atom.Fieldbox type="string">bazbox</atom.Fieldbox>
+                <atom.Fieldbox type="string" value="bazbox"></atom.Fieldbox>
                 <atom.Textbox dark={true}>"Hello world!"</atom.Textbox>
             </atom.Stack>
         </atom.Panel>
@@ -104,35 +136,20 @@ function Constants() {
 
 function Imports({attrs}) {
     var imports = attrs.data || [];
+    var idx = attrs.idx || 0;
+    let dataPath = `/Package/Declarations/${idx}/1/`
     return (
         <atom.Panel>
             <atom.GripLabel>Imports</atom.GripLabel>
-            {imports.map((imprt) => {
+            {imports.map((imprt, idx) => {
                 return (
                     <atom.Stack axis="h">
-                        <atom.Textbox>{imprt.Package}</atom.Textbox>
+                        <atom.Textbox data-path={dataPath+idx}>{imprt.Package}</atom.Textbox>
                         <atom.Textbox dark={true}>{imprt.Package}</atom.Textbox>
                     </atom.Stack>
                 )
             })}
         </atom.Panel>
-    )
-}
-
-function FunctionBody({attrs}) {
-    var fn = attrs.fn || {};
-
-    let args = (fn.In||[]).map((e) => e[0]).join(", ");
-    let type = (fn.Out||[]).join(", ");
-    return (
-        <div>
-            <atom.Fieldbox type={type}>{fn.Name}({args})</atom.Fieldbox>
-            <atom.Stack class="text-xs pl-1 mt-2">
-                {(fn.In||[]).map((arg) =>
-                    <atom.Grippable><atom.Fieldbox dark={true} type={arg[1]}>{arg[0]}</atom.Fieldbox></atom.Grippable>
-                )}
-            </atom.Stack>
-        </div>
     )
 }
 

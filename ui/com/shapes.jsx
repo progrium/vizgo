@@ -1,6 +1,5 @@
 import { Style } from "../lib/style.js";
 
-var m = h;
 
 export function Dots({ attrs, style }) {
     var color = attrs.color || "#444";
@@ -31,7 +30,6 @@ export function Ring({ attrs, style }) {
     style.setStyle({
         width: `${size}px`,
         height: `${size}px`,
-        backgroundColor: color, //"#475054"
         borderRadius: "50%",
         background: `radial-gradient(circle at center, ${fill} 35%, ${color} 0)`,
     });

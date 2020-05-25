@@ -4,8 +4,6 @@ import * as sidebar from "./sidebar.js";
 import { App } from "../lib/app.js";
 
 
-var m = h;
-
 export function Main({style}) {
     style.setStyle({
         position: "fixed",
