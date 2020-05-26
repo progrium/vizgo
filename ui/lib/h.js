@@ -23,6 +23,7 @@ function wrap(v) {
             input.hooks = {};
             input.style = style;
             input.vnode = input;
+            input.attrs = attrProxy(input.attrs);
 
             let output = v(input);
             
@@ -76,7 +77,7 @@ function applyHooks(vnode, hooks) {
 
 function applyEvents(vnode, attrs) {
     for (let attr in attrs) {
-        if (attr.startsWith("on")) {
+        if (attr.startsWith("on") && !attrs._used.has(attr)) {
             vnode.attrs[attr] = attrs[attr];
         }
     }
@@ -86,4 +87,19 @@ function isClass(obj) {
     return obj.prototype.constructor.toString().includes("class ");
 }
 
-
+function attrProxy(attrs) {
+    return new Proxy(attrs, {
+        get: function (target, prop, receiver) {
+            if (!this.used) {
+                this.used = new Set();
+            }
+            if (prop === "_used") {
+                return this.used;
+            }
+            if (prop.startsWith("on")) {
+                this.used.add(prop);
+            }
+            return Reflect.get(...arguments);
+        },
+    })
+}

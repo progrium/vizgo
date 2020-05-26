@@ -85,35 +85,39 @@ export function Label({attrs, style, children}) {
 }
 
 export function Textbox({ attrs, style, children, state, vnode }) {
-    var editmode = state.editmode || false;
-    var value = state.value || "";
+    var readonly = attrs.readonly || false;
+    var dark = attrs.dark || false;
+    var oninput_ = attrs.oninput || undefined;
 
-    if (!editmode) {
-        state.value = children;
+    if (!state.editmode || readonly) {
+        vnode.state.editvalue = children;
     }
 
+    let value = state.editvalue || "";
+
     style.addClass("input-outer");
-    style.addClass("dark", () => attrs.dark);
-    style.addClass("light", () => !attrs.dark);
+    style.addClass("dark", () => dark);
+    style.addClass("light", () => !dark);
 
     const oninput = (e) => {
-        vnode.state.value = e.target.innerHTML;
-        Remote.set(attrs["data-path"], e.target.innerHTML);
+        vnode.state.editvalue = e.target.innerHTML;
+        if (oninput_) {
+            oninput_(e, e.target.innerHTML);
+        }
+        
     }
 
     const onfocus = () => {
         vnode.state.editmode = true;
-        console.log("focus");
     }
 
     const onblur = () => {
         vnode.state.editmode = false;
-        console.log("blur");
     }
 
     return (
         <div>
-            <div contenteditable oninput={oninput} onfocus={onfocus} onblur={onblur} style={inputInner.style()}>
+            <div contenteditable={!readonly} oninput={oninput} onfocus={onfocus} onblur={onblur} style={inputInner.style()}>
                 {h.trust(value)}
             </div>
         </div>
@@ -145,25 +149,69 @@ export function BlockTextbox({style, children}) {
 }
 
 
-export function Fieldbox({ attrs, style, children }) {
+export function Fieldbox({ attrs, style, state, vnode }) {
     var value = attrs.value || "";
+    var type = attrs.type || "";
+    var oninput_ = attrs.oninput || undefined;
+
+    if (!state.editmode) {
+        vnode.state.editvalue = value;
+        vnode.state.edittype = type;
+    }
+
+    let editvalue = state.editvalue || value;
+    let edittype = state.edittype || type;
 
     style.addClass("input-outer");
     style.addClass("dark", () => attrs.dark);
     style.addClass("light", () => !attrs.dark);
 
-    let type = Style.from({
+    let typeStyle = Style.from({
         color: "lightgray",
         backgroundColor: "transparent",
         textAlign: "right",
         width: "80px",
     });
+
+    const onValInput = (e) => {
+        vnode.state.editvalue = e.target.innerHTML;
+        if (oninput_) {
+            oninput_(e, e.target.innerHTML, "value");
+        }
+    }
+
+    const onTypInput = (e) => {
+        vnode.state.edittype = e.target.value;
+        if (oninput_) {
+            oninput_(e, e.target.innerHTML, "type");
+        }
+    }
+
+    const onfocus = () => {
+        vnode.state.editmode = true;
+    }
+
+    const onblur = () => {
+        vnode.state.editmode = false;
+    }
+
     return (
         <div>
             <div class="input-inner flex flex-row items-center">
-                <span contenteditable class="flex-grow">{h.trust(value)}</span>
+                <span contenteditable 
+                    oninput={onValInput} 
+                    onfocus={onfocus} 
+                    onblur={onblur} 
+                    class="flex-grow">{h.trust(editvalue)}</span>
                 <span class="text-right text-xs ml-2">
-                    <input list="types" type="text" class="flex-auto" style={type.style()} value={attrs.type} />
+                    <input list="types" 
+                        oninput={onTypInput} 
+                        onfocus={onfocus} 
+                        onblur={onblur} 
+                        type="text" 
+                        class="flex-auto" 
+                        style={typeStyle.style()} 
+                        value={edittype} />
                 </span>
             </div>
             <datalist id="types">

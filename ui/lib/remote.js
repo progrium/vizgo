@@ -7,6 +7,7 @@ export class Remote {
     }
 
     static set(path, value) {
+        console.log(path, value);
         let parts = path.split("/");
         let target = App.session;
         while(parts.length > 1) {
@@ -17,6 +18,7 @@ export class Remote {
             target = target[part];
         }
         target[parts[0]] = value;
+        console.log(App.session);
     }
 
     static create(type, x, y) {
