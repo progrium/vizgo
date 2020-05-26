@@ -1,7 +1,7 @@
 package main
 
 import(
-	"github.com/progrium/constructor/pkg/app"
+	"github.com/progrium/vizgo/pkg/app"
 )
 
 func main() {

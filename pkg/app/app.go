@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/progrium/hotweb/pkg/hotweb"
+	"github.com/spf13/afero"
 	"github.com/zserge/webview"
 )
 
@@ -29,7 +31,12 @@ func handleRPC(w webview.WebView, data string) {
 }
 
 func Main() {
-	hw := hotweb.New(frontendDir, nil)
+	dir, err := filepath.Abs(frontendDir)
+	if err != nil {
+		panic(err)
+	}
+	fs := afero.NewOsFs()
+	hw := hotweb.New(fs, dir, "")
 	go func() {
 		log.Printf("watching %#v\n", frontendDir)
 		log.Fatal(hw.Watch())

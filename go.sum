@@ -4,17 +4,11 @@ github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvK
 github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/progrium/esbuild v0.0.0-20200327212623-fae14fb26173 h1:q4QMKSrYQstPheCBkYDBvECSgaQqeK4rHaOoZjRdZgc=
 github.com/progrium/esbuild v0.0.0-20200327212623-fae14fb26173/go.mod h1:JWvqYJaHSrk+OnKTRemRXjGixls7mWM9xHwXSW5Qzro=
-github.com/progrium/hotweb v0.0.0-20200215013739-7b03eebe38cd h1:aA7uUhiEgJilw7Gha5Aqfb1j1+BJeS+FQ/VDBZ+htkw=
-github.com/progrium/hotweb v0.0.0-20200215013739-7b03eebe38cd/go.mod h1:DfNmc4wwqdlj9GdSgsNwI4GZMC9WgcD6cfXI/xSbfTs=
-github.com/progrium/hotweb v0.0.0-20200507040322-c79068b0d586 h1:YHQdQYbEFUW7Rx8O2AcvNBKhAkq+vO/0JY221FA/o/I=
-github.com/progrium/hotweb v0.0.0-20200507040322-c79068b0d586/go.mod h1:3Z54O+TR/f52l3JTYzRmySBC4Iu8gcaX8cqgSGKa/b8=
 github.com/progrium/hotweb v0.0.0-20200507050031-571bb783a2b1 h1:dB6qyIcwmXQY961hKr7dS1DlQYyNJme/YiW32IWU7hk=
 github.com/progrium/hotweb v0.0.0-20200507050031-571bb783a2b1/go.mod h1:3Z54O+TR/f52l3JTYzRmySBC4Iu8gcaX8cqgSGKa/b8=
 github.com/progrium/watcher v1.0.8-0.20200403214642-88c0f931de38 h1:HpY7P6KAfacRCsWh+XwT4pKArLqRilfOMeLnSX423r0=
 github.com/progrium/watcher v1.0.8-0.20200403214642-88c0f931de38/go.mod h1:JQYLbWpkvkx6EDYKgqn4Tv5zwhRXe9a+MQw1wnmcyvI=
-github.com/radovskyb/watcher v1.0.7 h1:AYePLih6dpmS32vlHfhCeli8127LzkIgwJGcwwe8tUE=
 github.com/radovskyb/watcher v1.0.7/go.mod h1:78okwvY5wPdzcb1UYnip1pvrZNIVEIh/Cm+ZuvsUYIg=
-github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 h1:JIAuq3EEf9cgbU6AtGPK4CTG3Zf6CKMNqf0MHTggAUA=
 github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966/go.mod h1:sUM3LWHvSMaG192sy56D9F7CNvL7jUJVXoqM1QKLnog=
 github.com/spf13/afero v1.2.2 h1:5jhuqJyZCZf2JRofRvN/nIFgIWNzPa3/Vz8mYylgbWc=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=

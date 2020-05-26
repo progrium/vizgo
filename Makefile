@@ -1,7 +1,4 @@
 
-app:
-	go run ./cmd/constructor/main.go
-
-dev:
-	cd ui; \
-	hotweb
+build:
+	mkdir -p local/bin
+	go build -o local/bin/vizgo ./cmd/vizgo
