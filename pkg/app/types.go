@@ -34,36 +34,22 @@ type Function struct {
 	In     []Argument
 	Out    []TypeID
 	Blocks []Block
-	Entry  []BlockOutput
+	Entry  string
 }
 
 type BlockType string
 
-type BlockOutput struct {
-	Name    string
-	Type    TypeID
-	Flow    bool
-	Connect string
-}
-
-type BlockInput struct {
-	Name string
-	Type TypeID
-}
-
-type GridPosition struct {
-	X int
-	Y int
-}
+type Position [2]int
 
 type Block struct {
-	Type     BlockType
-	Label    string
-	ID       string
-	Inputs   []BlockInput
-	Outputs  []BlockOutput
-	Connect  string
-	Position GridPosition
+	Type     BlockType         `json:"type"`
+	Label    string            `json:"label"`
+	ID       string            `json:"id"`
+	Inputs   []string          `json:"inputs"`
+	Outputs  []string          `json:"outputs"`
+	Connect  string            `json:"connect"`
+	Connects map[string]string `json:"connects"`
+	Position Position          `json:"position"`
 }
 
 type Type struct {
@@ -73,13 +59,11 @@ type Type struct {
 	Methods []Function
 }
 
+type Declaration [2]interface{}
+
 type Package struct {
-	Name      string
-	Imports   []Import
-	Constants []Constant
-	Variables []Variable
-	Types     []Type
-	Functions []Function
+	Name         string
+	Declarations []Declaration
 }
 
 type Session struct {
