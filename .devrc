@@ -1,6 +1,6 @@
 
 dev() {
-    hotweb -dir=./ui
+    JSX_FACTORY=h hotweb -dir=./ui
 }
 
 deps() {

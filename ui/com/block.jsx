@@ -130,13 +130,18 @@ function InflowEndpoint({ attrs, style, hooks }) {
     var block = attrs.block || "";
 
     style.setStyle({
-        position: "absolute",
-        marginLeft: "-22px"
+        float: "left",
+        marginLeft: "-23px",
+        // background: "#475054",
+        // borderRadius: "var(--corner-size)",
+        // width: "28px",
+        // height: "28px",
     });
 
     return (
         <div id={`${block}-in`}>
             <shapes.ArrowTail color="#475054" />
+            {/* <shapes.Diamond style={{marginLeft: "9px", marginTop: "10px"}} color="white" size={10} /> */}
         </div>
     )
 }
@@ -324,11 +329,6 @@ function Endpoint({attrs, style, hooks, vnode}) {
     var connect = attrs.connect || undefined;
     var size = attrs.size || 28;
 
-    let fill = "#2a2a2c";
-    if (connect) {
-        fill = "red";
-    }
-
     style.setStyle({
         float: "right",
         marginRight: "-29px",
@@ -345,7 +345,7 @@ function Endpoint({attrs, style, hooks, vnode}) {
 
     return (
         <div>
-            <shapes.Ring color="#475054" fill={fill} size={size} />
+            <shapes.Ring color="#475054" fill="#2a2a2c" size={size} />
         </div>
     )
 }

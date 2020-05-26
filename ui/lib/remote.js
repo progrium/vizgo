@@ -6,6 +6,19 @@ export class Remote {
         App.session.Selected = fn;
     }
 
+    static set(path, value) {
+        let parts = path.split("/");
+        let target = App.session;
+        while(parts.length > 1) {
+            let part = parts.shift();
+            if (!part) {
+                continue;
+            }
+            target = target[part];
+        }
+        target[parts[0]] = value;
+    }
+
     static create(type, x, y) {
         let fn = findFn(App.session, App.selected());
         if (fn) {

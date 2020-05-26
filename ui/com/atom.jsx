@@ -1,5 +1,6 @@
 import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
+import { Remote } from "../lib/remote.js";
 
 export function Stack({attrs,style,children}) {
     var axis = attrs.axis || "v";
@@ -83,19 +84,37 @@ export function Label({attrs, style, children}) {
     return <div>{children}</div>
 }
 
-export function Textbox({ attrs, style, children }) {
+export function Textbox({ attrs, style, children, state, vnode }) {
+    var editmode = state.editmode || false;
+    var value = state.value || "";
+
+    if (!editmode) {
+        state.value = children;
+    }
+
     style.addClass("input-outer");
     style.addClass("dark", () => attrs.dark);
     style.addClass("light", () => !attrs.dark);
 
-    const oninput = () => {
-        console.log(attrs["data-path"]);
+    const oninput = (e) => {
+        vnode.state.value = e.target.innerHTML;
+        Remote.set(attrs["data-path"], e.target.innerHTML);
+    }
+
+    const onfocus = () => {
+        vnode.state.editmode = true;
+        console.log("focus");
+    }
+
+    const onblur = () => {
+        vnode.state.editmode = false;
+        console.log("blur");
     }
 
     return (
         <div>
-            <div contenteditable oninput={oninput} style={inputInner.style()}>
-                {h.trust(children)}
+            <div contenteditable oninput={oninput} onfocus={onfocus} onblur={onblur} style={inputInner.style()}>
+                {h.trust(value)}
             </div>
         </div>
     )

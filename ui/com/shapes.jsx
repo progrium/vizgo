@@ -113,3 +113,49 @@ export function ArrowTail({ attrs, style }) {
         </div>
     )
 }
+
+export function Diamond({attrs, style}) {
+    var size = attrs.size || 15;
+    var color = attrs.color || "#444";
+    style.setStyle({
+        backgroundColor: color,
+        width: `${size}px`,
+        height: `${size}px`,
+        transform: "rotate(45deg)",
+    })
+    return <div />
+}
+
+export function DiamondCutout({ attrs, style }) {
+    var color = attrs.color || "#444";
+    var base = attrs.size || 28;
+
+    let size = 25;
+
+    style.setStyle({
+        width: `${base}px`,
+        height: `${base}px`,
+        borderRadius: "var(--corner-size)",
+        backgroundColor: "white",
+        overflow: "hidden",
+
+    });
+
+    let diamondPath = `polygon(0% 0%, 0% 100%, ${size}% 100%, 50% ${100-size}%, ${size}% 50%, 50% ${size}%, ${100-size}% 50%, ${size}% 100%, 100% 100%, 100% 0%)`;
+    let diamond = Style.from({
+        borderRadius: "var(--corner-size)",
+        width: `${base}px`,
+        height: `${base}px`,
+        clipPath: diamondPath,
+        WebkitClipPath: diamondPath,
+        backgroundColor: color,
+        transform: "scale(1.25)",
+
+    });
+
+    return (
+        <div>
+            <div style={diamond.style()} />
+        </div>
+    )
+}

@@ -31,8 +31,8 @@ body {
 .jtk-connected .ArrowTail .arrow {
     display: block !important;
 }
-.Endpoint.jtk-connected {
-    
+.Endpoint.jtk-connected .Ring {
+    background: radial-gradient(circle at center center, lightgray 35%, rgb(71, 80, 84) 0px) !important;
 }
 .jtk-endpoint-anchor {
     z-index: 10;
