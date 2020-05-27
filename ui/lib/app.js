@@ -29,7 +29,7 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        //App.switchGrid(App.selected());
+        App.switchGrid(App.selected());
 
         // App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
