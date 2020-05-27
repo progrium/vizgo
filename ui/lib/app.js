@@ -10,7 +10,7 @@ import { session } from "./mock.js";
 
 class App {
     static init() {
-        setupContextMenu(); // doesn't seem to work
+        setupContextMenu();
         setupDivider();
         setupSortables();
 
@@ -29,9 +29,9 @@ class App {
             h.mount(document.body, wrap(() => main.Main));
         })
 
-        App.switchGrid(App.selected());
+        //App.switchGrid(App.selected());
 
-        App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+        // App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
 
         // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
         // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });        
@@ -115,9 +115,16 @@ class App {
     static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
         let blockPosition = +`${dom.style.left.replace("px", "")}`
         if (blockPosition <= $(".Sidebar").innerWidth()) {
-            blockPosition = $(".Sidebar").innerWidth() + 30
-            dom.style.left = blockPosition + "px"
+            dom.style.left = $(".Sidebar").innerWidth() + 30 + "px"
         }
+    }
+
+    static calculateEndpointWidth (endpoints, fontSize) {
+        let copy = [...endpoints]
+        for (let i = 0; i < copy.length; i++) {
+            copy[i] = ((Math.max(Math.ceil((copy[i].length * fontSize * 0.8) / 40), 2) * 30) / 0.97)
+        };
+        return Math.max(...copy)
     }
 
     static Block_onupdate({ attrs, dom }) {
@@ -125,27 +132,14 @@ class App {
         
         let block = App.getBlockById(id);
 
-        // this can all be cleaned up
-
         let fontSize = Style.propInt("font-size", dom);
         block.label = (block.label||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
         let textWidth = block.label.length * fontSize * 0.8;
 
-        if (block.label == "switch") {
-            textWidth *= 3;
-        }
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
 
-        let calculateEndpointWidth = (endpoints, fontSize) => {
-            let copy = [...endpoints]
-            for (let i = 0; i < copy.length; i++) {
-                copy[i] = ((Math.max(Math.ceil((copy[i].length * fontSize * 0.8) / 40), 2) * 30) / 0.97)
-            };
-            return Math.max(...copy)
-        }
-
-        let inputs = block.inputs ? calculateEndpointWidth(block.inputs, fontSize) : 0
-        let outputs = block.outputs ? calculateEndpointWidth(block.outputs, fontSize) : 0
+        let inputs = block.inputs ? App.calculateEndpointWidth(block.inputs, fontSize) : 0
+        let outputs = block.outputs ? App.calculateEndpointWidth(block.outputs, fontSize) : 0
 
         if (inputs + outputs > newWidth) {
             newWidth = (Math.max(Math.ceil((inputs + outputs) / 30), 2) * 30)
