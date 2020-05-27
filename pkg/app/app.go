@@ -18,7 +18,7 @@ const (
 	windowWidth  = 960
 	windowHeight = 640
 
-	frontendDir = "./ui"
+	frontendDir = "../../ui"
 )
 
 func Main() {

@@ -75,7 +75,7 @@ nav::-webkit-scrollbar-thumb {
     white-space: nowrap;
     overflow: hidden;
 } 
-[contenteditable="true"]:focus {
+[contenteditable]:focus {
     outline: 0px solid transparent;
 }
 [contenteditable="true"] br {
