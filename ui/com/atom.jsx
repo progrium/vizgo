@@ -5,9 +5,9 @@ import { Remote } from "../lib/remote.js";
 export function Stack({attrs,style,children}) {
     var axis = attrs.axis || "v";
 
-    style.addClass("flex");
-    style.addClass("flex-row", () => axis == "h");
-    style.addClass("flex-col", () => axis == "v");
+    style.add("flex");
+    style.add("flex-row", () => axis == "h");
+    style.add("flex-col", () => axis == "v");
 
     return (
         <div>{children}</div>
@@ -26,7 +26,7 @@ export function Grippable({children}) {
 }
 
 export function GripLabel({style, children}) {
-    style.addClass("flex items-end mb-1");
+    style.add("flex items-end mb-1");
     return (
         <div>
             <Label class="pr-2">{children}</Label>
@@ -36,7 +36,7 @@ export function GripLabel({style, children}) {
 }
 
 export function Subpanel({style,children}) {
-    style.setStyle({
+    style.add({
         paddingTop: "8px",
         paddingLeft: "10px",
         paddingRight: "10px",
@@ -53,7 +53,7 @@ export function Subpanel({style,children}) {
 }
 
 export function Panel({style,children}) {
-    style.setStyle({
+    style.add({
         padding: "8px",
         paddingTop: "4px",
         paddingBottom: "20px",
@@ -70,13 +70,13 @@ export function Panel({style,children}) {
 
 
 export function Grip({style,attrs}) {
-    style.addClass("mr-1");
+    style.add("mr-1");
     return <shapes.Dots cols={2} />
 }
 
 
 export function Label({attrs, style, children}) {
-    style.setStyle({
+    style.add({
         marginLeft: "2px",
         fontSize: "small",
         filter: "drop-shadow(1px 1px 0.5px #00000066)",
@@ -95,9 +95,24 @@ export function Textbox({ attrs, style, children, state, vnode }) {
 
     let value = state.editvalue || "";
 
-    style.addClass("input-outer");
-    style.addClass("dark", () => dark);
-    style.addClass("light", () => !dark);
+    style.add({
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderTop: "var(--pixel-size) solid #42494d",
+        borderLeft: "var(--pixel-size) solid #42494d",
+        flexGrow: "1",
+        boxShadow: "inset 2px 2px 3px #333",
+    });
+    style.add("dark", () => dark);
+    style.add("light", () => !dark);
+
+    let inner = Style.from({
+        border: "1px solid black",
+        padding: "4px",
+        paddingLeft: "8px",
+        color: "white",
+        overflow: "hidden",
+    });
 
     const oninput = (e) => {
         vnode.state.editvalue = e.target.innerHTML;
@@ -117,7 +132,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
 
     return (
         <div>
-            <div contenteditable={!readonly} oninput={oninput} onfocus={onfocus} onblur={onblur} style={inputInner.style()}>
+            <div contenteditable={!readonly} oninput={oninput} onfocus={onfocus} onblur={onblur} style={inner.style()}>
                 {h.trust(value)}
             </div>
         </div>
@@ -125,19 +140,28 @@ export function Textbox({ attrs, style, children, state, vnode }) {
 }
 
 export function BlockTextbox({style, children}) {
-    style.setStyle({
+    style.add({
         marginRight: "4px",
         marginLeft: "2px",
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderTop: "var(--pixel-size) solid #42494d",
+        borderLeft: "var(--pixel-size) solid #42494d",
+        flexGrow: "1",
+        boxShadow: "inset 2px 2px 3px #333",
     });
-    style.extendStyle(inputOuter);
-    style.addClass("light");
+    style.add("light");
 
     let inner = Style.from({
         paddingTop: "1px",
         paddingBottom: "1px",
-        paddingLeft: "4px"
+        paddingLeft: "4px",
+        border: "1px solid black",
+        padding: "4px",
+        paddingLeft: "8px",
+        color: "white",
+        overflow: "hidden",
     });
-    inner.extendStyle(inputInner);
 
     return (
         <div>
@@ -162,15 +186,30 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     let editvalue = state.editvalue || value;
     let edittype = state.edittype || type;
 
-    style.addClass("input-outer");
-    style.addClass("dark", () => attrs.dark);
-    style.addClass("light", () => !attrs.dark);
+    style.add({
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderTop: "var(--pixel-size) solid #42494d",
+        borderLeft: "var(--pixel-size) solid #42494d",
+        flexGrow: "1",
+        boxShadow: "inset 2px 2px 3px #333",
+    });
+    style.add("dark", () => attrs.dark);
+    style.add("light", () => !attrs.dark);
 
     let typeStyle = Style.from({
         color: "lightgray",
         backgroundColor: "transparent",
         textAlign: "right",
         width: "80px",
+    });
+
+    let inner = Style.from({
+        border: "1px solid black",
+        padding: "4px",
+        paddingLeft: "8px",
+        color: "white",
+        overflow: "hidden",
     });
 
     const onValInput = (e) => {
@@ -197,7 +236,7 @@ export function Fieldbox({ attrs, style, state, vnode }) {
 
     return (
         <div>
-            <div class="input-inner flex flex-row items-center">
+            <div class="flex flex-row items-center" style={inner.style()}>
                 <span contenteditable 
                     oninput={onValInput} 
                     onfocus={onfocus} 
@@ -228,7 +267,7 @@ export function Fieldbox({ attrs, style, state, vnode }) {
 }
 
 export function Divider({style}) {
-    style.setStyle({
+    style.add({
         content: '""',
         flex: "0 0 auto",
         position: "relative",
@@ -243,29 +282,3 @@ export function Divider({style}) {
         <div data-target=".Sidebar"></div>
     )
 }
-
-let inputOuter = Style.defineClass("input-outer", {
-    borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
-    borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
-    borderTop: "var(--pixel-size) solid #42494d",
-    borderLeft: "var(--pixel-size) solid #42494d",
-    flexGrow: "1",
-    boxShadow: "inset 2px 2px 3px #333",
-    //backgroundColor: "#7d898f"
-})
-
-let inputInner = Style.defineClass("input-inner", {
-    border: "1px solid black",
-    padding: "4px",
-    paddingLeft: "8px",
-    color: "white",
-    overflow: "hidden",
-})
-
-Style.defineClass("dark", {
-    backgroundColor: "#585f62 !important", //475054
-})
-
-Style.defineClass("light", {
-    backgroundColor: "#7d898f !important",
-})

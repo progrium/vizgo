@@ -1,0 +1,113 @@
+<html>
+<head>
+  <title>style.js Tests</title>
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.10.0.css">
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="https://code.jquery.com/qunit/qunit-2.10.0.js"></script>
+  <script type="module">
+    import { Style } from "./style.js?0";
+
+    function EmptyFunc() {}
+
+    QUnit.test("Style.from", function( assert ) {
+
+        let s = Style.from(
+            EmptyFunc, 
+            {color: "blue"},
+            "foobar"
+        );
+
+        assert.equal(
+            s.style()["color"], 
+            "blue", 
+            "style"
+        );
+        assert.equal(
+            s.class(), 
+            "EmptyFunc foobar", 
+            "class"
+        );
+    });
+
+    QUnit.test("Style#add", function( assert ) {
+
+        let s = new Style();
+        s.add(EmptyFunc);
+        s.add({color: "red"}, "foo");
+        s.add(EmptyFunc); // should not be added twice
+        s.add("bar", "foo"); // foo should not be added again
+
+        assert.equal(
+            s.style()["color"], 
+            "red", 
+            "style"
+        );
+        assert.equal(
+            s.class(), 
+            "EmptyFunc foo bar", 
+            "class"
+        );
+    });
+
+    QUnit.test("Style#add (conditions)", function( assert ) {
+
+        let s = new Style();
+        s.add(EmptyFunc, () => false);
+        s.add({color: "blue"});
+        s.add({color: "red"}, "foo", () => false);
+        s.add(EmptyFunc);
+        s.add("bar", () => true);
+
+        assert.equal(
+            s.style()["color"], 
+            "blue", 
+            "style"
+        );
+        assert.equal(
+            s.class(), 
+            "EmptyFunc bar", 
+            "class"
+        );
+    });
+
+    QUnit.test("Style#add (embedded)", function( assert ) {
+
+        let s1 = Style.from("ignored", {border: "1px"});
+        let s2 = Style.from({color: "green", background: "blue"}, "foobar");
+        let s3 = Style.from(s2); // double embed
+
+        let s = new Style();
+        s.add({color: "red"});
+        s.add(s1, "also-ignored", () => false);
+        s.add(s3);
+        s.add({background: "pink"});
+
+        assert.equal(
+            s.style()["color"], 
+            "green", 
+            "newer embedded styling overrides old"
+        );
+        assert.equal(
+            s.style()["background"], 
+            "pink", 
+            "newer styling overrides old embedded"
+        );
+        assert.deepEqual(
+            Object.keys(s.style()), 
+            ["color", "background"], 
+            "style keys"
+        );
+        assert.equal(
+            s.class(), 
+            "foobar", 
+            "class"
+        );
+    });
+
+
+  </script>
+</body>
+</html>

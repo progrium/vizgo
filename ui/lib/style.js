@@ -8,145 +8,94 @@ class Style {
         return getComputedStyle(el).getPropertyValue(prop);
     }
 
-
-    static defineClass(name, style, extend) {
-        // perhaps rename to declare? you can
-        // define more than classes with this...
-
-        style = Style.from(style);
-        if (extend) {
-            style.extendStyle(extend);
-        }
-
-        var el = document.createElement('style');
-        el.type = 'text/css';
-        document.getElementsByTagName('head')[0].appendChild(el);
-
-        let rules = [];
-        for (let [key, value] of Object.entries(style.style())) {
-            rules.push(`${cssName(key)}: ${value};`)
-        }
-
-        el.sheet.insertRule(`.${name} { ${rules.join("\n")} }`, 0);
-        return style;
-    }
-
-    static from(style) {
+    static from(...styling) {
         let s = new Style();
-        switch (style.constructor.name) {
-            case "Style":
-                return Object.assign(s, style);
-            default:
-                return Object.assign(s, extractStyle(style));
-        }
+        s.add(...styling);
+        return s;
     }
 
-    constructor(name, style, extend) {
-        this._classes = [];
-        this._extends = [];
-
-        if (name) {
-            this.addClass(name);
-        }
-
-        if (style) {
-            this.setStyle(style);
-        }
-
-        if (extend) {
-            this.extendStyle(extend);
-        }
+    constructor() {
+        this._styling = new Set();
     }
 
-
-    addClass(cls, condition = () => true) {
-        if (cls === undefined) {
-            return;
+    add(...styling) {
+        let condition = () => true;
+        if (styling.length > 1 && isFunction(last(styling))) {
+            condition = styling.pop();
         }
-        switch (cls.constructor.name) {
-            case "String":
-                break;
-            case "Function":
-                cls = cls.name;
-                break;
-            default:
-                cls = cls.constructor.name;
-        }
-        this._classes.forEach((c) => {
-            if (c == cls) {
-                return;
+        for (let s of styling) {
+            if (s === undefined) {
+                continue;
             }
-        })
-        this._classes.push([cls, condition]);
-        return this;
-    }
-
-    extendStyle(style, condition = () => true) {
-        if (style === undefined) {
-            return;
+            if (isFunction(s)) {
+                s = s.name;
+            }
+            this._styling.add([s, condition]);
         }
-        this._extends.push([Style.from(style), condition]);
-        return this;
-    }
-
-    setStyle(style, condition = () => true) {
-        if (style === undefined) {
-            return;
-        }
-        if (condition()) {
-            Object.assign(this, extractStyle(style));
-        }
-        return this;
     }
 
     style() {
         let style = {};
-        let styles = Array.from(
-            [this].concat(condFilter(this._extends)));
-        styles.reverse();
-        styles.forEach(s => {
-            style = Object.assign(style, extractStyle(s));
-        })
+        let styling = filterByConditions(this._styling);
+        for (let s of styling) {
+            if (isObject(s)) {
+                style = Object.assign(style, s);
+                continue;
+            }
+            if (isStyle(s)) {
+                style = Object.assign(style, s.style());
+            }
+        }
         return style;
     }
 
     class() {
-        let classes = this._classes.concat(
-            this._extends
-                .map(s => s._classes)
-                .flat());
-        return [...new Set(condFilter(classes).join(' ').split(' '))].join(' ');
+        let classes = new Set();
+        let styling = filterByConditions(this._styling);
+        for (let s of styling) {
+            if (isString(s)) {
+                classes.add(s);
+                continue;
+            }
+            if (isStyle(s)) {
+                for (let c of s.class().split(' ')) {
+                    classes.add(c);
+                }
+            }
+        } 
+        return [...classes].join(' ');
     }
 
     attrs(attrs = {}) {
         return Object.assign(attrs, {
             class: this.class(),
-            style: extractStyle(this.style())
+            style: this.style(),
         });
     }
 }
 
-function condFilter(arr) {
-    return arr.
-        filter(el => el !== undefined).
-        filter(el => el[1]()).
-        map(el => el[0]);
+function filterByConditions(v) {
+    return [...v].filter(el => el[1]()).map(el => el[0]);
 }
 
-
-function extractStyle(style) {
-    let o = {};
-    for (let [key, value] of Object.entries(style)) {
-        if (key.startsWith("_")) {
-            continue;
-        }
-        o[key] = value;
-    }
-    return o;
+function isString(v) {
+    return v.constructor.name === "String";
 }
 
-function cssName(name) {
-    return name.replace(/([A-Z])/g, (g) => `-${g[0].toLowerCase()}`);
+function isObject(v) {
+    return v.constructor.name === "Object";
+}
+
+function isStyle(v) {
+    return v.constructor.name === "Style" && v._styling;
+}
+
+function isFunction(v) {
+    return v.constructor.name === "Function";
+}
+
+function last(v) {
+    return v[v.length-1]
 }
 
 export { Style }

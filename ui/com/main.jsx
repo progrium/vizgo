@@ -5,7 +5,7 @@ import { App } from "../lib/app.js";
 
 
 export function Main({style}) {
-    style.setStyle({
+    style.add({
         position: "fixed",
         overflow: "auto",
         width: "500%",

@@ -25,6 +25,14 @@ body {
     background-color: var(--background-color);
 }
 
+.dark {
+    background-color: #585f62 !important;
+}
+
+.light { 
+    background-color: #7d898f !important;
+}
+
 .ArrowHead div {
     z-index: 10;
 }

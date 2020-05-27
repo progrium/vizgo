@@ -7,7 +7,7 @@ export function Dots({ attrs, style }) {
     var cols = attrs.cols;
     var rows = attrs.rows;
 
-    style.setStyle({
+    style.add({
         backgroundImage: `radial-gradient(${color} 50%, transparent 50%)`,
         backgroundColor: "transparent",
         backgroundRepeat: "repeat",
@@ -15,8 +15,8 @@ export function Dots({ attrs, style }) {
         opacity: "70%",
         width: "100%",
     });    
-    style.setStyle({ width: `${size*cols}px` }, () => cols !== undefined)
-    style.setStyle({ height: `${size*rows}px` }, () => rows !== undefined)
+    style.add({ width: `${size*cols}px` }, () => cols !== undefined)
+    style.add({ height: `${size*rows}px` }, () => rows !== undefined)
 
     return <div />
 }
@@ -27,7 +27,7 @@ export function Ring({ attrs, style }) {
     var fill = attrs.fill || "rgba(0,0,0,0)";
     var size = attrs.size || 28;
 
-    style.setStyle({
+    style.add({
         width: `${size}px`,
         height: `${size}px`,
         borderRadius: "50%",
@@ -45,7 +45,7 @@ export function ArrowHead({ attrs, style }) {
     let height = Math.sqrt(Math.pow(side, 2) - (Math.pow(base, 2) / 4));
     let offsetY = (side / 2) - (height / 2) + 1;
 
-    style.setStyle({
+    style.add({
         width: `${height}px`,
         height: `${base}px`,
     });
@@ -63,7 +63,7 @@ export function ArrowHead({ attrs, style }) {
         WebkitClipPath: trianglePath,
         zIndex: "10",
     });
-    //triangle.setStyle(attrs.style);
+    //triangle.add(attrs.style);
 
     return <div><div style={triangle.style()} /></div>
 }
@@ -76,7 +76,7 @@ export function ArrowTail({ attrs, style }) {
     let height = Math.sqrt(Math.pow(side, 2) - (Math.pow(base, 2) / 4));
     let offsetY = (side / 2) - (height / 2) + 1;
 
-    style.setStyle({
+    style.add({
         width: `${height}px`,
         height: `${base}px`,
     });
@@ -90,7 +90,7 @@ export function ArrowTail({ attrs, style }) {
         WebkitClipPath: tailPath,
         backgroundColor: color,
     })
-    //tail.setStyle(attrs.style);
+    //tail.add(attrs.style);
 
     let trianglePath = "polygon(0 0, 100% 0, 100% 100%)";
     let triangle = Style.from({
@@ -117,7 +117,7 @@ export function ArrowTail({ attrs, style }) {
 export function Diamond({attrs, style}) {
     var size = attrs.size || 15;
     var color = attrs.color || "#444";
-    style.setStyle({
+    style.add({
         backgroundColor: color,
         width: `${size}px`,
         height: `${size}px`,
@@ -132,7 +132,7 @@ export function DiamondCutout({ attrs, style }) {
 
     let size = 25;
 
-    style.setStyle({
+    style.add({
         width: `${base}px`,
         height: `${base}px`,
         borderRadius: "var(--corner-size)",

@@ -5,7 +5,7 @@ import { Remote } from "../lib/remote.js";
 export function Sidebar({attrs, style}) {
     var pkg = attrs.package || {};
 
-    style.setStyle({
+    style.add({
         width: "var(--sidebar-width)",
         backgroundColor: "var(--sidebar-color)",
         outline: "var(--pixel-size) solid var(--outline-color)",
@@ -116,7 +116,7 @@ function Function({attrs, style}) {
     let type = (fn.Out||[]).join(", ");
     let signature = `${fn.Name}(${args})`;
 
-    style.addClass("selected", () => name === App.selected())
+    style.add("selected", () => name === App.selected())
 
     const onclick = () => App.switchGrid(name);
 

@@ -19,7 +19,7 @@ export function Block({ attrs, style, hooks }) {
     var connects = attrs.connects || {};
 
     let gridSize = Style.propInt("--grid-size");
-    style.setStyle({
+    style.add({
         marginLeft: "4px",
         left: (x * gridSize + $("nav")[0].offsetWidth) + "px",
         top: (y * gridSize) + "px",
@@ -52,7 +52,7 @@ export function Block({ attrs, style, hooks }) {
 function Title({attrs, style}) {
     var text = attrs.text || "";
 
-    style.setStyle({
+    style.add({
         height: "var(--grid-size)",
         MozUserSelect: "none",
         paddingTop: "0.25rem",
@@ -92,7 +92,7 @@ function Header({ attrs, style }) {
     var out = (attrs.out === undefined) ? true : attrs.out;
     var connect = attrs.connect || undefined;
 
-    style.setStyle({
+    style.add({
         height: "var(--grid-size)",
         borderRadius: "var(--corner-size)",
         color: "white",
@@ -129,7 +129,7 @@ function InflowEndpoint({ attrs, style, hooks }) {
 
     var block = attrs.block || "";
 
-    style.setStyle({
+    style.add({
         float: "left",
         marginLeft: "-23px",
         // background: "#475054",
@@ -163,30 +163,27 @@ export function OutflowEndpoint({ attrs, style, hooks, vnode }) {
         id += `-${name}`;
     }
 
-    style.setStyle({
+    style.add({
         marginRight: "-23px",
         marginTop: "-28.5px",
         float: "right",
     }, () => !case_ && !body && !entry)
 
-    style.addClass("body", () => body);
-    style.setStyle({
+    style.add("body", {
         marginTop: "0",
         marginRight: "-28px",
         float: "right",
-    }, () => body)
+    }, () => body);
 
-    style.addClass("case", () => case_);
-    style.setStyle({
+    style.add("case", {
         top: "13px",
         left: "6px",
         float: "right",
-    }, () => case_)
+    }, () => case_);
 
-    style.addClass("entry", () => entry);
-    style.setStyle({
+    style.add("entry", {
         position: "relative",
-    }, () => entry)
+    }, () => entry);
 
     return (
         <div id={id}>
@@ -245,7 +242,7 @@ function PortsBody({attrs, style}) {
     
     let gridSize = Style.propInt("--grid-size");
     let bodyHeight = Math.max(inputs.length, outputs.length) * gridSize;
-    style.setStyle({
+    style.add({
         height: bodyHeight + "px",
         display: "grid",
         gridTemplateColumns: "auto auto",
@@ -281,14 +278,14 @@ function Port({attrs, style}) {
         connect = connects[name];
     }
 
-    style.setStyle({
+    style.add({
         paddingTop: "2px",
         height: "28px"
     });
-    style.setStyle({
+    style.add({
         marginLeft: "15px"
     }, () => type === "in")
-    style.setStyle({
+    style.add({
         marginRight: "15px",
         textAlign: "right",
     }, () => type === "out")
@@ -329,19 +326,18 @@ function Endpoint({attrs, style, hooks, vnode}) {
     var connect = attrs.connect || undefined;
     var size = attrs.size || 28;
 
-    style.setStyle({
+    style.add({
         float: "right",
         marginRight: "-29px",
     }, () => output === true);
-    style.setStyle({
+    style.add({
         position: "absolute",
         marginLeft: "-28px",
     }, () => output === false);
-    style.setStyle({
+    style.add("endpoint header", {
         marginTop: "-29px",
         marginRight: "-24px",
     }, () => header === true);
-    style.addClass("endpoint header", () => header === true);
 
     return (
         <div>

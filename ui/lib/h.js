@@ -18,7 +18,7 @@ window.h = h;
 function wrap(v) {
     return {
         view: function(input) {
-            let style = new Style(v);
+            let style = Style.from(v);
             
             input.hooks = {};
             input.style = style;
@@ -55,10 +55,10 @@ function applyId(vnode, attrs) {
 
 function applyAttrs(style, attrs) {
     if (attrs.class) {
-        style.addClass(attrs.class);
+        style.add(attrs.class);
     }
     if (attrs.style) {
-        style.setStyle(attrs.style);
+        style.add(attrs.style);
     }
 }
 

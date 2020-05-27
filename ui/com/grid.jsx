@@ -10,7 +10,7 @@ export function Grid({attrs,style,hooks,vnode}) {
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
 
-    style.setStyle({
+    style.add({
         userSelect: "none",
         MozUserSelect: "none",
         backgroundSize: "var(--grid-size) var(--grid-size)",
@@ -40,7 +40,7 @@ function Entrypoint({attrs,style,hooks,vnode}) {
     const update = () => App.Outflow_onupdate(attrs, "entrypoint-out");
     hooks.oncreate = update;
     hooks.onupdate = update;
-    style.setStyle({
+    style.add({
         background: "var(--sidebar-color)", //rgb(75, 126, 28)
         width: "16px",
         height: "150px",
