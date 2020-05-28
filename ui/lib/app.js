@@ -4,7 +4,7 @@ import * as main from '../com/main.js';
 import { Remote } from "./remote.js";
 import { Style } from "./style.js";
 import { h } from "./h.js";
-import { setupDivider, setupSortables, setupContextMenu, findFn } from './misc.js';
+import { setupDivider, setupSortables, setupContextMenu, findFn, stripInput } from './misc.js';
 import { session } from "./mock.js";
 
 
@@ -133,7 +133,7 @@ class App {
         let block = App.getBlockById(id);
 
         let fontSize = Style.propInt("font-size", dom);
-        block.label = (block.label||"").replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+        block.label = stripInput(block.label||"")
         let textWidth = block.label.length * fontSize * 0.8;
 
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;

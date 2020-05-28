@@ -178,3 +178,7 @@ export function findFn(sess, fn) {
     }
     console.warn(fn, "not found");
 }
+
+export function stripInput(string) {
+    return string.replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+}
