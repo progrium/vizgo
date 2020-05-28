@@ -10,59 +10,57 @@ import (
 )
 
 type View struct {
-	root  interface{}
-	rroot reflect.Value
+	ptr interface{}
 }
 
-func New(v interface{}) *View {
+func New(p interface{}) *View {
 	return &View{
-		root:  v,
-		rroot: reflect.ValueOf(v),
+		ptr: p,
 	}
 }
 
-func (t *View) set(path string, v interface{}) {
-	jsonpointer.SetReflect(t.root, path, v)
+func (o *View) set(path string, v interface{}) {
+	jsonpointer.SetReflect(o.ptr, path, v)
 }
 
-func (t *View) get(path string) interface{} {
+func (o *View) get(path string) reflect.Value {
 	parts := strings.Split(strings.TrimLeft(path, "/"), "/")
-	selection := t.root
+	selection := reflect.ValueOf(o.ptr)
 	for _, key := range parts {
 		selection = prop(selection, key)
 	}
 	return selection
 }
 
-func (t *View) Select(path ...string) Cursor {
+func (o *View) Select(path ...string) Cursor {
 	normalpath := strings.Join(path, "/")
 	return &cursor{
-		root: t,
+		view: o,
 		path: normalpath,
 	}
 }
 
-func (t *View) ValueTo(v interface{}) {
+func (o *View) ValueTo(v interface{}) {
 	rv := reflect.ValueOf(v)
-	rv.Elem().Set(reflect.ValueOf(t.Value()))
+	rv.Elem().Set(reflect.ValueOf(o.Value()))
 }
 
-func (t *View) Value() interface{} {
-	return t.root
+func (o *View) Value() interface{} {
+	return o.ptr
 }
 
-func (t *View) Path() string {
+func (o *View) Path() string {
 	return "/"
 }
 
 type cursor struct {
-	root *View
+	view *View
 	path string
 }
 
 func (c *cursor) Select(path ...string) Cursor {
 	fullpath := filepath.Join(c.path, strings.Join(path, "/"))
-	return c.root.Select(fullpath)
+	return c.view.Select(fullpath)
 }
 
 func (c *cursor) ValueTo(v interface{}) {
@@ -71,15 +69,42 @@ func (c *cursor) ValueTo(v interface{}) {
 }
 
 func (c *cursor) Value() interface{} {
-	return c.root.get(c.path)
+	return reflect.Indirect(c.view.get(c.path)).Interface()
 }
 
 func (c *cursor) Set(v interface{}) {
-	c.root.set(c.path, v)
+	c.view.set(c.path, v)
 }
 
-func (c *cursor) Unset() {
+func (c *cursor) Unset() interface{} {
+	// TODO
+	return nil
+}
 
+func (c *cursor) Append(v interface{}) {
+	rv := c.view.get(c.path)
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		panic("cannot Append to non-slice and non-array value of kind: " + rv.Kind().String())
+	}
+	rv.Set(reflect.Append(rv, reflect.ValueOf(v)))
+}
+
+func (c *cursor) Insert(idx int, v interface{}) {
+	rv := c.view.get(c.path)
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		panic("cannot Insert to non-slice and non-array value of kind: " + rv.Kind().String())
+	}
+	if idx < 0 || idx >= rv.Len() {
+		panic("index out of range for Insert")
+	}
+	nv := reflect.Append(rv, reflect.Zero(rv.Type().Elem()))
+	reflect.Copy(nv.Slice(idx+1, nv.Len()), nv.Slice(idx, nv.Len()))
+	nv.Index(idx).Set(reflect.ValueOf(v))
+	rv.Set(nv)
+}
+
+func (c *cursor) Merge(v interface{}) {
+	// TODO
 }
 
 func (c *cursor) Path() string {
@@ -87,7 +112,7 @@ func (c *cursor) Path() string {
 }
 
 func (c *cursor) Root() *View {
-	return c.root
+	return c.view
 }
 
 type Cursor interface {
@@ -95,14 +120,16 @@ type Cursor interface {
 	ValueTo(v interface{})
 	Value() interface{}
 	Set(v interface{})
-	Unset()
+	Unset() interface{}
+	Append(v interface{})
+	Insert(idx int, v interface{})
+	Merge(v interface{})
 	Path() string
 	Root() *View
 }
 
-func prop(obj interface{}, key string) interface{} {
-	robj := reflect.ValueOf(obj)
-	rtyp := reflect.TypeOf(obj)
+func prop(robj reflect.Value, key string) reflect.Value {
+	rtyp := robj.Type()
 	switch rtyp.Kind() {
 	case reflect.Slice:
 		idx, err := strconv.Atoi(key)
@@ -111,25 +138,25 @@ func prop(obj interface{}, key string) interface{} {
 		}
 		rval := robj.Index(idx)
 		if rval.IsValid() {
-			return rval.Interface()
+			return rval
 		}
 	case reflect.Ptr:
-		return prop(robj.Elem().Interface(), key)
+		return prop(robj.Elem(), key)
 	case reflect.Map:
 		rval := robj.MapIndex(reflect.ValueOf(key))
 		if rval.IsValid() {
-			return rval.Interface()
+			return rval
 		}
 	case reflect.Struct:
 		rval := robj.FieldByName(key)
 		if rval.IsValid() {
-			return rval.Interface()
+			return rval
 		}
 		for i := 0; i < rtyp.NumField(); i++ {
 			field := rtyp.Field(i)
 			tag := strings.Split(field.Tag.Get("json"), ",")
 			if tag[0] == key || field.Name == key {
-				return robj.FieldByName(field.Name).Interface()
+				return robj.FieldByName(field.Name)
 			}
 		}
 	}

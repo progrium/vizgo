@@ -1,13 +1,9 @@
 package dataview
 
-import "testing"
-
-type testStructure struct {
-	MapValue    map[string]testData
-	SliceValue  []testData
-	StructValue testData
-	PtrValue    *testData
-}
+import (
+	"reflect"
+	"testing"
+)
 
 type testData struct {
 	StringValue string
@@ -17,17 +13,11 @@ type testData struct {
 	SliceValue  []string
 }
 
-func newTestData(s string) testData {
-	return testData{
-		StringValue: s,
-		IntValue:    100,
-		BoolValue:   true,
-		MapValue: map[string]string{
-			"one": s,
-			"two": s,
-		},
-		SliceValue: []string{"one", "two"},
-	}
+type testStructure struct {
+	MapValue    map[string]testData
+	SliceValue  []testData
+	StructValue testData
+	PtrValue    *testData
 }
 
 func newTestStructure() testStructure {
@@ -46,21 +36,34 @@ func newTestStructure() testStructure {
 	}
 }
 
-func TestCursorValue(t *testing.T) {
-	view := New(newTestStructure())
+func newTestData(s string) testData {
+	return testData{
+		StringValue: s,
+		IntValue:    100,
+		BoolValue:   true,
+		MapValue: map[string]string{
+			"one": s,
+			"two": s,
+		},
+		SliceValue: []string{"one", "two"},
+	}
+}
 
-	var tests = []struct {
+func TestCursorValue(t *testing.T) {
+	data := newTestStructure()
+	view := New(&data)
+
+	for _, tt := range []struct {
 		in  string
 		out string
 	}{
 		{"StructValue/StringValue", "foobar"},
 		{"PtrValue/StringValue", "qux"},
 		{"MapValue/one/StringValue", "foo"},
-	}
-
-	for _, tt := range tests {
+	} {
 		t.Run(tt.in, func(t *testing.T) {
 			got := view.Select(tt.in).Value().(string)
+
 			if got != tt.out {
 				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
 			}
@@ -70,40 +73,43 @@ func TestCursorValue(t *testing.T) {
 }
 
 func TestCursorValueTo(t *testing.T) {
-	view := New(newTestStructure())
+	data := newTestStructure()
+	view := New(&data)
 
-	var stringTests = []struct {
+	// STRINGS
+
+	for _, tt := range []struct {
 		in  string
 		out string
 	}{
 		{"StructValue/StringValue", "foobar"},
 		{"PtrValue/StringValue", "qux"},
 		{"MapValue/one/StringValue", "foo"},
-	}
-
-	for _, tt := range stringTests {
+	} {
 		t.Run(tt.in, func(t *testing.T) {
 			var got string
 			view.Select(tt.in).ValueTo(&got)
+
 			if got != tt.out {
 				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
 			}
 		})
 	}
 
-	var mapTests = []struct {
+	// MAPS
+
+	for _, tt := range []struct {
 		in  string
 		out string
 	}{
 		{"StructValue/MapValue", "foobar"},
 		{"PtrValue/MapValue", "qux"},
 		{"MapValue/one/MapValue", "foo"},
-	}
-
-	for _, tt := range mapTests {
+	} {
 		t.Run(tt.in, func(t *testing.T) {
 			var got map[string]string
 			view.Select(tt.in).ValueTo(&got)
+
 			if got["one"] != tt.out || got["two"] != tt.out {
 				t.Fatalf("expected values '%#v' but got '%#v'", tt.out, got)
 			}
@@ -116,23 +122,68 @@ func TestCursorSet(t *testing.T) {
 	data := newTestStructure()
 	view := New(&data)
 
-	var tests = []struct {
+	for _, tt := range []struct {
 		in  string
 		out string
 	}{
 		{"StructValue/StringValue", "foobar2"},
 		// {"MapValue/one/StringValue", "foobar2"},
 		{"SliceValue/0/StringValue", "foobar2"},
-	}
-
-	for _, tt := range tests {
+	} {
 		t.Run(tt.in, func(t *testing.T) {
-			view.Select(tt.in).Set(tt.out)
-			got := view.Select(tt.in).Value().(string)
+			cur := view.Select(tt.in)
+			cur.Set(tt.out)
+			got := cur.Value().(string)
+
 			if got != tt.out {
 				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
 			}
 		})
 	}
 
+}
+
+func TestCursorAppend(t *testing.T) {
+	data := newTestStructure()
+	view := New(&data)
+
+	for _, tt := range []struct {
+		in  string
+		out []string
+	}{
+		{"StructValue/SliceValue", []string{"one", "two", "three", "four"}},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			cur := view.Select(tt.in)
+			cur.Append("three")
+			cur.Append("four")
+			got := cur.Value().([]string)
+
+			if !reflect.DeepEqual(got, tt.out) {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
+			}
+		})
+	}
+}
+
+func TestCursorInsert(t *testing.T) {
+	data := newTestStructure()
+	view := New(&data)
+
+	for _, tt := range []struct {
+		in  string
+		out []string
+	}{
+		{"StructValue/SliceValue", []string{"one", "one-half", "two"}},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			cur := view.Select(tt.in)
+			cur.Insert(1, "one-half")
+			got := cur.Value().([]string)
+
+			if !reflect.DeepEqual(got, tt.out) {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
+			}
+		})
+	}
 }
