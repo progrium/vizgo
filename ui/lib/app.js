@@ -155,6 +155,10 @@ class App {
         jsPlumb.draggable(dom, {
             grid: [size, size],
             containment: "parent",
+            drag: function (event) {
+                Remote.move(event.pos[0], vnode.dom.id)
+                Remote.move(event.pos[1], vnode.dom.id)
+            }
         });
         $(window).on('mousemove', null, null, (event) => {
             App.checkPosition({ dom })

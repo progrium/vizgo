@@ -6,6 +6,10 @@ export class Remote {
         App.session.Selected = fn;
     }
 
+    static move(position, blockId) {
+        console.log(position, blockId)
+    }
+
     static set(path, value) {
         console.log(path, value);
         let parts = path.split("/");
