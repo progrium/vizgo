@@ -1,6 +1,7 @@
 import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
 import { Remote } from "../lib/remote.js";
+import { stripInput } from "../lib/misc.js"
 
 export function Stack({attrs,style,children}) {
     var axis = attrs.axis || "v";
@@ -102,6 +103,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         borderLeft: "var(--pixel-size) solid #42494d",
         flexGrow: "1",
         boxShadow: "inset 2px 2px 3px #333",
+        height: "36px", // use a proper value here
     });
     style.add("dark", () => dark);
     style.add("light", () => !dark);
@@ -112,12 +114,13 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
+        height: "36px", // use a proper value here
     });
 
     const oninput = (e) => {
-        vnode.state.editvalue = e.target.innerHTML;
+        vnode.state.editvalue = stripInput(e.target.innerHTML);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML);
+            oninput_(e, vnode.state.editvalue);
         }
         
     }
@@ -149,6 +152,7 @@ export function BlockTextbox({style, children}) {
         borderLeft: "var(--pixel-size) solid #42494d",
         flexGrow: "1",
         boxShadow: "inset 2px 2px 3px #333",
+        height: "36px", // use a proper value here
     });
     style.add("light");
 
@@ -161,6 +165,7 @@ export function BlockTextbox({style, children}) {
         paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
+        height: "36px", // use a proper value here
     });
 
     return (
@@ -213,16 +218,16 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     });
 
     const onValInput = (e) => {
-        vnode.state.editvalue = e.target.innerHTML;
+        vnode.state.editvalue = stripInput(e.target.innerHTML);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML, "value");
+            oninput_(e, vnode.state.editvalue, "value");
         }
     }
 
     const onTypInput = (e) => {
-        vnode.state.edittype = e.target.value;
+        vnode.state.edittype = stripInput(e.target.value);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML, "type");
+            oninput_(e, vnode.state.edittype, "type");
         }
     }
 
