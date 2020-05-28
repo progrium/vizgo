@@ -69,26 +69,34 @@ export function setupSortables() {
     $(document).ready(function () {
         // sidebar declarations sorting
         $(".Stack.flex.flex-col").sortable({
+            start: function(event, ui) {
+                ui.item.startPos = ui.item.index();
+                console.log(`Old position for ${ui.item}: ` + ui.item.index());
+            },
+            stop: function(event, ui) {
+                console.log(`New position for ${ui.item}: ` + ui.item.index());
+            },
             items: "> div",
             revert: 150,
             tolerance: "intersect",
             handle: ".Dots.mb-1",
             containment: "parent",
             axis: "y",
-            change: (e,ui) => {
-                console.log(Array.from(ui.helper[0].parentNode.children).indexOf(ui.helper[0]))
-            },
         });
         $(".Stack.flex.flex-col.pl-1.mt-2").sortable({
+            start: function(event, ui) {
+                ui.item.startPos = ui.item.index();
+                console.log(`Old position for ${ui.item}: ` + ui.item.index());
+            },
+            stop: function(event, ui) {
+                console.log(`New position for ${ui.item}: ` + ui.item.index());
+            },
             items: "> div",
             revert: 150,
             tolerance: "pointer",
             handle: ".Dots.Grip.mr-1.mt-1.mb-1",
             containment: "parent",
             axis: "y",
-            change: (e,ui) => {
-                console.log(Array.from(ui.helper[0].parentNode.children).indexOf(ui.helper[0]))
-            },
         });
     })
 }
