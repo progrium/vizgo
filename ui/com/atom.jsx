@@ -120,7 +120,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
     const oninput = (e) => {
         vnode.state.editvalue = stripInput(e.target.innerHTML);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML);
+            oninput_(e, vnode.state.editvalue);
         }
         
     }
@@ -220,14 +220,14 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     const onValInput = (e) => {
         vnode.state.editvalue = stripInput(e.target.innerHTML);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML, "value");
+            oninput_(e, vnode.state.editvalue, "value");
         }
     }
 
     const onTypInput = (e) => {
         vnode.state.edittype = stripInput(e.target.value);
         if (oninput_) {
-            oninput_(e, e.target.innerHTML, "type");
+            oninput_(e, vnode.state.edittype, "type");
         }
     }
 
