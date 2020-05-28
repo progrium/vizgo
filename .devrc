@@ -5,6 +5,7 @@ dev() {
 
 deps() {
     which hotweb || go install github.com/progrium/hotweb/cmd/...
+    which go-bindata || go get -u github.com/shuLhan/go-bindata/...
 }
 
 devrc-unset() {
