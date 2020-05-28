@@ -1,8 +1,8 @@
 
 build:
 	mkdir -p local/bin
+	go-bindata -pkg ui -o pkg/data/ui/bindata.go ./ui/...
 	go build -o local/bin/vizgo ./cmd/vizgo
 
 dev:
-	cd cmd/vizgo;\
-	go run main.go
+	UI_DIR=./ui go run cmd/vizgo/main.go

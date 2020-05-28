@@ -1,3 +1,5 @@
+github.com/Schobers/bindatafs v0.0.0-20190306220051-cb60ddcc20d0 h1:mtVPoYrODUiGp8h9fwpmekMbeFWDqfyzuYu5Qxp+zV4=
+github.com/Schobers/bindatafs v0.0.0-20190306220051-cb60ddcc20d0/go.mod h1:w4dWc6jibMBTJcbDjELOHjq6DcpojHoIjs/6KciscTs=
 github.com/dustin/go-jsonpointer v0.0.0-20160814072949-ba0abeacc3dc h1:tP7tkU+vIsEOKiK+l/NSLN4uUtkyuxc6hgYpQeCWAeI=
 github.com/dustin/go-jsonpointer v0.0.0-20160814072949-ba0abeacc3dc/go.mod h1:ORH5Qp2bskd9NzSfKqAF7tKfONsEkCarTE5ESr/RVBw=
 github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad h1:Qk76DOWdOp+GlyDKBAG3Klr9cn7N+LcYc82AZ2S7+cA=
@@ -17,6 +19,8 @@ github.com/progrium/hotweb v0.0.0-20200526224333-07104ca9326c/go.mod h1:3Z54O+TR
 github.com/progrium/watcher v1.0.8-0.20200403214642-88c0f931de38 h1:HpY7P6KAfacRCsWh+XwT4pKArLqRilfOMeLnSX423r0=
 github.com/progrium/watcher v1.0.8-0.20200403214642-88c0f931de38/go.mod h1:JQYLbWpkvkx6EDYKgqn4Tv5zwhRXe9a+MQw1wnmcyvI=
 github.com/radovskyb/watcher v1.0.7/go.mod h1:78okwvY5wPdzcb1UYnip1pvrZNIVEIh/Cm+ZuvsUYIg=
+github.com/shuLhan/go-bindata v3.4.0+incompatible h1:xlNGW4LRRs+BPBpefnlrgSqb9x7vNF9YyzKeMuuqMpk=
+github.com/shuLhan/go-bindata v3.4.0+incompatible/go.mod h1:pkcPAATLBDD2+SpAPnX5vEM90F7fcwHCvvLCMXcmw3g=
 github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966/go.mod h1:sUM3LWHvSMaG192sy56D9F7CNvL7jUJVXoqM1QKLnog=
 github.com/spf13/afero v1.2.2 h1:5jhuqJyZCZf2JRofRvN/nIFgIWNzPa3/Vz8mYylgbWc=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=

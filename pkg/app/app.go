@@ -7,8 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Schobers/bindatafs"
 	"github.com/gorilla/handlers"
 	"github.com/progrium/hotweb/pkg/hotweb"
+	"github.com/progrium/vizgo/pkg/data/ui"
+	"github.com/spf13/afero"
 	"github.com/zserge/webview"
 )
 
@@ -17,22 +20,28 @@ const (
 
 	windowWidth  = 960
 	windowHeight = 640
-
-	frontendDir = "../../ui"
 )
 
 func Main() {
-	dir, err := filepath.Abs(frontendDir)
-	if err != nil {
-		panic(err)
+	var fs afero.Fs = bindatafs.NewFs(ui.MustAsset, ui.AssetInfo, ui.AssetNames)
+	dir := "ui"
+
+	if os.Getenv("UI_DIR") != "" {
+		var err error
+		dir, err = filepath.Abs(os.Getenv("UI_DIR"))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("* Using UI_DIR for frontend")
+		fs = afero.NewOsFs()
 	}
 
 	hw := hotweb.New(hotweb.Config{
+		Filesystem: fs,
 		ServeRoot:  dir,
 		JsxFactory: "h",
 	})
 	go func() {
-		log.Printf("watching %#v\n", frontendDir)
 		log.Fatal(hw.Watch())
 	}()
 
