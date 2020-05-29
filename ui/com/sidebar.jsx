@@ -118,7 +118,11 @@ function Function({attrs, style}) {
 
     style.add("selected", () => name === App.selected())
 
-    const onclick = () => App.switchGrid(name);
+    const onclick = () => {
+        if (name !== App.selected()) {
+            App.switchGrid(name)
+        }
+    };
 
     const fnInput = (e,v,subfield) => {
         switch (subfield) {
