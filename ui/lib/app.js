@@ -113,8 +113,7 @@ class App {
     }
 
     static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
-        let blockPosition = +`${dom.style.left.replace("px", "")}`
-        if (blockPosition <= $(".Sidebar").innerWidth()) {
+        if (`${dom.style.left.replace("px", "")}` <= $(".Sidebar").innerWidth()) {
             dom.style.left = $(".Sidebar").innerWidth() + 30 + "px"
         }
     }
@@ -128,9 +127,7 @@ class App {
     }
 
     static Block_onupdate({ attrs, dom }) {
-        var id = attrs.id || "";
-        
-        let block = App.getBlockById(id);
+        let block = App.getBlockById(attrs.id || "");
 
         let fontSize = Style.propInt("font-size", dom);
         block.label = stripInput(block.label||"")
@@ -156,8 +153,7 @@ class App {
             grid: [size, size],
             containment: "parent",
             drag: function (event) {
-                Remote.move(event.pos[0], vnode.dom.id)
-                Remote.move(event.pos[1], vnode.dom.id)
+                Remote.move(event.pos, vnode.dom.id)
             }
         });
         $(window).on('mousemove', null, null, (event) => {
