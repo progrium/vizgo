@@ -123,7 +123,7 @@ function Function({attrs, style}) {
     const fnInput = (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${basePath}Name`, v);
+            Remote.set(`${basePath}Name`, v.split("(")[0]);
             break;
         case "type":
             Remote.set(`${basePath}Out`, v.split(","));
