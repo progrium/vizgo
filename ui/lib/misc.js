@@ -139,46 +139,19 @@ export function setupContextMenu() {
 }
 
 
-export function nextBlockID(fn, selected) {
-    let number = fn.Blocks.length;
-    let name = `${selected}.${number}`;
-    while (findBlock(fn, name)) {
-        number++;
-        name = `${selected}.${number}`;
-    }
-    return name;
-}
-
-export function findBlock(fn, id) {
-    for (let b in fn.Blocks) {
-        if (b.id === id) {
-            return b;
-        }
-    }
-    return;
-}
-
-export function findFn(sess, fn) {
-    let decls = sess.Package.Declarations;
-    for (let decl of decls) {
-        if (fn.includes("-")) {
-            let [cls, name] = fn.split("-");
-            if (decl[0] == "type" && decl[1].Name == cls) {
-                for (let m of decl[1].Methods) {
-                    if (m.Name == name) {
-                        return m;
-                    }        
-                }
-            }
-        } else {
-            if (decl[0] == "function" && decl[1].Name == fn) {
-                return decl[1];
-            }
-        }
-    }
-    console.warn(fn, "not found");
-}
-
 export function stripInput(string) {
     return string.replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
+}
+
+export function selectPath(obj, path) {
+    let parts = path.split("/");
+    let target = obj;
+    while(parts.length > 0) {
+        let part = parts.shift();
+        if (!part) {
+            continue;
+        }
+        target = target[part];
+    }
+    return target;
 }

@@ -1,4 +1,4 @@
-package app
+package vizgo
 
 type TypeID string
 
@@ -20,13 +20,13 @@ type Variable struct {
 }
 
 type Field struct {
-	Name string
-	Type TypeID
+	Name string `json:"0"`
+	Type TypeID `json:"1"`
 }
 
 type Argument struct {
-	Name string
-	Type TypeID
+	Name string `json:"0"`
+	Type TypeID `json:"1"`
 }
 
 type Function struct {
@@ -43,12 +43,12 @@ type Position [2]int
 
 type Block struct {
 	Type     BlockType         `json:"type"`
-	Label    string            `json:"label"`
+	Label    string            `json:"label,omitempty"`
 	ID       string            `json:"id"`
-	Inputs   []string          `json:"inputs"`
-	Outputs  []string          `json:"outputs"`
-	Connect  string            `json:"connect"`
-	Connects map[string]string `json:"connects"`
+	Inputs   []string          `json:"inputs,omitempty"`
+	Outputs  []string          `json:"outputs,omitempty"`
+	Connect  string            `json:"connect,omitempty"`
+	Connects map[string]string `json:"connects,omitempty"`
 	Position Position          `json:"position"`
 }
 
@@ -59,14 +59,21 @@ type Type struct {
 	Methods []Function
 }
 
-type Declaration [2]interface{}
+type Declaration struct {
+	Kind      string
+	Imports   []Import
+	Constants []Constant
+	Variables []Variable
+	Function  Function
+	Type      Type
+}
 
 type Package struct {
 	Name         string
 	Declarations []Declaration
 }
 
-type Session struct {
+type State struct {
 	Package  Package
 	Selected string
 }

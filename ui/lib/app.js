@@ -1,22 +1,21 @@
 import * as hotweb from '/.hotweb/client.mjs'
+import * as misc from './misc.js';
 import * as main from '../com/main.js';
 
 import { Remote } from "./remote.js";
 import { Style } from "./style.js";
 import { h } from "./h.js";
-import { setupDivider, setupSortables, setupContextMenu, findFn, stripInput } from './misc.js';
-import { session } from "./mock.js";
 
 
 class App {
     static init() {
-        setupContextMenu();
-        setupDivider();
-        setupSortables();
+        misc.setupContextMenu();
+        misc.setupDivider();
+        misc.setupSortables();
 
         App.blocks = [];
         App.entry = "";
-        App.session = session;
+        
 
         function wrap(cb) {
             return { view: () => h(cb()) };
@@ -26,24 +25,31 @@ class App {
             hotweb.watchCSS();
             hotweb.watchHTML();
             hotweb.refresh(() => h.redraw())
-            h.mount(document.body, wrap(() => main.Main));
-        })
+            sess_state().then(async (state) => {
+                console.log("INITIAL STATE", state);
 
-        App.switchGrid(App.selected());
+                App.session = state;
+                
+                h.mount(document.body, wrap(() => main.Main));
+                
+                App.switchGrid(App.selected(), "main");
 
-        // App.createBlock({ type: "return", inputs: ["string", "error"], id: "r" });
+            });    
+        });
+        
+    }
 
-        // App.createBlock({ type: "range", id: "s", connects: { "idx": "r-error" } });
-        // App.createBlock({ type: "expr", connect: "r-string", title: "s.listener" });        
-        // App.createBlock({ type: "assign", connect: "r-in" });
+    static update(state) {
+        App.session = state;
+        App.reloadGrid();
     }
 
     static selected() {
         return App.session.Selected;
     }
 
-    static switchGrid(name) {
-        Remote.select(name);
+    static switchGrid(path, name) {
+        Remote.select(path);
         $("#entrypoint")[0].style['top'] = $(`#${name}`)[0].offsetTop + "px";
         $("#entrypoint")[0].style['height'] = $(`#${name}`)[0].offsetHeight + "px";
 
@@ -70,7 +76,7 @@ class App {
     }
 
     static reloadGrid() {
-        let fn = findFn(App.session, App.selected());
+        let fn = misc.selectPath(App.session, App.selected());
 
         App.entry = fn.Entry;
         App.blocks = fn.Blocks.map((b) => {
@@ -130,7 +136,7 @@ class App {
         let block = App.getBlockById(attrs.id || "");
 
         let fontSize = Style.propInt("font-size", dom);
-        block.label = stripInput(block.label||"")
+        block.label = misc.stripInput(block.label||"")
         let textWidth = block.label.length * fontSize * 0.8;
 
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;

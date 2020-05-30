@@ -187,3 +187,37 @@ func TestCursorInsert(t *testing.T) {
 		})
 	}
 }
+
+func TestObservers(t *testing.T) {
+	data := newTestStructure()
+	view := New(&data)
+
+	var rootTriggers = 0
+	view.Observe(func(c Cursor) {
+		rootTriggers++
+	})
+	var curTriggers = 0
+	view.Select("StructValue").Observe(func(c Cursor) {
+		curTriggers++
+	})
+
+	for _, tt := range []struct {
+		in     string
+		rcount int
+		ccount int
+	}{
+		{"PtrValue/StringValue", 1, 0},
+		{"StructValue/StringValue", 2, 1},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			view.Select(tt.in).Set("new")
+
+			if rootTriggers != tt.rcount {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.rcount, rootTriggers)
+			}
+			if curTriggers != tt.ccount {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.ccount, curTriggers)
+			}
+		})
+	}
+}

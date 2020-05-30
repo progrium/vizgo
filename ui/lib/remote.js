@@ -1,9 +1,9 @@
 
-import { findFn, nextBlockID } from './misc.js';
+import { selectPath } from './misc.js';
 
 export class Remote {
     static select(fn) {
-        App.session.Selected = fn;
+        sess_select(fn);
     }
 
     static move(position, blockId) {
@@ -11,31 +11,13 @@ export class Remote {
     }
 
     static set(path, value) {
-        console.log(path, value);
-        let parts = path.split("/");
-        let target = App.session;
-        while(parts.length > 1) {
-            let part = parts.shift();
-            if (!part) {
-                continue;
-            }
-            target = target[part];
-        }
-        target[parts[0]] = value;
-        console.log(App.session);
+        sess_set(path, value);
     }
 
     static create(type, x, y) {
-        let fn = findFn(App.session, App.selected());
-        if (fn) {
-            let id = nextBlockID(fn, App.selected());
-            fn.Blocks.push({
-                type: type,
-                id: id,
-                position: [Math.floor(x/30), Math.floor(y/30)],
-            });
-            App.reloadGrid();
-        }
+        x = Math.floor(x/30);
+        y = Math.floor(y/30);
+        sess_block_create(type, x, y).then(() => App.reloadGrid());
     }
 
     static connect(src, dst) {
@@ -48,7 +30,7 @@ export class Remote {
             dst = `${dst}-in-${dstPort}`
         }
 
-        let decl = findFn(App.session, App.selected());
+        let decl = selectPath(App.session, App.selected());
         if (decl) {
             // console.log("DECL", decl);
             if (src == "entrypoint") {
@@ -82,7 +64,7 @@ export class Remote {
             // [dst, dstPort] = dst.split("-");
         }
 
-        let decl = findFn(App.session, App.session.Selected);
+        let decl = selectPath(App.session, App.session.Selected);
         if (decl) {
             if (src == "entrypoint") {
                 decl.Entry = "";

@@ -1,4 +1,4 @@
-package app
+package vizgo
 
 import (
 	"fmt"
@@ -18,11 +18,11 @@ import (
 const (
 	listenAddr = "127.0.0.1:9999"
 
-	windowWidth  = 960
-	windowHeight = 640
+	windowWidth  = 1280
+	windowHeight = 720
 )
 
-func Main() {
+func Run() {
 	var fs afero.Fs = bindatafs.NewFs(ui.MustAsset, ui.AssetInfo, ui.AssetNames)
 	dir := "ui"
 
@@ -54,53 +54,11 @@ func Main() {
 
 	w := webview.New(true)
 	defer w.Destroy()
-
-	ch := make(chan interface{})
-
-	go func() {
-		ch <- NewSession()
-	}()
-
 	w.SetTitle("Vizgo")
 	w.SetSize(windowWidth, windowHeight, webview.HintNone)
 	w.Navigate(url)
-	w.Bind("recv", func() interface{} { return <-ch })
-	w.Run()
-}
 
-func NewSession() Session {
-	return Session{
-		Selected: "main",
-		Package: Package{
-			Name: "main",
-			Declarations: []Declaration{
-				{"imports", Import{
-					Package: "fmt",
-				}},
-				{"function", Function{
-					Name:  "main",
-					In:    []Argument{},
-					Out:   []TypeID{},
-					Entry: "main.0",
-					Blocks: []Block{
-						{
-							Type:     "call",
-							ID:       "main.0",
-							Inputs:   []string{"string", "error"},
-							Outputs:  []string{"string", "error"},
-							Label:    "fmt.Println()",
-							Connect:  "main.1-in",
-							Position: Position{6, 5},
-						},
-						{
-							Type:     "return",
-							ID:       "main.1",
-							Inputs:   []string{"string", "error"},
-							Position: Position{16, 5},
-						},
-					},
-				}},
-			},
-		},
-	}
+	NewSession(w)
+
+	w.Run()
 }

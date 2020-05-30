@@ -1,9 +1,9 @@
 package main
 
-import(
-	"github.com/progrium/vizgo/pkg/app"
+import (
+	"github.com/progrium/vizgo/pkg/vizgo"
 )
 
 func main() {
-	app.Main()
+	vizgo.Run()
 }

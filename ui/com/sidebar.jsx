@@ -22,7 +22,7 @@ export function Sidebar({attrs, style}) {
     const packageInput = (e, v) => {
         Remote.set("/Package/Name", v);
     }
-
+    
     return (
         <nav>
             <atom.Stack style={{direction:"ltr"}}>
@@ -31,17 +31,17 @@ export function Sidebar({attrs, style}) {
                     <atom.Textbox oninput={packageInput} dark={true}>{pkg.Name}</atom.Textbox>                    
                 </atom.Panel>
                 {pkg.Declarations.map((decl,idx) => {
-                    switch (decl[0]) {
+                    switch (decl.Kind) {
                     case "imports":
-                        return <Imports data={decl[1]} idx={idx} />
+                        return <Imports data={decl.Imports} idx={idx} />
                     case "constants":
-                        return <Constants data={decl[1]} idx={idx} />
+                        return <Constants data={decl.Constants} idx={idx} />
                     case "variables":
-                        return <Constants data={decl[1]} idx={idx} />
+                        return <Constants data={decl.Constant} idx={idx} />
                     case "function":
-                        return <Function data={decl[1]} idx={idx} />
+                        return <Function data={decl.Function} idx={idx} />
                     case "type":
-                        return <Type data={decl[1]} idx={idx} />
+                        return <Type data={decl.Type} idx={idx} />
                     default:
                         return <atom.Panel><textarea>{JSON.stringify(decl)}</textarea></atom.Panel>
                     }
@@ -55,15 +55,15 @@ function Type({attrs}) {
     var typ = attrs.data || {};
     var idx = attrs.idx || 0;
 
-    let dataPath = `/Package/Declarations/${idx}/1/`;
+    let dataPath = `/Package/Declarations/${idx}/Type`;
 
     const typeInput = (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(dataPath+"Name", v);
+            Remote.set(`${dataPath}/Name`, v);
             break;
         case "type":
-            Remote.set(dataPath+"Type", v);
+            Remote.set(`${dataPath}/Type`, v);
             break;
         }
     };
@@ -95,8 +95,8 @@ function Type({attrs}) {
                 )}
             </atom.Stack>
             <atom.Stack class="pl-1 mt-2">
-                {typ.Methods.map((method) =>
-                    <Method data={method} type={typ} basepath={`${dataPath}/Methods/${idx}/`} />
+                {typ.Methods.map((method,idx) =>
+                    <Method data={method} type={typ} basepath={`${dataPath}/Methods/${idx}`} />
                 )}
             </atom.Stack>
         </atom.Panel>
@@ -108,29 +108,29 @@ function Function({attrs, style}) {
     var label = attrs.label || "Function";
     var container = attrs.container || atom.Panel;
     var idx = attrs.idx || 0;
-    var basePath = attrs.basepath || `/Package/Declarations/${idx}/1/`;
-    
+    var basePath = attrs.basepath || `/Package/Declarations/${idx}/Function`;
+    var fnPath = basePath;
 
     let name = (attrs.type) ? `${attrs.type.Name}-${fn.Name}`: fn.Name;
     let args = (fn.In||[]).map((e) => e[0]).join(", ");
     let type = (fn.Out||[]).join(", ");
     let signature = `${fn.Name}(${args})`;
 
-    style.add("selected", () => name === App.selected())
+    style.add("selected", () => fnPath === App.selected())
 
     const onclick = () => {
-        if (name !== App.selected()) {
-            App.switchGrid(name)
+        if (fnPath !== App.selected()) {
+            App.switchGrid(fnPath, name)
         }
     };
 
     const fnInput = (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${basePath}Name`, v.split("(")[0]);
+            Remote.set(`${basePath}/Name`, v.split("(")[0]);
             break;
         case "type":
-            Remote.set(`${basePath}Out`, v.split(","));
+            Remote.set(`${basePath}/Out`, v.split(","));
             break;
         }
     };
@@ -138,10 +138,10 @@ function Function({attrs, style}) {
     const makeArgInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${basePath}In/${idx}/0`, v);
+            Remote.set(`${basePath}/In/${idx}/0`, v);
             break;
         case "type":
-            Remote.set(`${basePath}In/${idx}/1`, v);
+            Remote.set(`${basePath}/In/${idx}/1`, v);
             break;
         }
     };
@@ -179,22 +179,22 @@ function Method(vnode) {
 function Constants({attrs}) {
     var consts = attrs.data || [];
     var idx = attrs.idx || 0;
-    let dataPath = `/Package/Declarations/${idx}/1/`
+    let dataPath = `/Package/Declarations/${idx}/Constants`
 
 
     const makeVarInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${dataPath}${idx}/Name`, v);
+            Remote.set(`${dataPath}/${idx}/Name`, v);
             break;
         case "type":
-            Remote.set(`${dataPath}${idx}/Type`, v);
+            Remote.set(`${dataPath}/${idx}/Type`, v);
             break;
         }
     };
 
     const makeValInput = (idx) => (e,v) => {
-        Remote.set(`${dataPath}${idx}/Value`, v);
+        Remote.set(`${dataPath}/${idx}/Value`, v);
     };
 
     return (
@@ -220,10 +220,10 @@ function Constants({attrs}) {
 function Imports({attrs}) {
     var imports = attrs.data || [];
     var idx = attrs.idx || 0;
-    let dataPath = `/Package/Declarations/${idx}/1/`
+    let dataPath = `/Package/Declarations/${idx}/Imports`
 
     const makeImportInput = (idx) => (e,v) => {
-        Remote.set(`${dataPath}${idx}/Package`, v);
+        Remote.set(`${dataPath}/${idx}/Package`, v);
     };
 
     return (
