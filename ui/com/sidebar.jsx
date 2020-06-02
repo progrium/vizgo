@@ -1,6 +1,6 @@
 import * as atom from "./atom.js";
 import { App } from "../lib/app.js";
-import { Remote } from "../lib/remote.js";
+import { Session } from "../lib/session.js";
 
 export function Sidebar({attrs, style}) {
     var pkg = attrs.package || {};
@@ -20,7 +20,7 @@ export function Sidebar({attrs, style}) {
     })
 
     const packageInput = (e, v) => {
-        Remote.set("/Package/Name", v);
+        Session.set("/Package/Name", v);
     }
     
     return (
@@ -60,10 +60,10 @@ function Type({attrs}) {
     const typeInput = (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${dataPath}/Name`, v);
+            Session.set(`${dataPath}/Name`, v);
             break;
         case "type":
-            Remote.set(`${dataPath}/Type`, v);
+            Session.set(`${dataPath}/Type`, v);
             break;
         }
     };
@@ -71,10 +71,10 @@ function Type({attrs}) {
     const makeFieldInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${dataPath}/Fields/${idx}/0`, v);
+            Session.set(`${dataPath}/Fields/${idx}/0`, v);
             break;
         case "type":
-            Remote.set(`${dataPath}/Fields/${idx}/1`, v);
+            Session.set(`${dataPath}/Fields/${idx}/1`, v);
             break;
         }
     };
@@ -120,17 +120,17 @@ function Function({attrs, style}) {
 
     const onclick = () => {
         if (fnPath !== App.selected()) {
-            App.switchGrid(fnPath, name)
+            App.select(fnPath, name)
         }
     };
 
     const fnInput = (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${basePath}/Name`, v.split("(")[0]);
+            Session.set(`${basePath}/Name`, v.split("(")[0]);
             break;
         case "type":
-            Remote.set(`${basePath}/Out`, v.split(","));
+            Session.set(`${basePath}/Out`, v.split(","));
             break;
         }
     };
@@ -138,10 +138,10 @@ function Function({attrs, style}) {
     const makeArgInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${basePath}/In/${idx}/0`, v);
+            Session.set(`${basePath}/In/${idx}/0`, v);
             break;
         case "type":
-            Remote.set(`${basePath}/In/${idx}/1`, v);
+            Session.set(`${basePath}/In/${idx}/1`, v);
             break;
         }
     };
@@ -185,16 +185,16 @@ function Constants({attrs}) {
     const makeVarInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
         case "value":
-            Remote.set(`${dataPath}/${idx}/Name`, v);
+            Session.set(`${dataPath}/${idx}/Name`, v);
             break;
         case "type":
-            Remote.set(`${dataPath}/${idx}/Type`, v);
+            Session.set(`${dataPath}/${idx}/Type`, v);
             break;
         }
     };
 
     const makeValInput = (idx) => (e,v) => {
-        Remote.set(`${dataPath}/${idx}/Value`, v);
+        Session.set(`${dataPath}/${idx}/Value`, v);
     };
 
     return (
@@ -223,7 +223,7 @@ function Imports({attrs}) {
     let dataPath = `/Package/Declarations/${idx}/Imports`
 
     const makeImportInput = (idx) => (e,v) => {
-        Remote.set(`${dataPath}/${idx}/Package`, v);
+        Session.set(`${dataPath}/${idx}/Package`, v);
     };
 
     return (

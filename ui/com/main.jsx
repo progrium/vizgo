@@ -14,9 +14,9 @@ export function Main({style}) {
     });
     return (
         <main>
-            <sidebar.Sidebar package={App.session.Package} />
+            <sidebar.Sidebar package={App.session.package()} />
             <atom.Divider />
-            <grid.Grid blocks={App.blocks} entry={App.entry} />
+            <grid.Grid blocks={App.session.blocks()} entry={App.session.entry()} />
         </main>
     )
 }

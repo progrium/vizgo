@@ -1,4 +1,4 @@
-import { Remote } from "./remote.js";
+import { Session } from "./session.js";
 
 export function setupDivider() {
     const selectTarget = (fromElement, selector) => {
@@ -120,7 +120,7 @@ export function setupContextMenu() {
         build: function ($trigger, e) {
             return {
                 callback: function (key, options) {
-                    Remote.create(key, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                    Session.create(key, e.originalEvent.offsetX, e.originalEvent.offsetY);
                 },
                 items: {
                     "expr": { name: "Expression" },
@@ -141,17 +141,4 @@ export function setupContextMenu() {
 
 export function stripInput(string) {
     return string.replace(/<br>/g, '').replace(/&nbsp;/g, '').replace(/<div>/g, '').replace(/<\/div>/g, '')
-}
-
-export function selectPath(obj, path) {
-    let parts = path.split("/");
-    let target = obj;
-    while(parts.length > 0) {
-        let part = parts.shift();
-        if (!part) {
-            continue;
-        }
-        target = target[part];
-    }
-    return target;
 }

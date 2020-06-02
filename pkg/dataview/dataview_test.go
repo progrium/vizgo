@@ -1,6 +1,7 @@
 package dataview
 
 import (
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -14,7 +15,7 @@ type testData struct {
 }
 
 type testStructure struct {
-	MapValue    map[string]testData
+	MapValue    map[string]*testData
 	SliceValue  []testData
 	StructValue testData
 	PtrValue    *testData
@@ -23,21 +24,21 @@ type testStructure struct {
 func newTestStructure() testStructure {
 	ptr := newTestData("qux")
 	return testStructure{
-		MapValue: map[string]testData{
+		MapValue: map[string]*testData{
 			"one": newTestData("foo"),
 			"two": newTestData("bar"),
 		},
 		SliceValue: []testData{
-			newTestData("one"),
-			newTestData("two"),
+			*newTestData("one"),
+			*newTestData("two"),
 		},
-		StructValue: newTestData("foobar"),
-		PtrValue:    &ptr,
+		StructValue: *newTestData("foobar"),
+		PtrValue:    ptr,
 	}
 }
 
-func newTestData(s string) testData {
-	return testData{
+func newTestData(s string) *testData {
+	return &testData{
 		StringValue: s,
 		IntValue:    100,
 		BoolValue:   true,
@@ -122,13 +123,15 @@ func TestCursorSet(t *testing.T) {
 	data := newTestStructure()
 	view := New(&data)
 
+	// strings
+
 	for _, tt := range []struct {
 		in  string
 		out string
 	}{
 		{"StructValue/StringValue", "foobar2"},
-		// {"MapValue/one/StringValue", "foobar2"},
 		{"SliceValue/0/StringValue", "foobar2"},
+		{"MapValue/one/StringValue", "foobar2"},
 	} {
 		t.Run(tt.in, func(t *testing.T) {
 			cur := view.Select(tt.in)
@@ -136,6 +139,72 @@ func TestCursorSet(t *testing.T) {
 			got := cur.Value().(string)
 
 			if got != tt.out {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
+			}
+		})
+	}
+
+	// maps
+
+	for _, tt := range []struct {
+		in  string
+		out interface{}
+	}{
+		{"MapValue/one", newTestData("one")},
+		{"StructValue/MapValue/two", "test"},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			cur := view.Select(tt.in)
+			cur.Set(tt.out)
+			got := cur.Value()
+
+			if !reflect.DeepEqual(got, New(tt.out).Value()) {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
+			}
+		})
+	}
+
+}
+
+func TestCursorUnset(t *testing.T) {
+	data := newTestStructure()
+	view := New(&data)
+
+	// strings
+
+	for _, tt := range []struct {
+		in  string
+		out string
+	}{
+		{"StructValue/StringValue", ""},
+		{"SliceValue/0/StringValue", ""},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			cur := view.Select(tt.in)
+			cur.Unset()
+			got := cur.Value().(string)
+
+			if got != tt.out {
+				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
+			}
+		})
+	}
+
+	// maps
+
+	for _, tt := range []struct {
+		in  string
+		out []string
+	}{
+		{"MapValue/one", []string{"two"}},
+		{"StructValue/MapValue/two", []string{"one"}},
+	} {
+		t.Run(tt.in, func(t *testing.T) {
+			cur := view.Select(filepath.Dir(tt.in))
+			cur.Select(filepath.Base(tt.in)).Unset()
+			got := cur.Keys()
+
+			if !reflect.DeepEqual(got, tt.out) {
 				t.Fatalf("expected '%#v' but got '%#v'", tt.out, got)
 			}
 		})

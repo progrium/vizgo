@@ -1,6 +1,5 @@
 import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
-import { Remote } from "../lib/remote.js";
 import { stripInput } from "../lib/misc.js"
 
 export function Stack({attrs,style,children}) {

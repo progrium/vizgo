@@ -3,6 +3,7 @@ package dataview
 import (
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -19,6 +20,7 @@ type Cursor interface {
 	Append(v interface{})
 	Insert(idx int, v interface{})
 	Merge(v interface{})
+	Keys() []string
 	Path() string
 	Root() *View
 	Observe(fn func(Cursor))
@@ -52,7 +54,7 @@ func (o *View) set(c *cursor, v interface{}) {
 }
 
 func (o *View) unset(c *cursor) interface{} {
-	// TODO
+	jsonpointer.SetReflect(o.ptr, c.path, nil)
 	o.notify(c.path, c)
 	return nil
 }
@@ -96,6 +98,10 @@ func (o *View) get(c *cursor) reflect.Value {
 		selection = prop(selection, key)
 	}
 	return selection
+}
+
+func (o *View) keys(c *cursor) []string {
+	return keys(o.get(c))
 }
 
 func (o *View) sel(path ...string) Cursor {
@@ -181,6 +187,10 @@ func (c *cursor) Merge(v interface{}) {
 	c.view.merge(c, v)
 }
 
+func (c *cursor) Keys() []string {
+	return c.view.keys(c)
+}
+
 func (c *cursor) Path() string {
 	return c.path
 }
@@ -200,7 +210,6 @@ func prop(robj reflect.Value, key string) reflect.Value {
 	if rtyp.Implements(propGetterType) {
 		args := []reflect.Value{reflect.ValueOf(key)}
 		return robj.MethodByName("Prop").Call(args)[0].Interface().(reflect.Value)
-		// return robj.Interface().(PropGetter).Prop(key)
 	}
 	switch rtyp.Kind() {
 	case reflect.Slice, reflect.Array:
@@ -234,4 +243,33 @@ func prop(robj reflect.Value, key string) reflect.Value {
 	}
 	spew.Dump(robj, key)
 	panic("unexpected kind: " + rtyp.Kind().String())
+}
+
+func keys(v reflect.Value) []string {
+	switch v.Type().Kind() {
+	case reflect.Map:
+		var keys []string
+		for _, key := range v.MapKeys() {
+			k, ok := key.Interface().(string)
+			if !ok {
+				continue
+			}
+			keys = append(keys, k)
+		}
+		sort.Sort(sort.StringSlice(keys))
+		return keys
+	case reflect.Struct:
+		t := v.Type()
+		var f []string
+		for i := 0; i < t.NumField(); i++ {
+			name := t.Field(i).Name
+			// first letter capitalized means exported
+			if name[0] == strings.ToUpper(name)[0] {
+				f = append(f, name)
+			}
+		}
+		return f
+	default:
+		return []string{}
+	}
 }

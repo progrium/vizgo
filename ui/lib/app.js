@@ -2,7 +2,7 @@ import * as hotweb from '/.hotweb/client.mjs'
 import * as misc from './misc.js';
 import * as main from '../com/main.js';
 
-import { Remote } from "./remote.js";
+import { Session } from "./session.js";
 import { Style } from "./style.js";
 import { h } from "./h.js";
 
@@ -12,44 +12,30 @@ class App {
         misc.setupContextMenu();
         misc.setupDivider();
         misc.setupSortables();
-
-        App.blocks = [];
-        App.entry = "";
-        
-
-        function wrap(cb) {
-            return { view: () => h(cb()) };
-        }
-        
+                
         jsPlumb.bind("ready", function () {
             hotweb.watchCSS();
             hotweb.watchHTML();
-            hotweb.refresh(() => h.redraw())
-            sess_state().then(async (state) => {
-                console.log("INITIAL STATE", state);
+            hotweb.refresh(() => h.redraw());
 
-                App.session = state;
+            App.session = new Session(App.redraw, () => {
                 
                 h.mount(document.body, wrap(() => main.Main));
-                
-                App.switchGrid(App.selected(), "main");
+
+                App.select(App.selected(), "main");
 
             });    
         });
         
     }
 
-    static update(state) {
-        App.session = state;
-        App.reloadGrid();
-    }
-
     static selected() {
-        return App.session.Selected;
+        return App.session.state.Selected;
     }
 
-    static switchGrid(path, name) {
-        Remote.select(path);
+    static select(path, name) {
+        Session.select(path);
+
         $("#entrypoint")[0].style['top'] = $(`#${name}`)[0].offsetTop + "px";
         $("#entrypoint")[0].style['height'] = $(`#${name}`)[0].offsetHeight + "px";
 
@@ -60,7 +46,7 @@ class App {
             }
             let src = params.sourceId.replace("-out", "");
             let dst = params.targetId.replace("-in", "");
-            Remote.disconnect(src, dst);
+            Session.disconnect(src, dst);
             
         });
         jsPlumb.bind("connection", function (params, e) {
@@ -69,54 +55,17 @@ class App {
             }
             let src = params.sourceId.replace("-out", "");
             let dst = params.targetId.replace("-in", "");
-            Remote.connect(src, dst);
+            Session.connect(src, dst);
         });
 
-        App.reloadGrid();
+        App.redraw();
     }
 
-    static reloadGrid() {
-        let fn = misc.selectPath(App.session, App.selected());
-
-        App.entry = fn.Entry;
-        App.blocks = fn.Blocks.map((b) => {
-            return Object.assign(clone(BlockTypes[b.type]), b);
-        });
-
+    static redraw() {
         jsPlumb.repaintEverything();
-        m.redraw();
+        h.redraw();
     }
 
-
-    static getBlockById (id) {
-        for (let block of App.blocks) {
-            if (block.id === id) {
-                return block
-            }
-        }
-        console.log(`Block with id "${id}" doesn't exist!`)
-    }
-
-    static createBlock(obj) {
-        const blockCursor = [0, 14];
-
-        let b = Object.assign(BlockTypes[obj.type]);
-        let o = Object.assign(b, obj);
-        if (o.id === undefined) {
-            o.id = genId();
-        }
-        if (o.position == undefined) {
-            o.position = blockCursor;
-        }
-        if (o.position[0] == undefined) {
-            o.position[0] = 20 + (10 * blockCursor[0]++);
-        }
-        if (o.position[1] == undefined) {
-            o.position[1] = blockCursor[1];
-        }
-        App.blocks.push(o);
-        m.redraw();
-    }
 
     static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
         if (`${dom.style.left.replace("px", "")}` <= $(".Sidebar").innerWidth()) {
@@ -133,7 +82,7 @@ class App {
     }
 
     static Block_onupdate({ attrs, dom }) {
-        let block = App.getBlockById(attrs.id || "");
+        let block = App.session.blockById(attrs.id || "");
 
         let fontSize = Style.propInt("font-size", dom);
         block.label = misc.stripInput(block.label||"")
@@ -158,8 +107,13 @@ class App {
         jsPlumb.draggable(dom, {
             grid: [size, size],
             containment: "parent",
-            drag: function (event) {
-                Remote.move(event.pos, vnode.dom.id)
+            drag: function(event) {
+                jsPlumb.repaintEverything();
+            },
+            stop: function (event) {
+                let x = event.pos[0]-$(".Sidebar").innerWidth();
+                let y = event.pos[1];
+                Session.move(`${App.selected()}/Blocks/${vnode.dom.dataset.idx}`, x, y);
             }
         });
         $(window).on('mousemove', null, null, (event) => {
@@ -174,15 +128,16 @@ class App {
 
 
     static Endpoint_oncreate({ attrs, style, dom, vnode }) {
-        if (vnode.state.connected) {
-            // otherwise this hook is called twice for some reason
-            return;
-        }
+        // if (vnode.state.connected) {
+        //     // otherwise this hook is called twice for some reason
+        //     return;
+        // }
         let { output, header, connect, id } = attrs;
+        // console.log(attrs);
         jsPlumb.removeAllEndpoints(dom);
         
         // console.log(`oncreate ${id} to ${connect}`);
-        vnode.state.connected = true;
+        //vnode.state.connected = true;
 
         if (connect) {
             setTimeout(() => {
@@ -198,17 +153,19 @@ class App {
                     anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
                 });
                 
-            }, 20);
+            }, 10);
         } 
 
         function exprEndpoint(dom, style, params) {
-            jsPlumb.addEndpoint(dom, Object.assign({
-                endpoint: "Dot",
-                cssClass: `endpoint-anchor output`,
-                scope: "ports",
-                connectorStyle: { stroke: "gray", strokeWidth: 8 },
-                connector: ["Bezier", { curviness: 100 }]
-            }, params));
+            setTimeout(() => {
+                jsPlumb.addEndpoint(dom, Object.assign({
+                    endpoint: "Dot",
+                    cssClass: `endpoint-anchor output`,
+                    scope: "ports",
+                    connectorStyle: { stroke: "gray", strokeWidth: 8 },
+                    connector: ["Bezier", { curviness: 100 }]
+                }, params));
+            }, 10);
         }
 
         if (output === true) {
@@ -226,7 +183,7 @@ class App {
                     maxConnections: -1,
                     anchor: [0, 0, 1, 0, 15, 12],
                     isSource: true,
-                })
+                });
             }
         } else {
             // input port
@@ -297,55 +254,9 @@ class App {
     }
 }
 
-
-function clone(obj) {
-    return $.extend(true, {}, obj);
+function wrap(cb) {
+    return { view: () => h(cb()) };
 }
-
-const genId = (m = Math, d = Date, h = 16, s = s => m.floor(s).toString(h)) =>
-    s(d.now() / 1000) + ' '.repeat(h).replace(/./g, () => s(m.random() * h))
-
-const BlockTypes = {
-    expr: { 
-        flow: false, 
-        label: "" 
-    },
-    call: { 
-        label: "()" 
-    },
-    assign: { 
-        label: "Assign", 
-        inputs: [""], 
-        outputs: ["name?"] 
-    },
-    return: { 
-        out: false, 
-        label: "Return" 
-    },
-    defer: { 
-        label: "Defer", 
-        outputs: ["defer>"] 
-    },
-    for: { 
-        label: "For     ", 
-        inputs: ["exp"], 
-        outputs: ["loop>"] 
-    },
-    send: { 
-        label: "Send", 
-        inputs: ["ch", "send"] 
-    },
-    range: { 
-        label: "For-Range  ", 
-        inputs: ["range"], 
-        outputs: ["loop>", "idx", "val"] 
-    },
-    condition: { 
-        label: "Conditional", 
-        inputs: [""], 
-        outputs: ["if>", "else>"] 
-    },
-};
 
 export { App }
 

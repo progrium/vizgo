@@ -28,9 +28,9 @@ export function Grid({attrs,style,hooks,vnode}) {
     return (
         <div>
             <Entrypoint connect={(entry)?`${entry}-in`:undefined} />    
-            {blocks.map((attrs) => {
+            {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
-                return <block.Block {...attrs} />
+                return <block.Block data-idx={idx} {...attrs} />
             })}
         </div>
     )
