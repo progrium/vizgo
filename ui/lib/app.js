@@ -53,9 +53,11 @@ class App {
             if (e === undefined) {
                 return;
             }
-            let src = params.sourceId.replace("-out", "");
-            let dst = params.targetId.replace("-in", "");
-            Session.connect(src, dst);
+            if ($("#" + params.targetId.replace(".", "\\.")).hasClass("jtk-connected")) {
+                let src = params.sourceId.replace("-out", "");
+                let dst = params.targetId.replace("-in", "");
+                Remote.connect(src, dst);
+            }
         });
 
         App.redraw();
@@ -215,7 +217,7 @@ class App {
         
         jsPlumb.removeAllEndpoints(source);
         
-        if (attrs.connect) {
+        if (attrs.connect && !$("#" + attrs.connect.replace(".","\\.")).hasClass("jtk-connected")) {
             setTimeout(() => {
                 //console.log(`connecting ${source} to ${attrs.connect}`);
                 jsPlumb.connect({
