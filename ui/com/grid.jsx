@@ -7,6 +7,7 @@ export function Grid({attrs,style,hooks,vnode}) {
         jsPlumb.setContainer(vnode.dom);
     }
 
+    var source = attrs.source || "";
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
 
@@ -27,12 +28,25 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Entrypoint connect={(entry)?`${entry}-in`:undefined} />    
+            <Entrypoint connect={(entry)?`${entry}-in`:undefined} />
+            <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
                 return <block.Block data-idx={idx} {...attrs} />
             })}
         </div>
+    )
+}
+
+function Preview({attrs,style}) {
+    style.add({
+        width: "300px",
+        height: "500px",
+        fontSize: "smaller",
+        marginLeft: "800px",
+    })
+    return (
+        <pre>{h.trust(attrs.source)}</pre>
     )
 }
 

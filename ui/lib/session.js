@@ -38,6 +38,10 @@ export class Session {
         return this.state.Package;
     }
 
+    source() {
+        return this.state.Source;
+    }
+
     selected() {
         return this._select(this.state.Selected);
     }

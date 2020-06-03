@@ -3,6 +3,7 @@ package vizgo
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"log"
 	"strconv"
 	"strings"
@@ -22,6 +23,21 @@ func NewSession(w webview.WebView) *Session {
 		State: state,
 		View:  dataview.New(state),
 	}
+	genSource := func() {
+		log.Println("generating source...")
+		var pkg Package
+		sess.View.Select("Package").ValueTo(&pkg)
+		src, err := generate(pkg)
+		if err != nil {
+			panic(err)
+		}
+		src = html.EscapeString(src)
+		sess.View.Select("Source").Set(src)
+	}
+	genSource()
+	sess.View.Select("Package").Observe(func(c dataview.Cursor) {
+		genSource()
+	})
 	sess.View.Observe(func(c dataview.Cursor) {
 		state := sess.View.Value()
 		b, err := json.Marshal(state)
@@ -29,7 +45,7 @@ func NewSession(w webview.WebView) *Session {
 			panic(err)
 		}
 		w.Dispatch(func() {
-			w.Eval(fmt.Sprintf("App.session.update(JSON.parse(`%s`))", string(b)))
+			w.Eval(fmt.Sprintf("App.session.update(JSON.parse(String.raw`%s`))", string(b)))
 		})
 	})
 	w.Bind("sess_state", sess._state)

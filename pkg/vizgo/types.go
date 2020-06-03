@@ -75,5 +75,6 @@ type Package struct {
 
 type State struct {
 	Package  Package
+	Source   string
 	Selected string
 }

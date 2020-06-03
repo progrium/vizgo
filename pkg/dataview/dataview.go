@@ -89,7 +89,7 @@ func (o *View) merge(c *cursor, v interface{}) {
 }
 
 func (o *View) get(c *cursor) reflect.Value {
-	parts := strings.Split(strings.TrimLeft(c.path, "/"), "/")
+	parts := strings.Split(c.path, "/")
 	selection := reflect.ValueOf(o.ptr)
 	for _, key := range parts {
 		if key == "" {
@@ -105,7 +105,7 @@ func (o *View) keys(c *cursor) []string {
 }
 
 func (o *View) sel(path ...string) Cursor {
-	normalpath := strings.Join(path, "/")
+	normalpath := strings.TrimLeft(strings.Join(path, "/"), "/")
 	return &cursor{
 		view: o,
 		path: normalpath,

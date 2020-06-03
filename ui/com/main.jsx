@@ -16,7 +16,7 @@ export function Main({style}) {
         <main>
             <sidebar.Sidebar package={App.session.package()} />
             <atom.Divider />
-            <grid.Grid blocks={App.session.blocks()} entry={App.session.entry()} />
+            <grid.Grid blocks={App.session.blocks()} entry={App.session.entry()} source={App.session.source()} />
         </main>
     )
 }

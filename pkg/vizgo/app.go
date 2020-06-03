@@ -18,8 +18,8 @@ import (
 const (
 	listenAddr = "127.0.0.1:9999"
 
-	windowWidth  = 1280
-	windowHeight = 720
+	windowWidth  = 1600
+	windowHeight = 900
 )
 
 func Run() {
