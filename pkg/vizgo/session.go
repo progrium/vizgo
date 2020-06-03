@@ -29,7 +29,8 @@ func NewSession(w webview.WebView) *Session {
 		sess.View.Select("Package").ValueTo(&pkg)
 		src, err := generate(pkg)
 		if err != nil {
-			panic(err)
+			log.Println("generation failure")
+			return
 		}
 		src = html.EscapeString(src)
 		sess.View.Select("Source").Set(src)

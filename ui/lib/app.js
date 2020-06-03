@@ -56,7 +56,7 @@ class App {
             if ($("#" + params.targetId.replace(".", "\\.")).hasClass("jtk-connected")) {
                 let src = params.sourceId.replace("-out", "");
                 let dst = params.targetId.replace("-in", "");
-                Remote.connect(src, dst);
+                Session.connect(src, dst);
             }
         });
 
