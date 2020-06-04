@@ -1,21 +1,11 @@
-// TODO: GET RID OF ME
-package jsonpointer
+package dataview
 
 import (
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
-
-	oldjsonpointer "github.com/dustin/go-jsonpointer"
 )
-
-func Reflect(o interface{}, path string) interface{} {
-	if path[0] != '/' {
-		path = "/" + path
-	}
-	return oldjsonpointer.Reflect(o, path)
-}
 
 func SetReflect(o interface{}, path string, value interface{}) {
 	if path == "" {
@@ -86,11 +76,6 @@ OUTER:
 		dst.Set(nv)
 	}
 	return
-}
-
-// ReflectListPointers lists all possible pointers from the given struct.
-func ReflectListPointers(o interface{}) ([]string, error) {
-	return reflectListPointersRecursive(o, ""), nil
 }
 
 func reflectListPointersRecursive(o interface{}, prefix string) []string {

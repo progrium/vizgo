@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/progrium/vizgo/pkg/jsonpointer"
 )
 
 type Cursor interface {
@@ -49,12 +48,12 @@ func New(p interface{}) *View {
 }
 
 func (o *View) set(c *cursor, v interface{}) {
-	jsonpointer.SetReflect(o.ptr, c.path, v)
+	SetReflect(o.ptr, c.path, v)
 	o.notify(c.path, c)
 }
 
 func (o *View) unset(c *cursor) interface{} {
-	jsonpointer.SetReflect(o.ptr, c.path, nil)
+	SetReflect(o.ptr, c.path, nil)
 	o.notify(c.path, c)
 	return nil
 }
