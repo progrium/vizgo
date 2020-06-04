@@ -77,6 +77,10 @@ export class Session {
         sess_set(path, value);
     }
 
+    static changeBlockLabel(path, value){
+        sess_set(path+"/label", value)
+    }
+
     static move(path, x, y) {
         x = Math.floor(x/30);
         y = Math.floor(y/30);

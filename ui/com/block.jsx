@@ -60,7 +60,7 @@ function Title({attrs, style}) {
 
     const oninput = (e) => {
         let id = e.target.parentNode.parentNode.id;
-        App.updateBlock(id, { label: e.target.innerHTML });
+        App.updateBlock(id, e.target.innerHTML);
     }
     
     const ondblclick = (e) => {

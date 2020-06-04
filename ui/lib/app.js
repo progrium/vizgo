@@ -83,6 +83,10 @@ class App {
         return Math.max(...copy)
     }
 
+    static updateBlock(id, value) {
+        Session.changeBlockLabel(`${App.selected()}/Blocks/${id.slice(-1)}`, value)
+    }
+
     static Block_onupdate({ attrs, dom }) {
         let block = App.session.blockById(attrs.id || "");
 
