@@ -281,6 +281,7 @@ export function Divider({style}) {
         height: "100%",
         cursor: "ew-resize",
         userSelect: "none",
+        borderLeft: "1px solid black",
     });
     return (
         <div data-target=".Sidebar"></div>

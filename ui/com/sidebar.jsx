@@ -8,15 +8,17 @@ export function Sidebar({attrs, style}) {
     style.add({
         width: "var(--sidebar-width)",
         backgroundColor: "var(--sidebar-color)",
-        outline: "var(--pixel-size) solid var(--outline-color)",
         overflowY: "auto",
         userSelect: "none",
-
         height: "100%",
         direction: "rtl",
-        margin: "1px",
         zIndex: "1",
         filter: "drop-shadow(2px 0px 5px #111)",
+    })
+
+    let stackStyle = style.constructor.from({
+        direction: "ltr",
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
     })
 
     const packageInput = (e, v) => {
@@ -25,7 +27,7 @@ export function Sidebar({attrs, style}) {
     
     return (
         <nav>
-            <atom.Stack style={{direction:"ltr"}}>
+            <atom.Stack style={stackStyle}>
                 <atom.Panel>
                     <atom.GripLabel>Package</atom.GripLabel>
                     <atom.Textbox oninput={packageInput} dark={true}>{pkg.Name}</atom.Textbox>                    
