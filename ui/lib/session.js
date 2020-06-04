@@ -80,8 +80,7 @@ export class Session {
     static move(path, x, y) {
         x = Math.floor(x/30);
         y = Math.floor(y/30);
-        sess_set(path+"/Position/0", x);
-        sess_set(path+"/Position/1", y);
+        sess_set(path+"/Position", [x, y]);
     }
 
     static create(type, x, y) {

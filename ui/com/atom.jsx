@@ -1,6 +1,5 @@
 import * as shapes from "./shapes.js";
 import { Style } from "../lib/style.js";
-import { stripInput } from "../lib/misc.js"
 
 export function Stack({attrs,style,children}) {
     var axis = attrs.axis || "v";
@@ -117,7 +116,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
     });
 
     const oninput = (e) => {
-        vnode.state.editvalue = stripInput(e.target.innerHTML);
+        vnode.state.editvalue = e.target.innerHTML;
         if (oninput_) {
             oninput_(e, vnode.state.editvalue);
         }
@@ -217,14 +216,14 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     });
 
     const onValInput = (e) => {
-        vnode.state.editvalue = stripInput(e.target.innerHTML);
+        vnode.state.editvalue = e.target.innerHTML;
         if (oninput_) {
             oninput_(e, vnode.state.editvalue, "value");
         }
     }
 
     const onTypInput = (e) => {
-        vnode.state.edittype = stripInput(e.target.value);
+        vnode.state.edittype = e.target.value;
         if (oninput_) {
             oninput_(e, vnode.state.edittype, "type");
         }

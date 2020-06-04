@@ -87,7 +87,6 @@ class App {
         let block = App.session.blockById(attrs.id || "");
 
         let fontSize = Style.propInt("font-size", dom);
-        block.label = misc.stripInput(block.label||"")
         let textWidth = block.label.length * fontSize * 0.8;
 
         let newWidth = (Math.max(Math.ceil(textWidth / 40), 2) * 30) + 30;
@@ -234,7 +233,7 @@ class App {
                         cssClass:"endpoint-anchor", 
                     }],
                     endpointStyle:{ fill:"white" },
-                    anchors: [[0, 0, 1, 0, 4, 13.5], [0, 0.5, -1, 0, 4.5, 0]]
+                    anchors: [[0, 0, 1, 0, 4, 13], [0, 0.5, -1, 0, 4.5, 0]]
                 });
             }, 30);
         } else {
@@ -244,7 +243,7 @@ class App {
                 }],
                 endpointStyle:{ fill:"white" },
                 isSource: true,
-                anchor: [0, 0, 1, 0, 4, 14],
+                anchor: [0, 0, 1, 0, 4, 13],
                 scope: "flow",
                 connectorStyle: { stroke: "white", strokeWidth: 10 },
                 connector: ["Flowchart", {

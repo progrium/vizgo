@@ -1,7 +1,6 @@
 package dataview
 
 import (
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -62,20 +61,35 @@ OUTER:
 		dst.Set(reflect.Zero(dst.Type()))
 	} else {
 		rv := reflect.ValueOf(value)
-		var nv reflect.Value
-		if rv.Type().Kind() == reflect.Slice {
-			fmt.Println(dst.Type())
-			nv = reflect.MakeSlice(dst.Type(), 0, 0)
-			for i := 0; i < rv.Len(); i++ {
-				v := rv.Index(i)
-				nv = reflect.Append(nv, v.Convert(nv.Type().Elem()))
-			}
-		} else {
-			nv = rv.Convert(dst.Type())
-		}
-		dst.Set(nv)
+		dst.Set(ensureType(rv, dst.Type()))
 	}
 	return
+}
+
+func ensureType(v reflect.Value, t reflect.Type) reflect.Value {
+	nv := v
+	if v.Type().Kind() == reflect.Slice && v.Type().Elem() != t {
+		switch t.Kind() {
+		case reflect.Array:
+			nv = reflect.Indirect(reflect.New(t))
+			for i := 0; i < v.Len(); i++ {
+				vv := reflect.ValueOf(v.Index(i).Interface())
+				nv.Index(i).Set(vv.Convert(nv.Type().Elem()))
+			}
+		case reflect.Slice:
+			nv = reflect.MakeSlice(t, 0, 0)
+			for i := 0; i < v.Len(); i++ {
+				vv := v.Index(i)
+				nv = reflect.Append(nv, vv.Convert(nv.Type().Elem()))
+			}
+		default:
+			panic("unable to convert slice to non-array, non-slice type")
+		}
+	}
+	if v.Type() != t {
+		nv = nv.Convert(t)
+	}
+	return nv
 }
 
 func reflectListPointersRecursive(o interface{}, prefix string) []string {
