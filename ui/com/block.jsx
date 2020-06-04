@@ -3,6 +3,7 @@ import * as shapes from "./shapes.js";
 
 import { Style } from "../lib/style.js";
 import { App } from "../lib/app.js";
+import { Session } from "../lib/session.js"
 
 export function Block({ attrs, style, hooks }) {
     hooks.oncreate = App.Block_oncreate;
@@ -60,7 +61,7 @@ function Title({attrs, style}) {
 
     const oninput = (e) => {
         let id = e.target.parentNode.parentNode.id;
-        App.updateBlock(id, e.target.innerHTML);
+        Session.changeBlockLabel(`${App.selected()}/Blocks/${id.slice(-1)}`, e.target.innerHTML)
     }
     
     const ondblclick = (e) => {
