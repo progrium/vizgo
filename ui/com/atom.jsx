@@ -116,7 +116,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
     });
 
     const oninput = (e) => {
-        vnode.state.editvalue = e.target.innerHTML;
+        vnode.state.editvalue = e.target.textContent;
         if (oninput_) {
             oninput_(e, vnode.state.editvalue);
         }
@@ -216,7 +216,7 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     });
 
     const onValInput = (e) => {
-        vnode.state.editvalue = e.target.innerHTML;
+        vnode.state.editvalue = e.target.textContent;
         if (oninput_) {
             oninput_(e, vnode.state.editvalue, "value");
         }

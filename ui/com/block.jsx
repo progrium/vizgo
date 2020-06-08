@@ -61,7 +61,7 @@ function Title({attrs, style}) {
 
     const oninput = (e) => {
         let id = e.target.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.innerHTML)
+        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.textContent)
     }
     
     const ondblclick = (e) => {
