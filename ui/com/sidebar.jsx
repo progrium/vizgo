@@ -16,10 +16,9 @@ export function Sidebar({attrs, style}) {
         filter: "drop-shadow(2px 0px 5px #111)",
     })
 
-    let stackStyle = style.constructor.from({
-        direction: "ltr",
-        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
-    })
+    let footer = style.constructor.from({
+        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+    }, "p-2")
 
     const packageInput = (e, v) => {
         Session.set("/Package/Name", v);
@@ -27,7 +26,7 @@ export function Sidebar({attrs, style}) {
     
     return (
         <nav>
-            <atom.Stack style={stackStyle}>
+            <atom.Stack style={{direction: "ltr"}}>
                 <atom.Panel>
                     <atom.GripLabel>Package</atom.GripLabel>
                     <atom.Textbox oninput={packageInput} dark={true}>{pkg.Name}</atom.Textbox>                    
@@ -48,8 +47,27 @@ export function Sidebar({attrs, style}) {
                         return <atom.Panel><textarea>{JSON.stringify(decl)}</textarea></atom.Panel>
                     }
                 })}
+                <atom.Stack style={footer} axis="h"><AddButton /></atom.Stack>
             </atom.Stack>
         </nav>
+    )
+}
+
+function AddButton({attrs, style}) {
+    style.add("rounded-md", {
+        borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderTop: "1px solid #42494d",
+        borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderLeft: "var(--pixel-size) solid #42494d",
+    })
+    let btnStyle = style.constructor.from("p-2 pt-0 pb-0 rounded-md", {
+        borderTop: "2px solid var(--sidebar-outline-color)",
+        borderBottom: "2px solid var(--background-color)",
+        borderLeft: "2px solid var(--sidebar-outline-color)",
+        borderRight: "2px solid var(--background-color)",
+    })
+    return (
+        <span><button {...btnStyle.attrs()}><i class="fas fa-plus"></i></button></span>
     )
 }
 
