@@ -28,8 +28,7 @@ export function Block({ attrs, style, hooks }) {
         position: "absolute",
         backgroundColor: "#475054",
         zIndex: "10",
-        WebkitTransform: "translate3d(0,0,0)",
-        filter: "drop-shadow(4.5px 3px 5px #111)",
+        boxShadow: "4px 3px 5px #111",
         borderRadius: "var(--corner-size)"
     });
     return (
