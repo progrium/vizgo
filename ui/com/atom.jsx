@@ -112,7 +112,6 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
-        height: "36px", // use a proper value here
     });
 
     const oninput = (e) => {
