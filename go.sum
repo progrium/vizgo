@@ -1,7 +1,5 @@
 github.com/Schobers/bindatafs v0.0.0-20190306220051-cb60ddcc20d0 h1:mtVPoYrODUiGp8h9fwpmekMbeFWDqfyzuYu5Qxp+zV4=
 github.com/Schobers/bindatafs v0.0.0-20190306220051-cb60ddcc20d0/go.mod h1:w4dWc6jibMBTJcbDjELOHjq6DcpojHoIjs/6KciscTs=
-github.com/dave/jennifer v1.4.0 h1:tNJFJmLDVTLu+v05mVZ88RINa3vQqnyyWkTKWYz0CwE=
-github.com/dave/jennifer v1.4.0/go.mod h1:fIb+770HOpJ2fmN9EPPKOqm1vMGhB+TwXKMZhrIygKg=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

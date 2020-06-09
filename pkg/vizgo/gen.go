@@ -2,71 +2,62 @@ package vizgo
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
-	"strings"
 
-	"github.com/dave/jennifer/jen"
+	"github.com/progrium/vizgo/pkg/gen"
 )
 
 func generate(pkg Package) (string, error) {
-	f := jen.NewFile(pkg.Name)
+	f := gen.New(pkg.Name)
 	for _, decl := range pkg.Declarations {
 		switch decl.Kind {
 		case "imports":
 			for _, imp := range decl.Imports {
-				f.ImportAlias(imp.Package, imp.Alias)
+				if imp.Alias != "" {
+					f.Decl("import", imp.Alias, f.Str(imp.Package))
+				} else {
+					f.Decl("import", f.Str(imp.Package))
+				}
 			}
 		case "function":
 			fn := decl.Function
-			var params, blocks []jen.Code
+			var params []string
 			for _, param := range fn.In {
-				params = append(params, jen.Id(param.Name).Id(string(param.Type)))
+				params = append(params, fmt.Sprintf("%s %s", param.Name, param.Type))
 			}
-			stmnt := fnBlock(fn.Blocks, fn.Entry)
-			for stmnt != nil {
-				switch stmnt.Type {
-				case "call":
-					blocks = append(blocks, callBlock(fn, stmnt)...)
-				case "return":
-					blocks = append(blocks, callBlock(fn, stmnt)...)
-				default:
-					log.Println("unknown block type: ", stmnt.Type)
+			f.Fn(fn.Name, params, "", func(f *gen.Source) {
+				block := fnBlock(fn.Blocks, fn.Entry)
+				for block != nil {
+					switch block.Type {
+					case "call":
+						var args []string
+						for _, input := range block.Inputs {
+							expr := backRefInput(fn.Blocks, block, input)
+							if expr != nil {
+								args = append(args, expr.Label)
+							}
+						}
+						f.Call(block.Label, args...)
+					case "return":
+						f.Decl("return")
+					default:
+						log.Println("unknown block type: ", block.Type)
+					}
+					if block.Connect != "" {
+						block = fnBlock(fn.Blocks, block.Connect)
+						continue
+					}
+					block = nil
 				}
-				if stmnt.Connect != "" {
-					stmnt = fnBlock(fn.Blocks, stmnt.Connect)
-					continue
-				}
-				stmnt = nil
-			}
-			f.Func().Id(fn.Name).Params(params...).Block(blocks...)
+			})
 		}
 	}
-	return fmt.Sprintf("%#v", f), f.Save("local/vizgo_out.go")
-}
-
-func qualCall(label string) *jen.Statement {
-	parts := strings.SplitN(label, ".", 2)
-	if len(parts) < 2 {
-		return jen.Id(label)
+	out, err := f.Format()
+	if err != nil {
+		return out, err
 	}
-	return jen.Qual(parts[0], parts[1])
-}
-
-func returnBlock(fn Function, block *Block) (blocks []jen.Code) {
-	blocks = append(blocks, jen.Return())
-	return
-}
-
-func callBlock(fn Function, block *Block) (blocks []jen.Code) {
-	var params []jen.Code
-	for _, input := range block.Inputs {
-		expr := backRefInput(fn.Blocks, block, input)
-		if expr != nil {
-			params = append(params, jen.Id(expr.Label))
-		}
-	}
-	blocks = append(blocks, qualCall(block.Label).Call(params...))
-	return
+	return out, ioutil.WriteFile("local/vizgo_out.go", []byte(out), 0644)
 }
 
 func fnBlock(blocks []Block, id string) *Block {
