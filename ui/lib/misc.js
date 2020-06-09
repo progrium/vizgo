@@ -1,4 +1,5 @@
 import { Session } from "./session.js";
+import { App } from "./app.js";
 
 export function setupDivider() {
     const selectTarget = (fromElement, selector) => {
@@ -75,6 +76,12 @@ export function setupSortables() {
             },
             stop: function(event, ui) {
                 console.log(`New position for ${ui.item}: ` + ui.item.index());
+                if (App.selected().includes("Function")) {
+                    $("#entrypoint")[0].style['top'] = $(`#${ui.item[0].id}`)[0].offsetTop + "px";
+                    $("#entrypoint")[0].style['height'] = $(`#${ui.item[0].id}`)[0].offsetHeight + "px";
+                    jsPlumb.reset();
+                    App.redraw();
+                }
             },
             items: "> div",
             revert: 150,

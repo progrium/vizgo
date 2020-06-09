@@ -29,7 +29,7 @@ export function Block({ attrs, style, hooks }) {
         backgroundColor: "#475054",
         zIndex: "10",
         WebkitTransform: "translate3d(0,0,0)",
-        filter: "drop-shadow(3px 3px 5px #111)",
+        filter: "drop-shadow(4.5px 3px 5px #111)",
         borderRadius: "var(--corner-size)"
     });
     return (
@@ -61,7 +61,7 @@ function Title({attrs, style}) {
 
     const oninput = (e) => {
         let id = e.target.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.innerHTML)
+        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.textContent)
     }
     
     const ondblclick = (e) => {
