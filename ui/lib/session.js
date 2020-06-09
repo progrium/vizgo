@@ -73,8 +73,16 @@ export class Session {
         sess_select(fn);
     }
 
+    static append(path, value) {
+        sess_append(path, value);
+    }
+
     static set(path, value) {
         sess_set(path, value);
+    }
+
+    static unset(path) {
+        sess_unset(path);
     }
 
     static move(path, x, y) {
@@ -140,7 +148,7 @@ const BlockTypes = {
         outputs: ["loop>", "idx", "val"] 
     },
     condition: { 
-        label: "Conditional", 
+        label: "Condition", 
         inputs: [""], 
         outputs: ["if>", "else>"] 
     },

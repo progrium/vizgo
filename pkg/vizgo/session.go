@@ -29,7 +29,7 @@ func NewSession(w webview.WebView) *Session {
 		sess.View.Select("Package").ValueTo(&pkg)
 		src, err := generate(pkg)
 		if err != nil {
-			log.Println("generation failure")
+			log.Println("generation failure:", err)
 			return
 		}
 		src = html.EscapeString(src)
@@ -52,6 +52,8 @@ func NewSession(w webview.WebView) *Session {
 	w.Bind("sess_state", sess._state)
 	w.Bind("sess_select", sess._select)
 	w.Bind("sess_set", sess._set)
+	w.Bind("sess_unset", sess._unset)
+	w.Bind("sess_append", sess._append)
 	w.Bind("sess_block_create", sess._block_create)
 	w.Bind("sess_block_connect", sess._block_connect)
 	w.Bind("sess_block_disconnect", sess._block_disconnect)
@@ -74,6 +76,18 @@ func (s *Session) _set(path string, v interface{}) {
 	log.Println("set:", path, v)
 
 	s.View.Select(path).Set(v)
+}
+
+func (s *Session) _unset(path string) {
+	log.Println("unset:", path)
+
+	s.View.Select(path).Unset()
+}
+
+func (s *Session) _append(path string, v interface{}) {
+	log.Println("append:", path, v)
+
+	s.View.Select(path).Append(v)
 }
 
 func (s *Session) _block_create(typ string, x, y int) {

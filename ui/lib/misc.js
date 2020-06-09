@@ -123,6 +123,59 @@ export function setupContextMenu() {
     };
 
     $.contextMenu({
+        selector: '#add-decl',
+        trigger: "left",
+        build: function ($trigger, e) {
+            return {
+                callback: function (key, options) {
+                    let decl = {"Kind": key}
+                    switch (key) {
+                    case "function":
+                        decl["Function"] = {
+                            Name: "newfunc",
+                            Entry: "new.0",
+                            Blocks: [
+                                {Type: "return", ID: "new.0", Position: [6,5]}
+                            ],
+                        };
+                        break;
+                    case "type":
+                        decl["Type"] = {
+                            Name: "newtype",
+                            Fields: [],
+                            Methods: [],
+                        };
+                        break;
+                    case "variables":
+                        decl["Variables"] = [{
+                            Name: "newvar",
+                        }]
+                        break;
+                    case "constants":
+                        decl["Constants"] = [{
+                            Name: "newconst",
+                        }]
+                        break;
+                    case "imports":
+                        decl["Imports"] = [{
+                            Package: "",
+                        }]
+                        break;
+                    }
+                    Session.append("/Package/Declarations", decl);  
+                },
+                items: {
+                    "function": { name: "Function" },
+                    "type": { name: "Type" },
+                    "variables": { name: "Variables" },
+                    "constants": { name: "Constants" },
+                    "imports": { name: "Imports" },
+                }
+            };
+        }
+    });
+
+    $.contextMenu({
         selector: '.Grid',
         build: function ($trigger, e) {
             return {
@@ -131,10 +184,11 @@ export function setupContextMenu() {
                 },
                 items: {
                     "expr": { name: "Expression" },
-                    "locals": { name: "Locals", items: mocksubitems },
-                    "imports": { name: "Imports", items: mocksubitems },
-                    "builtins": { name: "Builtins", items: mocksubitems },
-                    "operators": { name: "Operators", items: mocksubitems },
+                    "call": { name: "Call Statement" },
+                    // "locals": { name: "Locals", items: mocksubitems },
+                    // "imports": { name: "Imports", items: mocksubitems },
+                    // "builtins": { name: "Builtins", items: mocksubitems },
+                    // "operators": { name: "Operators", items: mocksubitems },
                     "return": { name: "Return" },
                     "loop": { name: "Loop" },
                     "condition": { name: "Condition" },

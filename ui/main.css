@@ -99,17 +99,18 @@ nav::-webkit-scrollbar-thumb {
 
 
 .context-menu-list {
-    filter: drop-shadow(3px 3px 5px #111);
+    font-size: smaller;
+    box-shadow: 2px 2px 4px #111;
     border-radius: var(--corner-size);
-    border-color: var(--sidebar-outline-color);
-    background-color: var(--block-color);
+    border-color: black;
+    background-color: var(--background-color);
 }
 .context-menu-item {
-    background-color: var(--block-color);
+    background-color: var(--background-color);
     color: white;
 }
 .context-menu-hover {
-    background-color: var(--sidebar-color) !important;
+    background-color:  gray !important;
 }
 
 

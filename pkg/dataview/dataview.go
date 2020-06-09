@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Cursor interface {
@@ -53,22 +54,39 @@ func (o *View) set(c *cursor, v interface{}) {
 }
 
 func (o *View) unset(c *cursor) interface{} {
-	SetReflect(o.ptr, c.path, nil)
+	pv := o.get(filepath.Dir(c.path))
+	if pv.Kind() == reflect.Slice || pv.Kind() == reflect.Array {
+		idx, err := strconv.Atoi(filepath.Base(c.path))
+		if err != nil {
+			panic(err)
+		}
+		pv.Set(reflect.AppendSlice(pv.Slice(0, idx), pv.Slice(idx+1, pv.Len())))
+	} else {
+		SetReflect(o.ptr, c.path, nil)
+	}
 	o.notify(c.path, c)
 	return nil
 }
 
 func (o *View) append(c *cursor, v interface{}) {
-	rv := o.get(c)
+	rv := o.get(c.path)
 	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
 		panic("cannot Append to non-slice and non-array value of kind: " + rv.Kind().String())
+	}
+	if _, ok := v.(map[string]interface{}); ok && rv.Type().Elem().Kind() == reflect.Struct {
+		vv := reflect.Zero(rv.Type().Elem()).Interface()
+		err := mapstructure.Decode(v, &vv)
+		if err != nil {
+			panic(err)
+		}
+		v = vv
 	}
 	rv.Set(reflect.Append(rv, reflect.ValueOf(v)))
 	o.notify(c.path, c)
 }
 
 func (o *View) insert(c *cursor, idx int, v interface{}) {
-	rv := o.get(c)
+	rv := o.get(c.path)
 	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
 		panic("cannot Insert to non-slice and non-array value of kind: " + rv.Kind().String())
 	}
@@ -77,6 +95,14 @@ func (o *View) insert(c *cursor, idx int, v interface{}) {
 	}
 	nv := reflect.Append(rv, reflect.Zero(rv.Type().Elem()))
 	reflect.Copy(nv.Slice(idx+1, nv.Len()), nv.Slice(idx, nv.Len()))
+	if _, ok := v.(map[string]interface{}); ok && rv.Type().Elem().Kind() == reflect.Struct {
+		vv := reflect.Zero(rv.Type().Elem()).Interface()
+		err := mapstructure.Decode(v, &vv)
+		if err != nil {
+			panic(err)
+		}
+		v = vv
+	}
 	nv.Index(idx).Set(reflect.ValueOf(v))
 	rv.Set(nv)
 	o.notify(c.path, c)
@@ -87,8 +113,8 @@ func (o *View) merge(c *cursor, v interface{}) {
 	o.notify(c.path, c)
 }
 
-func (o *View) get(c *cursor) reflect.Value {
-	parts := strings.Split(c.path, "/")
+func (o *View) get(path string) reflect.Value {
+	parts := strings.Split(path, "/")
 	selection := reflect.ValueOf(o.ptr)
 	for _, key := range parts {
 		if key == "" {
@@ -100,7 +126,7 @@ func (o *View) get(c *cursor) reflect.Value {
 }
 
 func (o *View) keys(c *cursor) []string {
-	return keys(o.get(c))
+	return keys(o.get(c.path))
 }
 
 func (o *View) sel(path ...string) Cursor {
@@ -163,7 +189,7 @@ func (c *cursor) ValueTo(v interface{}) {
 }
 
 func (c *cursor) Value() interface{} {
-	return reflect.Indirect(c.view.get(c)).Interface()
+	return reflect.Indirect(c.view.get(c.path)).Interface()
 }
 
 func (c *cursor) Set(v interface{}) {

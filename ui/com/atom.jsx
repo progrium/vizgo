@@ -24,6 +24,19 @@ export function Grippable({children}) {
     )
 }
 
+export function Trashable({attrs, children}) {
+    var onclick = attrs.onclick || undefined;
+    
+    return (
+        <Stack axis="h">
+            <div class="flex-grow">
+                {children}
+            </div>
+            <div class="ml-2 mr-1 text-xs" onclick={onclick}><i class="fas fa-trash-alt"></i></div>
+        </Stack>
+    )
+}
+
 export function GripLabel({style, children}) {
     style.add("flex items-end mb-1");
     return (
@@ -101,7 +114,6 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         borderLeft: "var(--pixel-size) solid #42494d",
         flexGrow: "1",
         boxShadow: "inset 2px 2px 3px #333",
-        height: "36px", // use a proper value here
     });
     style.add("dark", () => dark);
     style.add("light", () => !dark);
@@ -112,6 +124,7 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
+        height: "100%",
     });
 
     const oninput = (e) => {
