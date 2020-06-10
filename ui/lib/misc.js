@@ -65,6 +65,22 @@ export function setupDivider() {
     });
 }
 
+
+export function setupNewlinePrevention() {
+    $(document).ready(function() {
+        $('.Block').keydown(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+            }
+        });
+        $('.Textbox').keydown(function (event) {
+            if (event.keyCode === 10 || event.keyCode === 13) {
+                event.preventDefault();
+            }
+        });    
+    })
+}
+
 export function setupSortables() {
     $(document).ready(function () {
         // sidebar declarations sorting

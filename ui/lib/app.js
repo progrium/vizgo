@@ -12,7 +12,8 @@ class App {
         misc.setupContextMenu();
         misc.setupDivider();
         misc.setupSortables();
-                
+        misc.setupNewlinePrevention();
+
         jsPlumb.bind("ready", function () {
             hotweb.watchCSS();
             hotweb.watchHTML();
