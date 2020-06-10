@@ -49,8 +49,8 @@ export function Block({ attrs, style, hooks }) {
     )
 }
 
-function Title({attrs, style}) {
-    var text = attrs.text || "";
+function Title({attrs, style, vnode}) {
+    let value = vnode.state.editvalue || attrs.text
 
     style.add({
         height: "var(--grid-size)",
@@ -58,9 +58,22 @@ function Title({attrs, style}) {
         paddingTop: "0.25rem",
     })
 
+    if (!vnode.state.editmode) {
+        vnode.state.editvalue = value;
+    }
+
     const oninput = (e) => {
+        vnode.state.editvalue = e.target.textContent;
         let id = e.target.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.textContent)
+        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}label`, vnode.state.editvalue)
+    }
+
+    const onfocus = () => {
+        vnode.state.editmode = true;
+    }
+
+    const onblur = () => {
+        vnode.state.editmode = false;
     }
     
     const ondblclick = (e) => {
@@ -79,8 +92,10 @@ function Title({attrs, style}) {
     }
 
     return (
-        <div oninput={oninput} ondblclick={ondblclick} contenteditable>
-            {h.trust(text)}
+        <div>
+            <div contenteditable oninput={oninput} ondblclick={ondblclick} onfocus={onfocus} onblur={onblur}>
+                {h.trust(value)}
+            </div>
         </div>
     )
 }
