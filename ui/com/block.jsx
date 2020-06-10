@@ -64,8 +64,8 @@ function Title({attrs, style, vnode}) {
 
     const oninput = (e) => {
         vnode.state.editvalue = e.target.textContent;
-        let id = e.target.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}label`, vnode.state.editvalue)
+        let id = e.target.parentNode.parentNode.parentNode.id;
+        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, vnode.state.editvalue)
     }
 
     const onfocus = () => {
