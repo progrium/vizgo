@@ -16,6 +16,10 @@
     --corner-size: calc(var(--pixel-size)*4)
 }
 
+*:focus {
+    outline: none !important;
+}
+
 body {
     font-family: 'Roboto Mono', monospace;
     color: lightgray;

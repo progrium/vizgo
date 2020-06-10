@@ -26,7 +26,7 @@ export function Grippable({children}) {
 
 export function Trashable({attrs, children}) {
     var onclick = attrs.onclick || undefined;
-    
+
     return (
         <Stack axis="h">
             <div class="flex-grow">

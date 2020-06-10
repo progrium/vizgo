@@ -23,6 +23,7 @@ class App {
                 
                 h.mount(document.body, wrap(() => main.Main));
 
+                // TODO: not hardcode to main
                 App.select(App.selected(), "main");
 
             });    

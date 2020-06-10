@@ -49,53 +49,56 @@ export function Block({ attrs, style, hooks }) {
     )
 }
 
-function Title({attrs, style, vnode}) {
-    let value = vnode.state.editvalue || attrs.text
+function Title({attrs, style, state, vnode, hooks}) {
+    hooks.oncreate = () => {
+        vnode.dom.addEventListener("edit", (e) => {
+            vnode.state.readonly = false;
+            vnode.dom.querySelector("input").select();
+            h.redraw();
+        });
+
+        if (vnode.attrs.text === "expr") {
+            vnode.dom.dispatchEvent(new Event("edit"));
+        }
+    };
+
+    var value = attrs.text || "";
+
+    if (state.readonly === undefined) {
+        state.readonly = true;
+    }
 
     style.add({
         height: "var(--grid-size)",
         MozUserSelect: "none",
         paddingTop: "0.25rem",
-    })
+    });
 
-    if (!vnode.state.editmode) {
-        vnode.state.editvalue = value;
-    }
+    let inner = style.constructor.from("flex-auto", {
+        backgroundColor: "transparent",
+        width: "100%",
+    });
+    inner.add({pointerEvents: "none"}, () => state.readonly);
 
-    const oninput = (e) => {
-        vnode.state.editvalue = e.target.textContent;
+    const onchange = (e) => {
+        // TODO: make this an attribute and set up this call to Session.set somewhere else. grid?
         let id = e.target.parentNode.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, vnode.state.editvalue)
-    }
+        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.value);
+        state.readonly = true;
+    };
 
-    const onfocus = () => {
-        vnode.state.editmode = true;
-    }
-
-    const onblur = () => {
-        vnode.state.editmode = false;
-    }
-    
-    const ondblclick = (e) => {
-        var node = e.srcElement;
-        if (document.body.createTextRange) {
-            const range = document.body.createTextRange();
-            range.moveToElementText(node);
-            range.select();
-        } else if (window.getSelection) {
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(node);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
+    const onblur = (e) => {
+        state.readonly = true;
     }
 
     return (
         <div>
-            <div contenteditable oninput={oninput} ondblclick={ondblclick} onfocus={onfocus} onblur={onblur}>
-                {h.trust(value)}
-            </div>
+            <input type="text" 
+                readonly={state.readonly}
+                onchange={onchange} 
+                onblur={onblur}
+                value={value}
+                style={inner.style()} />
         </div>
     )
 }

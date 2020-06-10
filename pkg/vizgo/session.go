@@ -99,6 +99,7 @@ func (s *Session) _block_create(typ string, x, y int) {
 	b := Block{
 		Type:     BlockType(typ),
 		ID:       nextBlockID(fn),
+		Label:    "expr",
 		Position: Position{x, y},
 	}
 	cur.Select("Blocks").Append(b)

@@ -70,12 +70,12 @@ export function setupNewlinePrevention() {
     $(document).ready(function() {
         $('.Block').keydown(function (event) {
             if (event.keyCode === 10 || event.keyCode === 13) {
-                event.preventDefault();
+                // event.preventDefault();
             }
         });
         $('.Textbox').keydown(function (event) {
             if (event.keyCode === 10 || event.keyCode === 13) {
-                event.preventDefault();
+                // event.preventDefault();
             }
         });    
     })
@@ -133,6 +133,27 @@ export function setupContextMenu() {
         },
         "fold1-key3": { "name": "delta" }
     };
+
+    $.contextMenu({
+        selector: '.Block',
+        trigger: "right",
+        build: function ($dom, e) {
+            return {
+                callback: function (key, options) {
+                    //console.log(key, options, e.target);
+                    switch (key) {
+                    case "edit":
+                        e.target.dispatchEvent(new Event(key));
+                        break;
+                    }
+                },
+                items: {
+                    "edit": { name: "Edit" },
+                    "delete": { name: "Delete" },
+                }
+            };
+        }
+    });
 
     $.contextMenu({
         selector: '#add-decl',
