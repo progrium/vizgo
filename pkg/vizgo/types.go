@@ -59,7 +59,6 @@ type Type struct {
 
 type Declaration struct {
 	Kind      string
-	Imports   []Import
 	Constants []Constant
 	Variables []Variable
 	Function  Function
@@ -68,6 +67,7 @@ type Declaration struct {
 
 type Package struct {
 	Name         string
+	Imports      []Import
 	Declarations []Declaration
 }
 

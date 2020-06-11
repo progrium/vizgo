@@ -68,6 +68,7 @@ export function setupDivider() {
 
 export function setupNewlinePrevention() {
     $(document).ready(function() {
+
         $('.Block').keydown(function (event) {
             if (event.keyCode === 10 || event.keyCode === 13) {
                 // event.preventDefault();
@@ -121,18 +122,6 @@ export function setupSortables() {
 }
 
 export function setupContextMenu() {
-    let mocksubitems = {
-        "fold1-key1": { "name": "Foo bar" },
-        "fold2": {
-            "name": "Sub group 2",
-            "items": {
-                "fold2-key1": { "name": "alpha" },
-                "fold2-key2": { "name": "bravo" },
-                "fold2-key3": { "name": "charlie" }
-            }
-        },
-        "fold1-key3": { "name": "delta" }
-    };
 
     $.contextMenu({
         selector: '.Block',
@@ -165,7 +154,7 @@ export function setupContextMenu() {
                     switch (key) {
                     case "function":
                         decl["Function"] = {
-                            Name: "newfunc",
+                            Name: "_",
                             Entry: "new.0",
                             Blocks: [
                                 {Type: "return", ID: "new.0", Position: [6,5]}
@@ -174,7 +163,7 @@ export function setupContextMenu() {
                         break;
                     case "type":
                         decl["Type"] = {
-                            Name: "newtype",
+                            Name: "_",
                             Type: "struct",
                             Fields: [],
                             Methods: [],
@@ -190,20 +179,14 @@ export function setupContextMenu() {
                             Name: "newconst",
                         }]
                         break;
-                    case "imports":
-                        decl["Imports"] = [{
-                            Package: "",
-                        }]
-                        break;
                     }
                     Session.append("/Package/Declarations", decl);  
                 },
                 items: {
                     "function": { name: "Function" },
                     "type": { name: "Type" },
-                    "variables": { name: "Variables" },
-                    "constants": { name: "Constants" },
-                    "imports": { name: "Imports" },
+                    "variables": { name: "Variable" },
+                    "constants": { name: "Constant" },
                 }
             };
         }

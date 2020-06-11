@@ -4,30 +4,41 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/progrium/vizgo/pkg/gen"
 )
 
 func generate(pkg Package) (string, error) {
 	f := gen.New(pkg.Name)
+	f.Decl("import (")
+	for _, imp := range pkg.Imports {
+		if imp.Package == "" {
+			continue
+		}
+		if imp.Alias != "" {
+			f.Decl(imp.Alias, f.Str(imp.Package))
+		} else {
+			f.Decl(f.Str(imp.Package))
+		}
+	}
+	f.Decl(")")
 	for _, decl := range pkg.Declarations {
 		switch decl.Kind {
-		case "imports":
-			for _, imp := range decl.Imports {
-				if imp.Alias != "" {
-					f.Decl("import", imp.Alias, f.Str(imp.Package))
-				} else {
-					f.Decl("import", f.Str(imp.Package))
-				}
-			}
 		case "type":
 			typ := decl.Type
 			f.Decl("type", typ.Name, typ.Type, func(f *gen.Source) {
 				for _, field := range typ.Fields {
+					if field.Name == "" {
+						continue
+					}
 					f.Decl(field.Name, field.Type)
 				}
 			})
 			for _, method := range typ.Methods {
+				if method.Name == "" {
+					continue
+				}
 				f.Decl("func", fmt.Sprintf("(mr *%s) %s()", typ.Name, method.Name), "{}")
 			}
 
@@ -35,9 +46,19 @@ func generate(pkg Package) (string, error) {
 			fn := decl.Function
 			var params []string
 			for _, param := range fn.In {
+				if param.Name == "" {
+					continue
+				}
 				params = append(params, fmt.Sprintf("%s %s", param.Name, param.Type))
 			}
-			f.Fn(fn.Name, params, "", func(f *gen.Source) {
+			out := strings.Join(fn.Out, ", ")
+			if len(fn.Out) > 1 {
+				out = fmt.Sprintf("(%s)", out)
+			}
+			if len(fn.Out) == 0 {
+				out = ""
+			}
+			f.Fn(fn.Name, params, out, func(f *gen.Source) {
 				block := fnBlock(fn.Blocks, fn.Entry)
 				for block != nil {
 					switch block.Type {

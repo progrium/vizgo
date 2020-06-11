@@ -96,16 +96,20 @@ export function Label({attrs, style, children}) {
     return <div>{children}</div>
 }
 
-export function Textbox({ attrs, style, children, state, vnode }) {
+export function Textbox({ attrs, style, hooks, vnode }) { 
+    hooks.oncreate = () => {
+        vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
+            console.log("keydown");
+            if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
+                vnode.attrs.ondelete(e);
+            }
+        })
+    };
+
     var readonly = attrs.readonly || false;
     var dark = attrs.dark || false;
-    var oninput_ = attrs.oninput || undefined;
-
-    if (!state.editmode || readonly) {
-        vnode.state.editvalue = children;
-    }
-
-    let value = state.editvalue || "";
+    var value = attrs.value || "";
+    var onchange_ = attrs.onchange || undefined;
 
     style.add({
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -125,29 +129,24 @@ export function Textbox({ attrs, style, children, state, vnode }) {
         color: "white",
         overflow: "hidden",
         height: "100%",
+        backgroundColor: "transparent",
+        width: "100%",
     });
+    inner.add({pointerEvents: "none"}, () => readonly);
 
-    const oninput = (e) => {
-        vnode.state.editvalue = e.target.textContent;
-        if (oninput_) {
-            oninput_(e, vnode.state.editvalue);
+    const onchange = (e) => {
+        if (onchange_) {
+            onchange_(e, e.target.value);
         }
-        
-    }
-
-    const onfocus = () => {
-        vnode.state.editmode = true;
-    }
-
-    const onblur = () => {
-        vnode.state.editmode = false;
     }
 
     return (
         <div>
-            <div contenteditable={!readonly} oninput={oninput} onfocus={onfocus} onblur={onblur} style={inner.style()}>
-                {h.trust(value)}
-            </div>
+            <input type="text" 
+                readonly={readonly}
+                onchange={onchange}
+                value={value}
+                style={inner.style()} />
         </div>
     )
 }
@@ -188,18 +187,20 @@ export function BlockTextbox({style, children}) {
 }
 
 
-export function Fieldbox({ attrs, style, state, vnode }) {
+export function Fieldbox({ attrs, style, hooks, vnode }) {
+    hooks.oncreate = () => {
+        vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
+            console.log("keydown");
+            if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
+                vnode.attrs.ondelete(e);
+            }
+        })
+    };
+
     var value = attrs.value || "";
     var type = attrs.type || "";
-    var oninput_ = attrs.oninput || undefined;
-
-    if (!state.editmode) {
-        vnode.state.editvalue = value;
-        vnode.state.edittype = type;
-    }
-
-    let editvalue = state.editvalue || value;
-    let edittype = state.edittype || type;
+    var onchange_ = attrs.onchange || undefined;
+    var ondelete = attrs.ondelete || undefined;
 
     style.add({
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -212,11 +213,16 @@ export function Fieldbox({ attrs, style, state, vnode }) {
     style.add("dark", () => attrs.dark);
     style.add("light", () => !attrs.dark);
 
+    let valueStyle = Style.from({
+        backgroundColor: "transparent",
+        width: "100%",
+    })
+
     let typeStyle = Style.from({
         color: "lightgray",
         backgroundColor: "transparent",
         textAlign: "right",
-        width: "80px",
+        width: "100px",
     });
 
     let inner = Style.from({
@@ -227,45 +233,28 @@ export function Fieldbox({ attrs, style, state, vnode }) {
         overflow: "hidden",
     });
 
-    const onValInput = (e) => {
-        vnode.state.editvalue = e.target.textContent;
-        if (oninput_) {
-            oninput_(e, vnode.state.editvalue, "value");
+    const onchanger = (name) => (e) => {
+        console.log("change")
+        if (onchange_) {
+            onchange_(e, e.target.value, name);
         }
-    }
-
-    const onTypInput = (e) => {
-        vnode.state.edittype = e.target.value;
-        if (oninput_) {
-            oninput_(e, vnode.state.edittype, "type");
-        }
-    }
-
-    const onfocus = () => {
-        vnode.state.editmode = true;
-    }
-
-    const onblur = () => {
-        vnode.state.editmode = false;
-    }
+    };
 
     return (
         <div>
             <div class="flex flex-row items-center" style={inner.style()}>
-                <span contenteditable 
-                    oninput={onValInput} 
-                    onfocus={onfocus} 
-                    onblur={onblur} 
-                    class="flex-grow">{h.trust(editvalue)}</span>
+                <input type="text"
+                    onchange={onchanger("value")}
+                    value={value}
+                    style={valueStyle.style()} 
+                    class="flex-grow" />
                 <span class="text-right text-xs ml-2">
                     <input list="types" 
-                        oninput={onTypInput} 
-                        onfocus={onfocus} 
-                        onblur={onblur} 
+                        onchange={onchanger("type")} 
                         type="text" 
                         class="flex-auto" 
                         style={typeStyle.style()} 
-                        value={edittype} />
+                        value={type} />
                 </span>
             </div>
             <datalist id="types">
@@ -274,8 +263,8 @@ export function Fieldbox({ attrs, style, state, vnode }) {
                 <option value="string" />
                 <option value="int" />
                 <option value="float" />
-                <option value="map[string]string" />
-                <option value="[]blah" />
+                <option value="map" />
+                <option value="[]" />
             </datalist>
         </div>
     )
@@ -296,5 +285,56 @@ export function Divider({style}) {
     });
     return (
         <div data-target=".Sidebar"></div>
+    )
+}
+
+
+export function Expander({attrs, children}) {
+    var expanded = attrs.expanded || false;
+    var onclick = attrs.onclick || undefined;
+
+    return (
+        <div class="flex select-none h-4">
+            <div onclick={onclick} class="-mt-px w-4 text-center">
+                <Icon class="mr-2" fa={`fas fa-caret-${(expanded) ? 'down' : 'right'}`} />
+            </div>
+            {children}
+        </div>
+    )
+}
+
+export function Nested({attrs, style, state, children}) {
+    var label = attrs.label || "";
+    var spacing = attrs.spacing || 1;
+    var actions = attrs.actions || [];
+
+    let expanded = state.expanded || false;
+
+    style.add("flex flex-col");
+
+    const onToggleExpander = () => {
+        state.expanded = !state.expanded;
+    }
+
+    return (
+        <div>
+            <Expander expanded={expanded} onclick={onToggleExpander}>
+                <Label onclick={onToggleExpander} class="label flex-grow mt-px">{label}</Label>
+                {actions.map((action) => <Icon class="mr-1" fa={`fas fa-xs ${action[0]}`} onclick={action[1]} />)}
+            </Expander>
+            {expanded && children.map((el) => <div class={`my-${spacing} ml-4`}>{el}</div>)}
+        </div>
+    )
+}
+
+export function Icon({attrs, style}) {
+    var onclick = attrs.onclick || undefined;
+    var ondblclick = attrs.ondblclick || undefined;
+    var fa = attrs.fa || "";
+
+    return (
+        <div onclick={onclick} ondblclick={ondblclick}>
+            <i class={fa}></i>
+        </div>
     )
 }

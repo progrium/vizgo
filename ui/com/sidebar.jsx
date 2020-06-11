@@ -29,13 +29,12 @@ export function Sidebar({attrs, style}) {
             <atom.Stack style={{direction: "ltr"}}>
                 <atom.Panel>
                     <atom.GripLabel>Package</atom.GripLabel>
-                    <atom.Textbox oninput={packageInput} dark={true}>{pkg.Name}</atom.Textbox>                    
+                    <atom.Textbox onchange={packageInput} value={pkg.Name} />
+                    <Imports data={pkg.Imports} />
                 </atom.Panel>
                 <atom.Stack>
                 {pkg.Declarations.map((decl,idx) => {
                     switch (decl.Kind) {
-                    case "imports":
-                        return <Imports key={idx} data={decl.Imports} idx={idx} />
                     case "constants":
                         return <Constants key={idx} data={decl.Constants} idx={idx} />
                     case "variables":
@@ -56,28 +55,50 @@ export function Sidebar({attrs, style}) {
 }
 
 function AddButton({attrs, style}) {
-    style.add("rounded-md", {
+    style.add("rounded", {
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderTop: "1px solid #42494d",
         borderRight: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderLeft: "var(--pixel-size) solid #42494d",
     })
-    let btnStyle = style.constructor.from("p-2 pt-0 pb-0 rounded-md", {
-        borderTop: "2px solid var(--sidebar-outline-color)",
-        borderBottom: "2px solid var(--background-color)",
-        borderLeft: "2px solid var(--sidebar-outline-color)",
-        borderRight: "2px solid var(--background-color)",
+    let btnStyle = style.constructor.from("p-2 pt-0 pb-0 rounded", {
+        borderTop: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderBottom: "var(--pixel-size) solid black",
+        borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
+        borderRight: "var(--pixel-size) solid black",
     })
     return (
         <span><button {...btnStyle.attrs()}><i class="fas fa-plus"></i></button></span>
     )
 }
 
-function Type({attrs}) {
+function Type({attrs, hooks, vnode}) {
+    hooks.oncreate = () => {
+        vnode.dom.addEventListener("edit", (e) => {
+            vnode.dom.querySelector("input").select();
+            h.redraw();
+        });
+
+        if (vnode.attrs.data.Name === "_") {
+            vnode.dom.dispatchEvent(new Event("edit"));
+        }
+    };
+
     var typ = attrs.data || {};
     var idx = attrs.idx || 0;
 
     let dataPath = `/Package/Declarations/${idx}/Type`;
+    let fieldActions = [
+        ["fa-plus-circle", () => {
+            Session.append(`${dataPath}/Fields`, {Name: "", Type: "interface{}"});
+        }]
+    ];
+    let methodActions = [
+        ["fa-plus-circle", () => {
+            Session.append(`${dataPath}/Methods`, {Name: "", Type: ""});
+        }]
+    ];
+
 
     const ontrash = (e) => {
         setTimeout(() => {
@@ -107,33 +128,53 @@ function Type({attrs}) {
         }
     };
 
+    const makeOnDelete = (idx) => (e) => {
+        Session.unset(`${dataPath}/Fields/${idx}`);
+    };
+
+
     return (
         <atom.Panel>
             <atom.Trashable onclick={ontrash}>
                 <atom.GripLabel>Type</atom.GripLabel>
             </atom.Trashable>
-            <atom.Fieldbox oninput={typeInput} type={typ.Type} value={typ.Name}></atom.Fieldbox>
-            <atom.Stack class="pl-1 mt-2">
-                {typ.Fields.map((field,idx) =>
-                    <atom.Grippable>
-                        <atom.Fieldbox 
-                            oninput={makeFieldInput(idx)}
-                            dark={true} 
-                            type={field[1]} 
-                            value={field[0]}></atom.Fieldbox>
-                    </atom.Grippable>
-                )}
-            </atom.Stack>
-            <atom.Stack class="pl-1 mt-2">
-                {typ.Methods.map((method,idx) =>
-                    <Method data={method} type={typ} basepath={`${dataPath}/Methods/${idx}`} />
-                )}
-            </atom.Stack>
+            <atom.Fieldbox onchange={typeInput} type={typ.Type} value={typ.Name}></atom.Fieldbox>
+            <atom.Nested class="mt-2" spacing={2} label="Fields" actions={fieldActions}>
+                <atom.Stack class="pl-1 mt-2">
+                    {typ.Fields.map((field,idx) =>
+                        <atom.Grippable>
+                            <atom.Fieldbox 
+                                onchange={makeFieldInput(idx)}
+                                ondelete={makeOnDelete(idx)}
+                                type={field[1]} 
+                                value={field[0]}></atom.Fieldbox>
+                        </atom.Grippable>
+                    )}
+                </atom.Stack>
+            </atom.Nested>
+            <atom.Nested class="mt-2" spacing={2} label="Methods" actions={methodActions}>
+                <atom.Stack class="pl-1 mt-2">
+                    {typ.Methods.map((method,idx) =>
+                        <Method data={method} type={typ} basepath={`${dataPath}/Methods/${idx}`} />
+                    )}
+                </atom.Stack>
+            </atom.Nested>
         </atom.Panel>
     )
 }
 
-function Function({attrs, style}) {
+function Function({attrs, style, hooks, vnode}) {
+    hooks.oncreate = () => {
+        vnode.dom.addEventListener("edit", (e) => {
+            vnode.dom.querySelector("input").select();
+            h.redraw();
+        });
+
+        if (vnode.attrs.data.Name === "_") {
+            vnode.dom.dispatchEvent(new Event("edit"));
+        }
+    };
+
     var fn = attrs.data || {};
     var label = attrs.label || "Function";
     var container = attrs.container || atom.Panel;
@@ -145,6 +186,16 @@ function Function({attrs, style}) {
     let args = (fn.In||[]).map((e) => e[0]).join(", ");
     let type = (fn.Out||[]).join(", ");
     let signature = `${fn.Name}(${args})`;
+    
+    if (fn.Name == "_") {
+        signature = fn.Name;
+    }
+
+    let argumentActions = [
+        ["fa-plus-circle", () => {
+            Session.append(`${basePath}/In`, {Name: "", Type: "interface{}"});
+        }]
+    ];
 
     style.add("selected", () => fnPath === App.selected())
 
@@ -159,7 +210,7 @@ function Function({attrs, style}) {
         }
     };
 
-    const fnInput = (e,v,subfield) => {
+    const fnChange = (e,v,subfield) => {
         switch (subfield) {
         case "value":
             Session.set(`${basePath}/Name`, v.split("(")[0]);
@@ -181,6 +232,11 @@ function Function({attrs, style}) {
         }
     };
 
+    const makeOnDelete = (idx) => (e) => {
+        Session.unset(`${basePath}/In/${idx}`);
+    };
+
+
     return h(container, {id: name, onclick: onclick}, (
         <div>
             <atom.Trashable onclick={ontrash}>
@@ -188,20 +244,22 @@ function Function({attrs, style}) {
             </atom.Trashable>
             <div>
                 <atom.Fieldbox 
-                    oninput={fnInput} 
+                    onchange={fnChange} 
                     type={type} 
                     value={signature}></atom.Fieldbox>
-                <atom.Stack class="text-xs pl-1 mt-2">
-                    {(fn.In||[]).map((arg, idx) =>
-                        <atom.Grippable>
-                            <atom.Fieldbox 
-                                oninput={makeArgInput(idx)}
-                                dark={true} 
-                                type={arg[1]} 
-                                value={arg[0]}></atom.Fieldbox>
-                        </atom.Grippable>
-                    )}
-                </atom.Stack>
+                <atom.Nested class="mt-2" spacing={2} label="Arguments" actions={argumentActions}>
+                    <atom.Stack class="text-xs pl-1 mt-2">
+                        {(fn.In||[]).map((arg, idx) =>
+                            <atom.Grippable>
+                                <atom.Fieldbox 
+                                    onchange={makeArgInput(idx)}
+                                    ondelete={makeOnDelete(idx)}
+                                    type={arg[1]} 
+                                    value={arg[0]}></atom.Fieldbox>
+                            </atom.Grippable>
+                        )}
+                    </atom.Stack>
+                </atom.Nested>
             </div>
         </div>
     ));
@@ -248,14 +306,13 @@ function Variables({attrs}) {
             {(vars||[]).map((v, idx) =>
                 <atom.Stack axis="h">
                     <atom.Fieldbox 
-                        oninput={makeVarInput(idx)} 
+                        onchange={makeVarInput(idx)} 
                         type={v.Type} 
-                        value={v.Name}></atom.Fieldbox>
+                        value={v.Name} />
                     <atom.Textbox 
-                        oninput={makeValInput(idx)} 
-                        dark={true}>
-                            {v.Value}
-                    </atom.Textbox>
+                        onchange={makeValInput(idx)} 
+                        dark={true}
+                        value={v.Value} />
                 </atom.Stack>
             )}
         </atom.Panel>
@@ -294,14 +351,13 @@ function Constants({attrs}) {
             {(consts||[]).map((cnst, idx) =>
                 <atom.Stack axis="h">
                     <atom.Fieldbox 
-                        oninput={makeVarInput(idx)} 
+                        onchange={makeVarInput(idx)} 
                         type={cnst.Type} 
-                        value={cnst.Name}></atom.Fieldbox>
+                        value={cnst.Name} />
                     <atom.Textbox 
-                        oninput={makeValInput(idx)} 
-                        dark={true}>
-                            {cnst.Value}
-                    </atom.Textbox>
+                        onchange={makeValInput(idx)} 
+                        dark={true}
+                        value={cnst.Value} />
                 </atom.Stack>
             )}
         </atom.Panel>
@@ -310,31 +366,33 @@ function Constants({attrs}) {
 
 function Imports({attrs}) {
     var imports = attrs.data || [];
-    var idx = attrs.idx || 0;
-    let dataPath = `/Package/Declarations/${idx}/Imports`
-
-    const ontrash = (e) => {
-        Session.unset(`/Package/Declarations/${idx}`);
-    }
+    
+    let dataPath = `/Package/Imports`
+    let actions = [
+        ["fa-plus-circle", () => {
+            Session.append(dataPath, {Package: ""});
+        }]
+    ];
 
     const makeImportInput = (idx) => (e,v) => {
-        Session.set(`${dataPath}/${idx}/Package`, v);
+        Session.set(`${dataPath}/${idx}/Package`, v);    
+    };
+
+    const makeOnDelete = (idx) => (e) => {
+        Session.unset(`${dataPath}/${idx}`);
     };
 
     return (
-        <atom.Panel>
-            <atom.Trashable onclick={ontrash}>
-                <atom.GripLabel>Imports</atom.GripLabel>    
-            </atom.Trashable>
+        <atom.Nested class="mt-2" spacing={2} label="Imports" actions={actions}>
             {imports.map((imprt, idx) => {
                 return (
-                    <atom.Stack axis="h">
-                        <atom.Textbox oninput={makeImportInput(idx)}>{imprt.Package}</atom.Textbox>
-                        <atom.Textbox readonly={true} dark={true}>{imprt.Package}</atom.Textbox>
+                    <atom.Stack key={idx} axis="h">
+                        <atom.Textbox ondelete={makeOnDelete(idx)} onchange={makeImportInput(idx)} value={imprt.Package} />
+                        <atom.Textbox readonly={true} dark={true} value={imprt.Package} />
                     </atom.Stack>
                 )
             })}
-        </atom.Panel>
+        </atom.Nested>               
     )
 }
 

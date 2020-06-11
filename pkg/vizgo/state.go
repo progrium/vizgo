@@ -4,14 +4,11 @@ var DefaultState = &State{
 	Selected: "",
 	Source:   "",
 	Package: Package{
-		Name:         "main",
+		Name: "main",
+		Imports: []Import{
+			{Package: ""},
+		},
 		Declarations: []Declaration{
-			// {
-			// 	Kind: "imports",
-			// 	Imports: []Import{
-			// 		{Package: "fmt"},
-			// 	},
-			// },
 			// {
 			// 	Kind: "function",
 			// 	Function: Function{
