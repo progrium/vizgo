@@ -79,7 +79,7 @@ func ensureType(v reflect.Value, t reflect.Type) reflect.Value {
 		case reflect.Slice:
 			nv = reflect.MakeSlice(t, 0, 0)
 			for i := 0; i < v.Len(); i++ {
-				vv := v.Index(i)
+				vv := reflect.ValueOf(v.Index(i).Interface())
 				nv = reflect.Append(nv, vv.Convert(nv.Type().Elem()))
 			}
 		default:
