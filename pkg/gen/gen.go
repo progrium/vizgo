@@ -27,9 +27,10 @@ func (s *Source) Format() (string, error) {
 	src := strings.Join(s.stmts, "\n")
 	cmd := exec.Command("gofmt")
 	cmd.Stdin = bytes.NewBufferString(src)
-	out, err := cmd.Output()
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return string(out), err
+		debug := []string{src, string(out)}
+		return strings.Join(debug, "\n"), err
 	}
 	return string(out), nil
 }

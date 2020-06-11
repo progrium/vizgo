@@ -30,6 +30,7 @@ func NewSession(w webview.WebView) *Session {
 		src, err := generate(pkg)
 		if err != nil {
 			log.Println("generation failure:", err)
+			fmt.Println(src)
 			return
 		}
 		src = html.EscapeString(src)

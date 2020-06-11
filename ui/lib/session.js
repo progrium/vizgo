@@ -15,7 +15,17 @@ export class Session {
 
     }
 
+    validState() {
+        if (this.state !== undefined && this.state.Selected !== undefined) {
+            return true;
+        }
+        return false;
+    }
+
     blocks() {
+        if (!this.validState() || !this.selected()) {
+            return [];
+        }
         return this.selected().Blocks.map((b) => {
             return Object.assign(clone(BlockTypes[b.type]), b);
         });
@@ -31,18 +41,30 @@ export class Session {
     }
 
     entry() {
+        if (!this.validState() || !this.selected()) {
+            return "";
+        }
         return this.selected().Entry;
     }
 
     package() {
+        if (!this.validState()) {
+            return "";
+        }
         return this.state.Package;
     }
 
     source() {
+        if (!this.validState()) {
+            return "";
+        }
         return this.state.Source;
     }
 
     selected() {
+        if (!this.validState()) {
+            return "";
+        }
         return this._select(this.state.Selected);
     }
 

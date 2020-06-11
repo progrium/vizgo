@@ -1,51 +1,51 @@
 package vizgo
 
 var DefaultState = &State{
-	Selected: "/Package/Declarations/1/Function",
+	Selected: "",
 	Source:   "",
 	Package: Package{
-		Name: "main",
+		Name:         "main",
 		Declarations: []Declaration{
-			{
-				Kind: "imports",
-				Imports: []Import{
-					{Package: "fmt"},
-				},
-			},
-			{
-				Kind: "function",
-				Function: Function{
-					Name:  "main",
-					In:    []Argument{},
-					Out:   []TypeID{},
-					Entry: "main.0",
-					Blocks: []Block{
-						{
-							Type:     "call",
-							ID:       "main.0",
-							Inputs:   []string{"a"},
-							Outputs:  []string{"int", "error"},
-							Label:    "fmt.Println",
-							Connect:  "main.1-in",
-							Position: Position{11, 5},
-						},
-						{
-							Type:     "return",
-							ID:       "main.1",
-							Inputs:   []string{},
-							Position: Position{21, 5},
-						},
-						{
-							Type:     "expr",
-							ID:       "main.2",
-							Connect:  "main.0-in-a",
-							Label:    `"Hello world"`,
-							Inputs:   []string{},
-							Position: Position{3, 10},
-						},
-					},
-				},
-			},
+			// {
+			// 	Kind: "imports",
+			// 	Imports: []Import{
+			// 		{Package: "fmt"},
+			// 	},
+			// },
+			// {
+			// 	Kind: "function",
+			// 	Function: Function{
+			// 		Name:  "main",
+			// 		In:    []Argument{},
+			// 		Out:   []string{},
+			// 		Entry: "main.0",
+			// 		Blocks: []Block{
+			// 			{
+			// 				Type:     "call",
+			// 				ID:       "main.0",
+			// 				Inputs:   []string{"a"},
+			// 				Outputs:  []string{"int", "error"},
+			// 				Label:    "fmt.Println",
+			// 				Connect:  "main.1-in",
+			// 				Position: Position{11, 5},
+			// 			},
+			// 			{
+			// 				Type:     "return",
+			// 				ID:       "main.1",
+			// 				Inputs:   []string{},
+			// 				Position: Position{21, 5},
+			// 			},
+			// 			{
+			// 				Type:     "expr",
+			// 				ID:       "main.2",
+			// 				Connect:  "main.0-in-a",
+			// 				Label:    `"Hello world"`,
+			// 				Inputs:   []string{},
+			// 				Position: Position{3, 10},
+			// 			},
+			// 		},
+			// 	},
+			// },
 			// {
 			// 	Kind: "type",
 			// 	Type: Type{
@@ -60,7 +60,7 @@ var DefaultState = &State{
 			// 			{
 			// 				Name:  "String",
 			// 				In:    []Argument{},
-			// 				Out:   []TypeID{},
+			// 				Out:   []string{},
 			// 				Entry: "foo-String.0",
 			// 				Blocks: []Block{
 			// 					{
@@ -75,7 +75,7 @@ var DefaultState = &State{
 			// 				In: []Argument{
 			// 					{"p", "[]byte"},
 			// 				},
-			// 				Out: []TypeID{
+			// 				Out: []string{
 			// 					"int",
 			// 					"error",
 			// 				},

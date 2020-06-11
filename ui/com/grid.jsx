@@ -28,7 +28,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Entrypoint connect={(entry)?`${entry}-in`:undefined} />
+            {(blocks.length>0) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
@@ -65,6 +65,7 @@ function Entrypoint({attrs,style,hooks,vnode}) {
         marginLeft: "-34px",
         
     })
+    style.add("invisible", () => !attrs.connect);
     return (
         <div id="entrypoint">
             <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-3 my-8" />

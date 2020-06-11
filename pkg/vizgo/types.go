@@ -1,7 +1,5 @@
 package vizgo
 
-type TypeID string
-
 type Import struct {
 	Alias   string
 	Package string
@@ -10,29 +8,29 @@ type Import struct {
 type Constant struct {
 	Name  string
 	Value string
-	Type  TypeID
+	Type  string
 }
 
 type Variable struct {
 	Name  string
 	Value string
-	Type  TypeID
+	Type  string
 }
 
 type Field struct {
 	Name string `json:"0"`
-	Type TypeID `json:"1"`
+	Type string `json:"1"`
 }
 
 type Argument struct {
 	Name string `json:"0"`
-	Type TypeID `json:"1"`
+	Type string `json:"1"`
 }
 
 type Function struct {
 	Name   string
 	In     []Argument
-	Out    []TypeID
+	Out    []string
 	Blocks []Block
 	Entry  string
 }
@@ -54,7 +52,7 @@ type Block struct {
 
 type Type struct {
 	Name    string
-	Type    TypeID
+	Type    string
 	Fields  []Field
 	Methods []Function
 }

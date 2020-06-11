@@ -20,6 +20,17 @@ func generate(pkg Package) (string, error) {
 					f.Decl("import", f.Str(imp.Package))
 				}
 			}
+		case "type":
+			typ := decl.Type
+			f.Decl("type", typ.Name, typ.Type, func(f *gen.Source) {
+				for _, field := range typ.Fields {
+					f.Decl(field.Name, field.Type)
+				}
+			})
+			for _, method := range typ.Methods {
+				f.Decl("func", fmt.Sprintf("(mr *%s) %s()", typ.Name, method.Name), "{}")
+			}
+
 		case "function":
 			fn := decl.Function
 			var params []string

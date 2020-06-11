@@ -175,6 +175,7 @@ export function setupContextMenu() {
                     case "type":
                         decl["Type"] = {
                             Name: "newtype",
+                            Type: "struct",
                             Fields: [],
                             Methods: [],
                         };
