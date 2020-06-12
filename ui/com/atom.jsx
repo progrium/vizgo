@@ -99,7 +99,6 @@ export function Label({attrs, style, children}) {
 export function Textbox({ attrs, style, hooks, vnode }) { 
     hooks.oncreate = () => {
         vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
-            console.log("keydown");
             if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
                 vnode.attrs.ondelete(e);
             }
@@ -190,7 +189,6 @@ export function BlockTextbox({style, children}) {
 export function Fieldbox({ attrs, style, hooks, vnode }) {
     hooks.oncreate = () => {
         vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
-            console.log("keydown");
             if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
                 vnode.attrs.ondelete(e);
             }
@@ -234,7 +232,6 @@ export function Fieldbox({ attrs, style, hooks, vnode }) {
     });
 
     const onchanger = (name) => (e) => {
-        console.log("change")
         if (onchange_) {
             onchange_(e, e.target.value, name);
         }

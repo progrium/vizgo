@@ -62,7 +62,7 @@ func (s *Source) Decl(args ...interface{}) {
 	}
 	line := strings.Join(parts, " ")
 	if block != nil {
-		s.stmts = append(s.stmts, fmt.Sprintf("%s {\n%s\n}", line, s.Block(block)))
+		s.stmts = append(s.stmts, fmt.Sprintf("%s {\n%s\n}\n", line, s.Block(block)))
 	} else {
 		s.stmts = append(s.stmts, line)
 	}
