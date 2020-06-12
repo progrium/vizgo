@@ -164,6 +164,13 @@ function Type({attrs, hooks, vnode}) {
 }
 
 function Function({attrs, style, hooks, vnode}) {
+    var fn = attrs.data || {};
+    var label = attrs.label || "Function";
+    var container = attrs.container || atom.Panel;
+    var idx = attrs.idx || 0;
+    var basePath = attrs.basepath || `/Package/Declarations/${idx}/Function`;
+    var fnPath = basePath;
+
     hooks.oncreate = () => {
         vnode.dom.addEventListener("edit", (e) => {
             vnode.dom.querySelector("input").select();
@@ -174,13 +181,12 @@ function Function({attrs, style, hooks, vnode}) {
             vnode.dom.dispatchEvent(new Event("edit"));
         }
     };
-
-    var fn = attrs.data || {};
-    var label = attrs.label || "Function";
-    var container = attrs.container || atom.Panel;
-    var idx = attrs.idx || 0;
-    var basePath = attrs.basepath || `/Package/Declarations/${idx}/Function`;
-    var fnPath = basePath;
+    hooks.onupdate = () => {
+        if (fnPath === App.selected()) {
+            $("#entrypoint")[0].style['top'] = vnode.dom.offsetTop + "px";
+            $("#entrypoint")[0].style['height'] = vnode.dom.offsetHeight + "px";
+        }
+    };
 
     let name = (attrs.type) ? `${attrs.type.Name}-${fn.Name}`: fn.Name;
     let args = (fn.In||[]).map((e) => e[0]).join(", ");
@@ -201,12 +207,14 @@ function Function({attrs, style, hooks, vnode}) {
 
     const ontrash = (e) => {
         // TODO: support methods
+        Session.unset("/Selected");
         Session.unset(`/Package/Declarations/${idx}`);
+        jsPlumb.reset();
     }
 
     const onclick = () => {
         if (fnPath !== App.selected()) {
-            App.select(fnPath, name)
+            App.select(fnPath);
         }
     };
 

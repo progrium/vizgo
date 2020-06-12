@@ -23,23 +23,23 @@ class App {
                 
                 h.mount(document.body, wrap(() => main.Main));
 
-                // TODO: not hardcode to main
-                App.select(App.selected(), "main");
-
+                if (App.selected()) {
+                    App.select(App.selected());
+                }
+            
             });    
         });
         
     }
 
     static selected() {
-        return App.session.state.Selected;
+        if (App.session.validState()) {
+            return App.session.state.Selected;
+        }
     }
 
-    static select(path, name) {
+    static select(path) {
         Session.select(path);
-
-        $("#entrypoint")[0].style['top'] = $(`#${name}`)[0].offsetTop + "px";
-        $("#entrypoint")[0].style['height'] = $(`#${name}`)[0].offsetHeight + "px";
 
         jsPlumb.reset();
         jsPlumb.bind("connectionDetached", function (params, e) {
