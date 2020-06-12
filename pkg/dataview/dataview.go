@@ -54,8 +54,13 @@ func (o *View) set(c *cursor, v interface{}) {
 }
 
 func (o *View) unset(c *cursor) interface{} {
-	pv := o.get(filepath.Dir(c.path))
-	if pv.Kind() == reflect.Slice || pv.Kind() == reflect.Array {
+	var pv reflect.Value
+	pp := filepath.Dir(c.path)
+	if pp != "." {
+		// not root
+		pv = o.get(pp)
+	}
+	if pv.IsValid() && (pv.Kind() == reflect.Slice || pv.Kind() == reflect.Array) {
 		idx, err := strconv.Atoi(filepath.Base(c.path))
 		if err != nil {
 			panic(err)
@@ -265,6 +270,7 @@ func prop(robj reflect.Value, key string) reflect.Value {
 				return robj.FieldByName(field.Name)
 			}
 		}
+		panic("struct field not found: " + key)
 	}
 	spew.Dump(robj, key)
 	panic("unexpected kind: " + rtyp.Kind().String())
