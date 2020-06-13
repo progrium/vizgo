@@ -214,13 +214,14 @@ class App {
         });
     };
 
-    static Outflow_onupdate( attrs, source ) {
-        
+    static Outflow_onupdate( attrs, state, source ) {
+
         jsPlumb.removeAllEndpoints(source);
+
         
         if (attrs.connect && !$("#" + attrs.connect.replace(".","\\.")).hasClass("jtk-connected")) {
-            setTimeout(() => {
-                //console.log(`connecting ${source} to ${attrs.connect}`);
+            // setTimeout(() => {
+                // console.log(`connecting ${source} to ${attrs.connect}`);
                 jsPlumb.connect({
                     source: source,
                     target: attrs.connect,
@@ -237,7 +238,7 @@ class App {
                     endpointStyle:{ fill:"white" },
                     anchors: [[0, 0, 1, 0, 4, 13], [0, 0.5, -1, 0, 4.5, 0]]
                 });
-            }, 30);
+            // }, 30);
         } else {
             jsPlumb.addEndpoint(source, {
                 endpoint: ["Rectangle", {

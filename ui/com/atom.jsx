@@ -248,7 +248,7 @@ export function Fieldbox({ attrs, style, hooks, vnode }) {
                 <span class="text-right text-xs ml-2">
                     <input list="types" 
                         onchange={onchanger("type")} 
-                        type="text" 
+                        type="text"
                         class="flex-auto" 
                         style={typeStyle.style()} 
                         value={type} />

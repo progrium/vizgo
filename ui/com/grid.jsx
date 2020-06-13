@@ -28,12 +28,12 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            {(blocks.length>0) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
                 return <block.Block data-idx={idx} {...attrs} />
             })}
+            {(App.selected() !== undefined) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}
         </div>
     )
 }
@@ -50,8 +50,8 @@ function Preview({attrs,style}) {
     )
 }
 
-function Entrypoint({attrs,style,hooks,vnode}) {
-    const update = () => App.Outflow_onupdate(attrs, "entrypoint-out");
+function Entrypoint({attrs,style,hooks,state}) {
+    const update = () => App.Outflow_onupdate(attrs, state, "entrypoint-out");
     hooks.oncreate = update;
     hooks.onupdate = update;
     style.add({
@@ -65,7 +65,7 @@ function Entrypoint({attrs,style,hooks,vnode}) {
         marginLeft: "-34px",
         
     })
-    style.add("invisible", () => !attrs.connect);
+    style.add("invisible", () => !App.selected());
     return (
         <div id="entrypoint">
             <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-3 my-8" />

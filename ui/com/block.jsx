@@ -20,6 +20,7 @@ export function Block({ attrs, style, hooks }) {
     var connects = attrs.connects || {};
 
     let gridSize = Style.propInt("--grid-size");
+
     style.add({
         marginLeft: "4px",
         left: (x * gridSize + $("nav")[0].offsetWidth) + "px",
@@ -31,6 +32,7 @@ export function Block({ attrs, style, hooks }) {
         boxShadow: "4px 3px 5px #111",
         borderRadius: "var(--corner-size)"
     });
+    
     return (
         <div id={id}>
             <Header 
@@ -164,8 +166,8 @@ function InflowEndpoint({ attrs, style, hooks }) {
     )
 }
 
-export function OutflowEndpoint({ attrs, style, hooks, vnode }) {
-    const update = () => App.Outflow_onupdate(attrs, vnode.dom.id);
+export function OutflowEndpoint({ attrs, style, hooks, state, vnode }) {
+    const update = () => App.Outflow_onupdate(attrs, state, vnode.dom.id);
     hooks.oncreate = update;
     hooks.onupdate = update;
 
