@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"html"
 	"log"
+	"path"
 	"strconv"
 	"strings"
 
 	"github.com/progrium/vizgo/pkg/dataview"
+	"github.com/progrium/vizgo/pkg/pkgutil"
 	"github.com/zserge/webview"
 )
 
@@ -35,6 +37,37 @@ func NewSession(w webview.WebView) *Session {
 		}
 		src = html.EscapeString(src)
 		sess.View.Select("Source").Set(src)
+		go func() {
+			pkgtool, err := pkgutil.Load(pkg.PkgPath)
+			if err != nil {
+				log.Println("load error:", err)
+			}
+			sess.View.Select("TypeIDs").Set(pkgtool.AvailableTypes())
+			
+			importIDs := make(map[string][]string)
+			for _, imprt := range sess.State.Package.Imports {
+				name := path.Base(imprt.Package)
+				var ids []string
+				importpkg, err := pkgutil.Load(imprt.Package)
+				if err != nil {
+					log.Println("import load error:", err)
+				}
+				for _, export := range importpkg.Exports() {
+					ids = append(ids, export.FQN.Name())
+				}
+				importIDs[name] = ids
+			}
+			sess.View.Select("ImportIDs").Set(importIDs)
+
+			if sess.State.Selected != "" {
+				var locals []string
+				meta := pkgtool.Function(sess.State.Function.Name)
+				for _, local := range meta.Locals {
+					locals = append(locals, local.Name)
+				}
+				sess.View.Select("Locals").Set(locals)
+			}
+		}()
 	}
 	genSource()
 	sess.View.Select("Package").Observe(func(c dataview.Cursor) {
@@ -71,6 +104,7 @@ func (s *Session) _select(fn string) {
 	log.Println("select:", fn)
 
 	s.View.Select("Selected").Set(fn)
+	s.View.Select("Function").Set(s.View.Select(fn).Value())
 }
 
 func (s *Session) _set(path string, v interface{}) {

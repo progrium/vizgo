@@ -54,6 +54,20 @@ export class Session {
         return this.state.Package;
     }
 
+    importIDs() {
+        if (!this.validState()) {
+            return "";
+        }
+        return this.state.ImportIDs;
+    }
+
+    locals() {
+        if (!this.validState()) {
+            return "";
+        }
+        return this.state.Locals;
+    }
+
     source() {
         if (!this.validState()) {
             return "";

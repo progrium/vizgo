@@ -69,10 +69,15 @@ type Package struct {
 	Name         string
 	Imports      []Import
 	Declarations []Declaration
+	PkgPath      string
 }
 
 type State struct {
-	Package  Package
-	Source   string
-	Selected string
+	Package   Package
+	Source    string
+	Selected  string
+	Function  Function
+	TypeIDs   []string
+	ImportIDs map[string][]string
+	Locals []string
 }

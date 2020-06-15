@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/progrium/vizgo/pkg/gen"
@@ -89,7 +90,8 @@ func generate(pkg Package) (string, error) {
 	if err != nil {
 		return out, err
 	}
-	return out, ioutil.WriteFile("local/vizgo_out.go", []byte(out), 0644)
+	os.MkdirAll("local/out", 0766)
+	return out, ioutil.WriteFile(fmt.Sprintf("local/out/%s.go", pkg.Name), []byte(out), 0644)
 }
 
 func fnBlock(blocks []Block, id string) *Block {

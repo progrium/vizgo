@@ -195,17 +195,39 @@ export function setupContextMenu() {
     $.contextMenu({
         selector: '.Grid',
         build: function ($trigger, e) {
+            
+            let importMenu = {};
+            let imports = App.session.importIDs();
+            for (const key in imports) {
+                importMenu[key] = {
+                    name: key,
+                    items: {},
+                };
+                for (const idx in imports[key]) {
+                    let id = imports[key][idx];
+                    importMenu[key].items[id] = {name: id};
+                }
+            }
+
+            let localsMenu = {};
+            let locals = App.session.locals();
+            for (const idx in locals) {
+                let local = locals[idx];
+                localsMenu[local] = {
+                    name: local,
+                };
+            }
+
+
             return {
                 callback: function (key, options) {
                     Session.create(key, e.originalEvent.offsetX, e.originalEvent.offsetY);
                 },
                 items: {
-                    "expr": { name: "Expression" },
+                    "expr": { name: "Empty Expression" },
+                    "locals": { name: "Locals", items: localsMenu },
+                    "imports": { name: "Imports", items: importMenu },
                     "call": { name: "Call Statement" },
-                    // "locals": { name: "Locals", items: mocksubitems },
-                    // "imports": { name: "Imports", items: mocksubitems },
-                    // "builtins": { name: "Builtins", items: mocksubitems },
-                    // "operators": { name: "Operators", items: mocksubitems },
                     "return": { name: "Return" },
                     "loop": { name: "Loop" },
                     "condition": { name: "Condition" },

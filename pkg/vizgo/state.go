@@ -1,10 +1,12 @@
 package vizgo
 
 var DefaultState = &State{
-	Selected: "",
-	Source:   "",
+	Selected:  "",
+	Source:    "",
+	ImportIDs: make(map[string][]string),
 	Package: Package{
-		Name: "main",
+		Name:    "main",
+		PkgPath: "github.com/progrium/vizgo/local/out",
 		Imports: []Import{
 			{Package: ""},
 		},

@@ -48,6 +48,9 @@ func (n FQN) Package() string {
 	dir := path.Dir(n.String())
 	base := path.Base(n.String())
 	parts := strings.SplitN(base, ".", 2)
+	if dir == "." {
+		return parts[0]
+	}
 	return fmt.Sprintf("%s/%s", dir, parts[0])
 }
 
