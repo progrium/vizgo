@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/progrium/vizgo/pkg/dataview"
 	"github.com/progrium/vizgo/pkg/pkgutil"
@@ -15,83 +16,123 @@ import (
 )
 
 type Session struct {
-	State *State
-	View  *dataview.View
+	State   *State
+	View    *dataview.View
+	Pkg     *pkgutil.Package
+	Imports map[string]*pkgutil.Package
+	WebView webview.WebView
 }
 
 func NewSession(w webview.WebView) *Session {
 	state := DefaultState
 	sess := &Session{
-		State: state,
-		View:  dataview.New(state),
+		State:   state,
+		View:    dataview.New(state),
+		WebView: w,
+		Imports: make(map[string]*pkgutil.Package),
 	}
-	genSource := func() {
-		log.Println("generating source...")
-		var pkg Package
-		sess.View.Select("Package").ValueTo(&pkg)
-		src, err := generate(pkg)
-		if err != nil {
-			log.Println("generation failure:", err)
-			fmt.Println(src)
-			return
-		}
-		src = html.EscapeString(src)
-		sess.View.Select("Source").Set(src)
-		go func() {
-			pkgtool, err := pkgutil.Load(pkg.PkgPath)
-			if err != nil {
-				log.Println("load error:", err)
-			}
-			sess.View.Select("TypeIDs").Set(pkgtool.AvailableTypes())
-			
-			importIDs := make(map[string][]string)
-			for _, imprt := range sess.State.Package.Imports {
-				name := path.Base(imprt.Package)
-				var ids []string
-				importpkg, err := pkgutil.Load(imprt.Package)
-				if err != nil {
-					log.Println("import load error:", err)
-				}
-				for _, export := range importpkg.Exports() {
-					ids = append(ids, export.FQN.Name())
-				}
-				importIDs[name] = ids
-			}
-			sess.View.Select("ImportIDs").Set(importIDs)
 
-			if sess.State.Selected != "" {
-				var locals []string
-				meta := pkgtool.Function(sess.State.Function.Name)
-				for _, local := range meta.Locals {
-					locals = append(locals, local.Name)
-				}
-				sess.View.Select("Locals").Set(locals)
-			}
-		}()
-	}
-	genSource()
-	sess.View.Select("Package").Observe(func(c dataview.Cursor) {
-		genSource()
-	})
-	sess.View.Observe(func(c dataview.Cursor) {
-		state := sess.View.Value()
-		b, err := json.Marshal(state)
-		if err != nil {
-			panic(err)
-		}
-		w.Dispatch(func() {
-			w.Eval(fmt.Sprintf("App.session.update(JSON.parse(String.raw`%s`))", string(b)))
-		})
-	})
+	sess.View.Select("Package").Observe(sess.GenerateSource)
+	sess.View.Select("Selected").Observe(sess.UpdateLocals)
+	sess.View.Select("Source").Observe(sess.UpdatePackageMeta)
+	sess.View.Select("Package/Imports").Observe(sess.UpdateImportsMeta)
+	sess.View.Observe(sess.PushState)
+
+	sess.GenerateSource(nil)
+
 	w.Bind("sess_state", sess._state)
 	w.Bind("sess_select", sess._select)
 	w.Bind("sess_set", sess._set)
 	w.Bind("sess_unset", sess._unset)
 	w.Bind("sess_append", sess._append)
+	w.Bind("sess_fn_create", sess._fn_create)
 	w.Bind("sess_block_create", sess._block_create)
 	w.Bind("sess_block_connect", sess._block_connect)
 	w.Bind("sess_block_disconnect", sess._block_disconnect)
 	return sess
+}
+
+func (s *Session) GenerateSource(c dataview.Cursor) {
+	var pkg Package
+	s.View.Select("Package").ValueTo(&pkg)
+	t := time.Now()
+	src, err := generate(pkg)
+	log.Println("generated source in", time.Since(t))
+	if err != nil {
+		log.Println("generation failure:", err)
+		fmt.Println(src)
+		return
+	}
+	src = html.EscapeString(src)
+	s.View.Select("Source").Set(src)
+}
+
+func (s *Session) UpdatePackageMeta(c dataview.Cursor) {
+	log.Println("updating package meta...")
+	go func() {
+		var err error
+		t := time.Now()
+		s.Pkg, err = pkgutil.Load(s.State.Package.PkgPath)
+		log.Println("package load time:", time.Since(t))
+		if err != nil {
+			log.Println("load error:", err)
+		}
+		s.View.Select("TypeIDs").Set(s.Pkg.AvailableTypes())
+
+		s.UpdateLocals(nil)
+	}()
+}
+
+func (s *Session) UpdateImportsMeta(c dataview.Cursor) {
+	log.Println("updating imports meta...")
+	go func() {
+		var err error
+
+		importIDs := make(map[string][]string)
+		for _, imprt := range s.State.Package.Imports {
+			pkg, found := s.Imports[imprt.Package]
+			if !found {
+				t := time.Now()
+				pkg, err = pkgutil.Load(imprt.Package)
+				log.Printf("imported package [%s] load time: %s\n", imprt.Package, time.Since(t))
+				if err != nil {
+					log.Println("import load error:", err)
+					continue
+				}
+				s.Imports[imprt.Package] = pkg
+			}
+
+			var ids []string
+			for _, export := range pkg.Exports() {
+				ids = append(ids, export.FQN.Name())
+			}
+			importIDs[path.Base(imprt.Package)] = ids
+		}
+		s.View.Select("ImportIDs").Set(importIDs)
+	}()
+}
+
+func (s *Session) UpdateLocals(c dataview.Cursor) {
+	if s.State.Selected != "" {
+		log.Println("updating locals...")
+		var locals []string
+		meta := s.Pkg.Function(s.State.Function.Name)
+		for _, local := range meta.Locals {
+			locals = append(locals, local.Name)
+		}
+		s.View.Select("Locals").Set(locals)
+	}
+}
+
+func (s *Session) PushState(c dataview.Cursor) {
+	state := s.View.Value()
+	b, err := json.Marshal(state)
+	if err != nil {
+		panic(err)
+	}
+	s.WebView.Dispatch(func() {
+		s.WebView.Eval(fmt.Sprintf("App.session.update(JSON.parse(String.raw`%s`))", string(b)))
+	})
 }
 
 // these methods are not meant to be called by Go code
@@ -103,8 +144,8 @@ func (s *Session) _state() interface{} {
 func (s *Session) _select(fn string) {
 	log.Println("select:", fn)
 
-	s.View.Select("Selected").Set(fn)
 	s.View.Select("Function").Set(s.View.Select(fn).Value())
+	s.View.Select("Selected").Set(fn)
 }
 
 func (s *Session) _set(path string, v interface{}) {
@@ -125,16 +166,63 @@ func (s *Session) _append(path string, v interface{}) {
 	s.View.Select(path).Append(v)
 }
 
-func (s *Session) _block_create(typ string, x, y int) {
+func (s *Session) _fn_create() {
+	id := uid()
+	decl := Declaration{
+		Kind: "function",
+		Function: Function{
+			Name:  "_",
+			Entry: id,
+			Blocks: []Block{
+				{Type: "return", ID: id, Position: [2]int{6, 5}},
+			},
+		},
+	}
+	s.View.Select("/Package/Declarations").Append(decl)
+}
+
+func (s *Session) _block_create(typ, label string, x, y int) {
 	log.Println("block_create:", typ, x, y)
+
+	var in, out []string
+
+	if typ == "pkgcall" {
+		typ = "call"
+		meta := s.Pkg.Function(strings.TrimRight(label, "()"))
+		for _, v := range meta.In {
+			in = append(in, v.Name)
+		}
+		for _, v := range meta.Out {
+			out = append(out, v.Type)
+		}
+	}
+
+	if typ == "imported" {
+		typ = "call"
+		parts := strings.Split(label, ".")
+		pkg, found := s.Imports[parts[0]]
+		if !found {
+			log.Println("failed to block for unloaded import:", parts[0])
+			return
+		}
+		meta := pkg.Function(strings.TrimRight(parts[1], "()"))
+		for _, v := range meta.In {
+			in = append(in, v.Name)
+		}
+		for _, v := range meta.Out {
+			out = append(out, v.Type)
+		}
+	}
 
 	cur := s.View.Select(s.State.Selected)
 	var fn Function
 	cur.ValueTo(&fn)
 	b := Block{
 		Type:     BlockType(typ),
-		ID:       nextBlockID(fn),
-		Label:    "expr",
+		ID:       uid(),
+		Inputs:   in,
+		Outputs:  out,
+		Label:    label,
 		Position: Position{x, y},
 	}
 	cur.Select("Blocks").Append(b)

@@ -71,7 +71,7 @@ func generate(pkg Package) (string, error) {
 								args = append(args, expr.Label)
 							}
 						}
-						f.Call(block.Label, args...)
+						f.Call(strings.TrimRight(block.Label, "()"), args...)
 					case "return":
 						f.Decl("return")
 					default:

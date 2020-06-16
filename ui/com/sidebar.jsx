@@ -395,8 +395,11 @@ function Imports({attrs}) {
             {imports.map((imprt, idx) => {
                 return (
                     <atom.Stack key={idx} axis="h">
-                        <atom.Textbox ondelete={makeOnDelete(idx)} onchange={makeImportInput(idx)} value={imprt.Package} />
-                        <atom.Textbox readonly={true} dark={true} value={imprt.Package} />
+                        <atom.Textbox  
+                            ondelete={makeOnDelete(idx)}
+                            onchange={makeImportInput(idx)} 
+                            // type={imprt.Alias} 
+                            value={imprt.Package} />
                     </atom.Stack>
                 )
             })}

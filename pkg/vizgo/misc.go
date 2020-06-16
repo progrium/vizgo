@@ -1,24 +1,17 @@
 package vizgo
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
+	"time"
 )
 
-func findBlock(fn Function, id string) *Block {
-	for _, b := range fn.Blocks {
-		if b.ID == id {
-			return &b
-		}
-	}
-	return nil
-}
-
-func nextBlockID(fn Function) string {
-	num := len(fn.Blocks)
-	name := fmt.Sprintf("%s.%d", fn.Name, num)
-	for findBlock(fn, name) != nil {
-		num++
-		name = fmt.Sprintf("%s.%d", fn.Name, num)
-	}
-	return name
+func uid() string {
+	t := time.Now().Unix()
+	buf := make([]byte, binary.MaxVarintLen64)
+	binary.PutVarint(buf, t)
+	token := make([]byte, 4)
+	rand.Read(token)
+	return fmt.Sprintf("%x", append(buf[:4], token...))
 }

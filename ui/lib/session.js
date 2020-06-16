@@ -127,10 +127,14 @@ export class Session {
         sess_set(path+"/Position", [x, y]);
     }
 
-    static create(type, x, y) {
+    static create(type, label, x, y) {
         x = Math.floor(x/30);
         y = Math.floor(y/30);
-        sess_block_create(type, x, y);
+        sess_block_create(type, label, x, y);
+    }
+
+    static createFn() {
+        sess_fn_create();
     }
 
     static connect(src, dst) {

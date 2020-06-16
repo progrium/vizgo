@@ -31,6 +31,7 @@ export function Grid({attrs,style,hooks,vnode}) {
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
+                attrs["idx"] = idx;
                 return <block.Block data-idx={idx} {...attrs} />
             })}
             {(App.selected() !== undefined) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}

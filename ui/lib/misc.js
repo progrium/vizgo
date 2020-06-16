@@ -153,14 +153,8 @@ export function setupContextMenu() {
                     let decl = {"Kind": key}
                     switch (key) {
                     case "function":
-                        decl["Function"] = {
-                            Name: "_",
-                            Entry: "new.0",
-                            Blocks: [
-                                {Type: "return", ID: "new.0", Position: [6,5]}
-                            ],
-                        };
-                        break;
+                        Session.createFn();
+                        return;
                     case "type":
                         decl["Type"] = {
                             Name: "_",
@@ -205,7 +199,12 @@ export function setupContextMenu() {
                 };
                 for (const idx in imports[key]) {
                     let id = imports[key][idx];
-                    importMenu[key].items[id] = {name: id};
+                    importMenu[key].items[id] = {
+                        name: id,
+                        callback: function (_, options) {
+                            Session.create("imported", `${key}.${id}()`, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                        },
+                    };
                 }
             }
 
@@ -215,18 +214,46 @@ export function setupContextMenu() {
                 let local = locals[idx];
                 localsMenu[local] = {
                     name: local,
+                    callback: function (key, options) {
+                        Session.create("expr", local, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                    },
                 };
+            }
+
+            let pkgMenu = {};
+            let pkg = App.session.package();
+            for (const idx in pkg.Declarations) {
+                let decl = pkg.Declarations[idx];
+                switch (decl.Kind) {
+                case "function":
+                    let fn = decl.Function;
+                    pkgMenu[fn.Name] = {
+                        name: fn.Name,
+                        callback: function (key, options) {
+                            Session.create("pkgcall", fn.Name+"()", e.originalEvent.offsetX, e.originalEvent.offsetY);
+                        },
+                    };
+                    break;
+                case "type":
+                    break;
+                case "constants":
+                    break;
+                case "variables":
+                    break;
+                
+                }
             }
 
 
             return {
                 callback: function (key, options) {
-                    Session.create(key, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                    Session.create(key, "expr", e.originalEvent.offsetX, e.originalEvent.offsetY);
                 },
                 items: {
-                    "expr": { name: "Empty Expression" },
                     "locals": { name: "Locals", items: localsMenu },
+                    "package": { name: "Package", items: pkgMenu },
                     "imports": { name: "Imports", items: importMenu },
+                    "expr": { name: "Empty Expression" },
                     "call": { name: "Call Statement" },
                     "return": { name: "Return" },
                     "loop": { name: "Loop" },

@@ -18,6 +18,7 @@ export function Block({ attrs, style, hooks }) {
     var label = attrs.label || "";
     var connect = attrs.connect || "";
     var connects = attrs.connects || {};
+    var idx = attrs.idx || 0;
 
     let gridSize = Style.propInt("--grid-size");
 
@@ -32,12 +33,17 @@ export function Block({ attrs, style, hooks }) {
         boxShadow: "4px 3px 5px #111",
         borderRadius: "var(--corner-size)"
     });
+
+    const onLabelChange = (e) => {
+        Session.set(`${App.selected()}/Blocks/${idx}/label`, e.target.value);
+    }
     
     return (
         <div id={id}>
             <Header 
                 block={id} 
-                label={label} 
+                label={label}
+                onchange={onLabelChange}
                 out={out} 
                 flow={flow} 
                 connect={connect} />
@@ -65,6 +71,7 @@ function Title({attrs, style, state, vnode, hooks}) {
     };
 
     var value = attrs.text || "";
+    var onchange_ = attrs.onchange || undefined;
 
     if (state.readonly === undefined) {
         state.readonly = true;
@@ -83,9 +90,9 @@ function Title({attrs, style, state, vnode, hooks}) {
     inner.add({pointerEvents: "none"}, () => state.readonly);
 
     const onchange = (e) => {
-        // TODO: make this an attribute and set up this call to Session.set somewhere else. grid?
-        let id = e.target.parentNode.parentNode.parentNode.id;
-        Session.set(`${App.selected()}/Blocks/${id.slice(-1)}/label`, e.target.value);
+        if (onchange_) {
+            onchange_(e);
+        }
         state.readonly = true;
     };
 
@@ -111,6 +118,7 @@ function Header({ attrs, style }) {
     var flow = (attrs.flow === undefined) ? true : attrs.flow;
     var out = (attrs.out === undefined) ? true : attrs.out;
     var connect = attrs.connect || undefined;
+    var onchange = attrs.onchange || undefined;
 
     style.add({
         height: "var(--grid-size)",
@@ -124,7 +132,7 @@ function Header({ attrs, style }) {
     if (!flow) {
         return (
             <div>
-                <Title text={label} />
+                <Title onchange={onchange} text={label} />
                 <Endpoint
                     id={`${block}-expr`}
                     connect={connect}
