@@ -75,7 +75,7 @@ type Package struct {
 
 func Load(fqn string) (*Package, error) {
 	fqn_ := FQN(fqn)
-	cfg := &packages.Config{Mode: packages.LoadAllSyntax | packages.LoadTypes}
+	cfg := &packages.Config{Mode: packages.NeedTypesInfo | packages.NeedTypes}
 	pkgs, err := packages.Load(cfg, fqn_.Package())
 	if err != nil {
 		return nil, err
