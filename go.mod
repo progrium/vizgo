@@ -1,6 +1,6 @@
 module github.com/progrium/vizgo
 
-go 1.13
+go 1.14
 
 require (
 	github.com/Schobers/bindatafs v0.0.0-20190306220051-cb60ddcc20d0
@@ -13,4 +13,5 @@ require (
 	github.com/zserge/webview v0.0.0-20200516134046-4caf698fad53
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/tools v0.0.0-20200612203359-a1e2396bbdd1
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
