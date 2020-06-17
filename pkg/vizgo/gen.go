@@ -26,6 +26,28 @@ func generate(pkg Package) (string, error) {
 	f.Decl(")")
 	for _, decl := range pkg.Declarations {
 		switch decl.Kind {
+		case "variables":
+			vars := decl.Variables
+			if len(vars) > 1 {
+				f.Decl("var (")
+				for _, v := range vars {
+					f.Decl(v.Name, v.Type, "=", v.Value)
+				}
+				f.Decl(")")
+			} else {
+				f.Decl("var", vars[0].Name, vars[0].Type, "=", vars[0].Value)
+			}
+		case "constants":
+			vars := decl.Constants
+			if len(vars) > 1 {
+				f.Decl("const (")
+				for _, v := range vars {
+					f.Decl(v.Name, v.Type, "=", v.Value)
+				}
+				f.Decl(")")
+			} else {
+				f.Decl("const", vars[0].Name, vars[0].Type, "=", vars[0].Value)
+			}
 		case "type":
 			typ := decl.Type
 			f.Decl("type", typ.Name, typ.Type, func(f *gen.Source) {

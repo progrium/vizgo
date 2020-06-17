@@ -4,6 +4,13 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap) screen;
 @import "/vnd/jquery-contextmenu-2.9.2.css" screen;
 
+.debug {
+    border: 1px solid red;
+}
+.debug-alt {
+    border: 1px solid blue;
+}
+
 :root {
     --background-color: #2D3639;
     --sidebar-width: 300px;

@@ -36,7 +36,7 @@ export function Sidebar({attrs, style}) {
                 {pkg.Declarations.map((decl,idx) => {
                     switch (decl.Kind) {
                     case "constants":
-                        return <Constants key={idx} data={decl.Constants} idx={idx} />
+                        return <Variables name="Constants" key={idx} data={decl.Constants} idx={idx} />
                     case "variables":
                         return <Variables key={idx} data={decl.Variables} idx={idx} />
                     case "function":
@@ -48,13 +48,13 @@ export function Sidebar({attrs, style}) {
                     }
                 })}
                 </atom.Stack>
-                <atom.Stack style={footer} axis="h"><AddButton id="add-decl" /></atom.Stack>
+                <atom.Stack class="justify-end" style={footer} axis="h"><AddButton id="add-decl" /></atom.Stack>
             </atom.Stack>
         </nav>
     )
 }
 
-function AddButton({attrs, style}) {
+function AddButton({style}) {
     style.add("rounded", {
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderTop: "1px solid #42494d",
@@ -72,18 +72,7 @@ function AddButton({attrs, style}) {
     )
 }
 
-function Type({attrs, hooks, vnode}) {
-    hooks.oncreate = () => {
-        vnode.dom.addEventListener("edit", (e) => {
-            vnode.dom.querySelector("input").select();
-            h.redraw();
-        });
-
-        if (vnode.attrs.data.Name === "_") {
-            vnode.dom.dispatchEvent(new Event("edit"));
-        }
-    };
-
+function Type({attrs}) {
     var typ = attrs.data || {};
     var idx = attrs.idx || 0;
 
@@ -281,15 +270,20 @@ function Method(vnode) {
 
 function Variables({attrs}) {
     var vars = attrs.data || [];
+    var name = attrs.name || "Variables";
     var idx = attrs.idx || 0;
-    let dataPath = `/Package/Declarations/${idx}/Variables`
 
-
-    const ontrash = (e) => {
-        setTimeout(() => {
-            Session.unset(`/Package/Declarations/${idx}`);
-        }, 20);
-    }
+    let dataPath = `/Package/Declarations/${idx}/${name}`
+    let actions = [
+        ["fa-plus-circle", () => {
+            Session.append(dataPath, {Name: "_", Value: ""});
+        }],
+        ["fa-trash-alt", () => {
+            setTimeout(() => {
+                Session.unset(`/Package/Declarations/${idx}`);
+            }, 20);
+        }],
+    ];
 
     const makeVarInput = (idx) => (e,v,subfield) => {
         switch (subfield) {
@@ -306,66 +300,30 @@ function Variables({attrs}) {
         Session.set(`${dataPath}/${idx}/Value`, v);
     };
 
+    const makeOnDelete = (idx) => (e) => {
+        Session.unset(`${dataPath}/${idx}`);
+    };
+
     return (
         <atom.Panel>
-            <atom.Trashable onclick={ontrash}>
-                <atom.GripLabel>Variables</atom.GripLabel>    
-            </atom.Trashable>
+            <atom.Actionable actions={actions}>
+                <atom.GripLabel>{name}</atom.GripLabel>    
+            </atom.Actionable>
             {(vars||[]).map((v, idx) =>
                 <atom.Stack axis="h">
                     <atom.Fieldbox 
+                        ondelete={makeOnDelete(idx)}
                         onchange={makeVarInput(idx)} 
                         type={v.Type} 
+                        class="w-full"
                         value={v.Name} />
+                    <div class="m-1 flex-none">=</div>
                     <atom.Textbox 
                         onchange={makeValInput(idx)} 
                         dark={true}
+                        noautofocus={true}
+                        class="w-full text-xs"
                         value={v.Value} />
-                </atom.Stack>
-            )}
-        </atom.Panel>
-    )
-}
-
-function Constants({attrs}) {
-    var consts = attrs.data || [];
-    var idx = attrs.idx || 0;
-    let dataPath = `/Package/Declarations/${idx}/Constants`
-
-    const ontrash = (e) => {
-        Session.unset(`/Package/Declarations/${idx}`);
-    }
-
-    const makeVarInput = (idx) => (e,v,subfield) => {
-        switch (subfield) {
-        case "value":
-            Session.set(`${dataPath}/${idx}/Name`, v);
-            break;
-        case "type":
-            Session.set(`${dataPath}/${idx}/Type`, v);
-            break;
-        }
-    };
-
-    const makeValInput = (idx) => (e,v) => {
-        Session.set(`${dataPath}/${idx}/Value`, v);
-    };
-
-    return (
-        <atom.Panel>
-            <atom.Trashable onclick={ontrash}>
-                <atom.GripLabel>Constants</atom.GripLabel>    
-            </atom.Trashable>
-            {(consts||[]).map((cnst, idx) =>
-                <atom.Stack axis="h">
-                    <atom.Fieldbox 
-                        onchange={makeVarInput(idx)} 
-                        type={cnst.Type} 
-                        value={cnst.Name} />
-                    <atom.Textbox 
-                        onchange={makeValInput(idx)} 
-                        dark={true}
-                        value={cnst.Value} />
                 </atom.Stack>
             )}
         </atom.Panel>
@@ -398,7 +356,6 @@ function Imports({attrs}) {
                         <atom.Textbox  
                             ondelete={makeOnDelete(idx)}
                             onchange={makeImportInput(idx)} 
-                            // type={imprt.Alias} 
                             value={imprt.Package} />
                     </atom.Stack>
                 )

@@ -37,6 +37,21 @@ export function Trashable({attrs, children}) {
     )
 }
 
+export function Actionable({attrs, children}) {
+    var actions = attrs.actions || [];
+
+    return (
+        <Stack axis="h">
+            <div class="flex-grow">
+                {children}
+            </div>
+            <Stack axis="h" class="mr-1 text-xs">
+                {actions.map((action) => <Icon class="ml-2" fa={`fas ${action[0]}`} onclick={action[1]} />)}
+            </Stack>
+        </Stack>
+    )
+}
+
 export function GripLabel({style, children}) {
     style.add("flex items-end mb-1");
     return (
@@ -96,23 +111,13 @@ export function Label({attrs, style, children}) {
     return <div>{children}</div>
 }
 
-export function Textbox({ attrs, style, hooks, vnode }) { 
-    hooks.oncreate = () => {
-        vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
-            if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
-                vnode.attrs.ondelete(e);
-            }
-        });
-
-        if (attrs.value == "") {
-            vnode.dom.querySelector("input").focus();
-        }
-    };
-
+export function Textbox({ attrs, style }) { 
     var readonly = attrs.readonly || false;
     var dark = attrs.dark || false;
     var value = attrs.value || "";
     var onchange_ = attrs.onchange || undefined;
+    var ondelete = attrs.ondelete || undefined;
+    var noautofocus = attrs.noautofocus || false;
 
     style.add({
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -132,10 +137,8 @@ export function Textbox({ attrs, style, hooks, vnode }) {
         color: "white",
         overflow: "hidden",
         height: "100%",
-        backgroundColor: "transparent",
         width: "100%",
     });
-    inner.add({pointerEvents: "none"}, () => readonly);
 
     const onchange = (e) => {
         if (onchange_) {
@@ -145,10 +148,12 @@ export function Textbox({ attrs, style, hooks, vnode }) {
 
     return (
         <div>
-            <input type="text" 
+            <TextInput
                 readonly={readonly}
                 onchange={onchange}
                 value={value}
+                ondelete={ondelete}
+                noautofocus={noautofocus}
                 style={inner.style()} />
         </div>
     )
@@ -190,23 +195,13 @@ export function BlockTextbox({style, children}) {
 }
 
 
-export function Fieldbox({ attrs, style, hooks, vnode }) {
-    hooks.oncreate = () => {
-        vnode.dom.querySelector("input").addEventListener("keydown", (e) => {
-            if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
-                vnode.attrs.ondelete(e);
-            }
-        })
-
-        if (attrs.value == "") {
-            vnode.dom.querySelector("input").focus();
-        }
-    };
-
+export function Fieldbox({ attrs, style }) {
     var value = attrs.value || "";
     var type = attrs.type || "";
+    var readonly = attrs.readonly || false;
     var onchange_ = attrs.onchange || undefined;
     var ondelete = attrs.ondelete || undefined;
+    var noautofocus = attrs.noautofocus || false;
 
     style.add({
         borderBottom: "var(--pixel-size) solid var(--sidebar-outline-color)",
@@ -219,24 +214,36 @@ export function Fieldbox({ attrs, style, hooks, vnode }) {
     style.add("dark", () => attrs.dark);
     style.add("light", () => !attrs.dark);
 
-    let valueStyle = Style.from({
-        backgroundColor: "transparent",
-        width: "100%",
-    })
-
-    let typeStyle = Style.from({
-        color: "lightgray",
-        backgroundColor: "transparent",
-        textAlign: "right",
-        width: "100px",
-    });
-
     let inner = Style.from({
         border: "1px solid black",
         padding: "4px",
         paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
+        height: "34px",
+    });
+
+    let valueStyle = Style.from({
+        backgroundColor: "transparent",
+        position: "absolute",
+        top: "0",
+        left: "8px",
+        right: "50px",
+        bottom: "0",
+        zIndex: "10",
+    })
+
+    let typeStyle = Style.from({
+        color: "lightgray",
+        backgroundColor: "transparent",
+        textAlign: "right",
+        position: "absolute",
+        top: "0",
+        left: "50%",
+        right: "0",
+        bottom: "0",
+        zIndex: "0",
+        fontSize: ".75rem",
     });
 
     const onchanger = (name) => (e) => {
@@ -247,31 +254,64 @@ export function Fieldbox({ attrs, style, hooks, vnode }) {
 
     return (
         <div>
-            <div class="flex flex-row items-center" style={inner.style()}>
-                <input type="text"
+            <div class="relative" style={inner.style()}>
+                <TextInput
                     onchange={onchanger("value")}
+                    ondelete={ondelete}
                     value={value}
-                    style={valueStyle.style()} 
-                    class="flex-grow" />
-                <span class="text-right text-xs ml-2">
-                    <input list="types" 
-                        onchange={onchanger("type")} 
-                        type="text"
-                        class="flex-auto" 
-                        style={typeStyle.style()} 
-                        value={type} />
-                </span>
+                    readonly={readonly}
+                    noautofocus={noautofocus}
+                    style={valueStyle.style()} />
+                <TextInput 
+                    list="types" 
+                    onchange={onchanger("type")} 
+                    readonly={readonly}
+                    noautofocus={true}
+                    style={typeStyle.style()} 
+                    value={type} />
             </div>
-            <datalist id="types">
-                <option value="struct" />
-                <option value="bool" />
-                <option value="string" />
-                <option value="int" />
-                <option value="float" />
-                <option value="map" />
-                <option value="[]" />
-            </datalist>
         </div>
+    )
+}
+
+export function TextInput({attrs,style,hooks,vnode}) {
+    var value = attrs.value || "";
+    var list = attrs.list || undefined;
+    var readonly = attrs.readonly || false;
+    var onchange = attrs.onchange || undefined;
+    var ondelete = attrs.ondelete || undefined;
+    var noautofocus = attrs.noautofocus || false;
+
+    hooks.oncreate = () => {
+        vnode.dom.addEventListener("keydown", (e) => {
+            if (e.keyCode === 8 /* backspace */ && e.target.value === "" && ondelete) {
+                vnode.attrs.ondelete(e);
+            }
+        });
+
+        vnode.dom.addEventListener("edit", (e) => {
+            vnode.dom.select();
+            h.redraw();
+        });
+
+        if (attrs.value == "" && !noautofocus) {
+            vnode.dom.focus();
+        }
+
+        if (attrs.value === "_" && !noautofocus) {
+            vnode.dom.dispatchEvent(new Event("edit"));
+        }
+    };
+
+    style.add({backgroundColor: "transparent"});
+    style.add({pointerEvents: "none"}, () => readonly);
+
+    return (
+        <input type="text"
+            list={list}
+            readonly={readonly}
+            onchange={onchange}
+            value={value} />
     )
 }
 

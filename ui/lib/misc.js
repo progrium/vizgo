@@ -165,12 +165,12 @@ export function setupContextMenu() {
                         break;
                     case "variables":
                         decl["Variables"] = [{
-                            Name: "newvar",
+                            Name: "_",
                         }]
                         break;
                     case "constants":
                         decl["Constants"] = [{
-                            Name: "newconst",
+                            Name: "_",
                         }]
                         break;
                     }
@@ -235,12 +235,28 @@ export function setupContextMenu() {
                     };
                     break;
                 case "type":
+                    // TODO
                     break;
                 case "constants":
+                    decl.Constants.forEach((c) => {
+                        pkgMenu[c.Name] = {
+                            name: c.Name,
+                            callback: function (key, options) {
+                                Session.create("expr", c.Name, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                            },
+                        };
+                    });
                     break;
                 case "variables":
+                    decl.Variables.forEach((v) => {
+                        pkgMenu[v.Name] = {
+                            name: v.Name,
+                            callback: function (key, options) {
+                                Session.create("expr", v.Name, e.originalEvent.offsetX, e.originalEvent.offsetY);
+                            },
+                        };
+                    });
                     break;
-                
                 }
             }
 
