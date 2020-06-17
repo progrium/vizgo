@@ -244,22 +244,25 @@ export function setupContextMenu() {
                 }
             }
 
-
+            let menu = {
+                "package": { name: "Package", items: pkgMenu },
+                "imports": { name: "Imports", items: importMenu },
+                "locals": { name: "Locals", items: localsMenu },
+                "expr": { name: "Empty Expression" },
+                "call": { name: "Call Statement" },
+                "return": { name: "Return" },
+                "loop": { name: "Loop" },
+                "condition": { name: "Condition" },
+                "assign": { name: "Assign" }
+            };
+            if (Object.keys(pkgMenu).length == 0) delete menu["package"];
+            if (Object.keys(importMenu).length == 0) delete menu["imports"];
+            if (Object.keys(localsMenu).length == 0) delete menu["locals"];
             return {
                 callback: function (key, options) {
                     Session.create(key, "expr", e.originalEvent.offsetX, e.originalEvent.offsetY);
                 },
-                items: {
-                    "locals": { name: "Locals", items: localsMenu },
-                    "package": { name: "Package", items: pkgMenu },
-                    "imports": { name: "Imports", items: importMenu },
-                    "expr": { name: "Empty Expression" },
-                    "call": { name: "Call Statement" },
-                    "return": { name: "Return" },
-                    "loop": { name: "Loop" },
-                    "condition": { name: "Condition" },
-                    "assign": { name: "Assign" }
-                }
+                items: menu
             };
         }
     });

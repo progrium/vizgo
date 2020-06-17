@@ -102,7 +102,11 @@ export function Textbox({ attrs, style, hooks, vnode }) {
             if (e.keyCode === 8 /* backspace */ && e.target.value === "" && vnode.attrs.ondelete) {
                 vnode.attrs.ondelete(e);
             }
-        })
+        });
+
+        if (attrs.value == "") {
+            vnode.dom.querySelector("input").focus();
+        }
     };
 
     var readonly = attrs.readonly || false;
@@ -193,6 +197,10 @@ export function Fieldbox({ attrs, style, hooks, vnode }) {
                 vnode.attrs.ondelete(e);
             }
         })
+
+        if (attrs.value == "") {
+            vnode.dom.querySelector("input").focus();
+        }
     };
 
     var value = attrs.value || "";
@@ -313,11 +321,18 @@ export function Nested({attrs, style, state, children}) {
         state.expanded = !state.expanded;
     }
 
+    const wrapAction = (cb) => {
+        return (e) => {
+            state.expanded = true;
+            cb(e);
+        }
+    }
+
     return (
         <div>
             <Expander expanded={expanded} onclick={onToggleExpander}>
                 <Label onclick={onToggleExpander} class="label flex-grow mt-px">{label}</Label>
-                {actions.map((action) => <Icon class="mr-1" fa={`fas fa-xs ${action[0]}`} onclick={action[1]} />)}
+                {actions.map((action) => <Icon class="mr-1" fa={`fas fa-xs ${action[0]}`} onclick={wrapAction(action[1])} />)}
             </Expander>
             {expanded && children.map((el) => <div class={`my-${spacing} ml-4`}>{el}</div>)}
         </div>

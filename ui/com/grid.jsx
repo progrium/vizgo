@@ -57,7 +57,7 @@ function Entrypoint({attrs,style,hooks,state}) {
     hooks.onupdate = update;
     style.add({
         background: "var(--sidebar-color)", //rgb(75, 126, 28)
-        width: "16px",
+        width: "22px",
         height: "150px",
         borderTopRightRadius: "var(--corner-size)",
         borderBottomRightRadius: "var(--corner-size)",
@@ -69,7 +69,7 @@ function Entrypoint({attrs,style,hooks,state}) {
     style.add("invisible", () => !App.selected());
     return (
         <div id="entrypoint">
-            <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-3 my-8" />
+            <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-5 my-8" />
         </div>
     )
 }

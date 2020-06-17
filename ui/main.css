@@ -6,7 +6,7 @@
 
 :root {
     --background-color: #2D3639;
-    --sidebar-width: 420px;
+    --sidebar-width: 300px;
     --sidebar-color: #60696e;
     --block-color: #475054;
     --outline-color: black;
@@ -27,6 +27,10 @@ body {
     -moz-user-select: none;
     -webkit-user-select: text;
     background-color: var(--background-color);
+}
+
+.context-menu-submenu:after {
+    border-left-color: white !important;
 }
 
 .dark {

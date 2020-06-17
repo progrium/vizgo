@@ -90,7 +90,9 @@ func generate(pkg Package) (string, error) {
 	if err != nil {
 		return out, err
 	}
-	os.MkdirAll("local/out", 0766)
+	if err := os.MkdirAll("local/out", 0766); err != nil {
+		panic("unable to mkdir")
+	}
 	return out, ioutil.WriteFile(fmt.Sprintf("local/out/%s.go", pkg.Name), []byte(out), 0644)
 }
 

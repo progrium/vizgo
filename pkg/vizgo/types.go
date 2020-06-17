@@ -79,5 +79,5 @@ type State struct {
 	Function  Function
 	TypeIDs   []string
 	ImportIDs map[string][]string
-	Locals []string
+	Locals    []string
 }
