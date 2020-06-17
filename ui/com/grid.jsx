@@ -39,15 +39,25 @@ export function Grid({attrs,style,hooks,vnode}) {
     )
 }
 
-function Preview({attrs,style}) {
+function htmlDecode(input) {
+    var doc = new DOMParser().parseFromString(input, "text/html");
+    return doc.documentElement.textContent;
+}
+
+function Preview({attrs,style,hooks,vnode}) {
+    let source = Prism.highlight(htmlDecode(attrs.source), Prism.languages.go, 'go');
+
     style.add({
         width: "300px",
         height: "500px",
         fontSize: "smaller",
-        marginLeft: "800px",
+        marginLeft: "900px",
+        backgroundColor: "transparent",
+        border: "0",
+        boxShadow: "none",
     })
     return (
-        <pre>{h.trust(attrs.source)}</pre>
+        <pre><code class="language-go">{h.trust(source)}</code></pre>
     )
 }
 

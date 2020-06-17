@@ -24,19 +24,6 @@ export function Grippable({children}) {
     )
 }
 
-export function Trashable({attrs, children}) {
-    var onclick = attrs.onclick || undefined;
-
-    return (
-        <Stack axis="h">
-            <div class="flex-grow">
-                {children}
-            </div>
-            <div class="ml-2 mr-1 text-xs" onclick={onclick}><i class="fas fa-trash-alt"></i></div>
-        </Stack>
-    )
-}
-
 export function Actionable({attrs, children}) {
     var actions = attrs.actions || [];
 

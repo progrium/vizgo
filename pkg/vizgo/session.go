@@ -182,6 +182,10 @@ func (s *Session) _fn_create() {
 }
 
 func (s *Session) _block_create(typ, label string, x, y int) {
+	if s.State.Selected == "" {
+		return
+	}
+
 	log.Println("block_create:", typ, x, y)
 
 	var in, out []string

@@ -88,12 +88,13 @@ function Type({attrs}) {
         }]
     ];
 
-
-    const ontrash = (e) => {
-        setTimeout(() => {
-            Session.unset(`/Package/Declarations/${idx}`);
-        }, 20);
-    }
+    let actions = [
+        ["fa-trash-alt", () => {
+            setTimeout(() => {
+                Session.unset(`/Package/Declarations/${idx}`);
+            }, 20);
+        }],
+    ];
 
     const typeInput = (e,v,subfield) => {
         switch (subfield) {
@@ -124,9 +125,9 @@ function Type({attrs}) {
 
     return (
         <atom.Panel>
-            <atom.Trashable onclick={ontrash}>
+            <atom.Actionable actions={actions}>
                 <atom.GripLabel>Type</atom.GripLabel>
-            </atom.Trashable>
+            </atom.Actionable>
             <atom.Fieldbox onchange={typeInput} type={typ.Type} value={typ.Name}></atom.Fieldbox>
             <atom.Nested class="mt-2" spacing={2} label="Fields" actions={fieldActions}>
                 <atom.Stack class="pl-1 mt-2">
@@ -194,12 +195,16 @@ function Function({attrs, style, hooks, vnode}) {
 
     style.add("selected", () => fnPath === App.selected())
 
-    const ontrash = (e) => {
-        // TODO: support methods
-        Session.unset("/Selected");
-        Session.unset(`/Package/Declarations/${idx}`);
-        jsPlumb.reset();
-    }
+    let actions = [
+        ["fa-trash-alt", () => {
+            setTimeout(() => {
+                // TODO: support methods
+                Session.unset("/Selected");
+                Session.unset(`/Package/Declarations/${idx}`);
+                jsPlumb.reset();
+            }, 20);
+        }],
+    ];
 
     const onclick = () => {
         if (fnPath !== App.selected()) {
@@ -236,9 +241,9 @@ function Function({attrs, style, hooks, vnode}) {
 
     return h(container, {id: name, onclick: onclick}, (
         <div>
-            <atom.Trashable onclick={ontrash}>
+            <atom.Actionable actions={actions}>
                 <atom.GripLabel>{label}</atom.GripLabel>
-            </atom.Trashable>
+            </atom.Actionable>
             <div>
                 <atom.Fieldbox 
                     onchange={fnChange} 
