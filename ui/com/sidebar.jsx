@@ -48,7 +48,7 @@ export function Sidebar({attrs, style}) {
                     }
                 })}
                 </atom.Stack>
-                <atom.Stack class="justify-end" style={footer} axis="h"><AddButton id="add-decl" /></atom.Stack>
+                <atom.Stack style={footer} axis="h"><AddButton id="add-decl" /></atom.Stack>
             </atom.Stack>
         </nav>
     )
@@ -221,6 +221,7 @@ function Function({attrs, style, hooks, vnode}) {
             Session.set(`${basePath}/Out`, v.split(","));
             break;
         }
+        Session.select(basePath);
     };
 
     const makeArgInput = (idx) => (e,v,subfield) => {

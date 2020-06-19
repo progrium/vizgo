@@ -265,11 +265,10 @@ export function setupContextMenu() {
                 "imports": { name: "Imports", items: importMenu },
                 "locals": { name: "Locals", items: localsMenu },
                 "expr": { name: "Empty Expression" },
-                "call": { name: "Call Statement" },
-                "return": { name: "Return" },
+                "assign": { name: "Assign" },
                 "loop": { name: "Loop" },
                 "condition": { name: "Condition" },
-                "assign": { name: "Assign" }
+                "return": { name: "Return" },
             };
             if (Object.keys(pkgMenu).length == 0) delete menu["package"];
             if (Object.keys(importMenu).length == 0) delete menu["imports"];

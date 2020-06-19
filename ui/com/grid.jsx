@@ -23,7 +23,6 @@ export function Grid({attrs,style,hooks,vnode}) {
         order: "0",
         flex: "1 1 auto",
         alignSelf: "auto",
-        border: "1px solid var(--outline-color)",
     });
 
     return (

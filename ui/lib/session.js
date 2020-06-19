@@ -161,34 +161,34 @@ const BlockTypes = {
         label: "()" 
     },
     assign: { 
-        label: "Assign", 
+        label: "ASSIGN", 
         inputs: [""], 
         outputs: ["name?"] 
     },
     return: { 
         out: false, 
-        label: "Return" 
+        label: "RETURN" 
     },
     defer: { 
-        label: "Defer", 
+        label: "DEFER", 
         outputs: ["defer>"] 
     },
     for: { 
-        label: "For     ", 
+        label: "FOR     ", 
         inputs: ["exp"], 
         outputs: ["loop>"] 
     },
     send: { 
-        label: "Send", 
+        label: "SEND", 
         inputs: ["ch", "send"] 
     },
     range: { 
-        label: "For-Range  ", 
+        label: "FOR-RANGE  ", 
         inputs: ["range"], 
         outputs: ["loop>", "idx", "val"] 
     },
     condition: { 
-        label: "Condition", 
+        label: "CONDITION", 
         inputs: [""], 
         outputs: ["if>", "else>"] 
     },

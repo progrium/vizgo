@@ -54,6 +54,9 @@ body {
 .jtk-connected .ArrowTail .arrow {
     display: block !important;
 }
+.jtk-connected .ArrowTail .arrow.dragging {
+    display: none !important;
+}
 .Endpoint.jtk-connected .Ring {
     background: radial-gradient(circle at center center, lightgray 35%, rgb(71, 80, 84) 0px) !important;
 }

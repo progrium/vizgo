@@ -14,6 +14,7 @@ class App {
         misc.setupSortables();
         misc.setupNewlinePrevention();
 
+
         jsPlumb.bind("ready", function () {
             hotweb.watchCSS();
             hotweb.watchHTML();
@@ -41,31 +42,52 @@ class App {
     static select(path) {
         Session.select(path);
 
+        console.log("RESET");
         jsPlumb.reset();
+        jsPlumb.bind("connectionDrag", function (params, e) {
+            if (params.targetId.endsWith("-in")) {
+                $(`#${params.targetId} .arrow`).addClass("dragging");
+            }
+        });
+        jsPlumb.bind("connectionDragStop", function (params, e) {
+            if (params.targetId.endsWith("-in")) {
+                $(`#${params.targetId} .arrow`).removeClass("dragging");
+            }
+        });
         jsPlumb.bind("connectionDetached", function (params, e) {
             if (e === undefined) {
                 return;
             }
+            console.log("DETACH", params);
             let src = params.sourceId.replace("-out", "");
             let dst = params.targetId.replace("-in", "");
             Session.disconnect(src, dst);
-            
         });
         jsPlumb.bind("connection", function (params, e) {
             if (e === undefined) {
                 return;
             }
+            console.log("CONNECT", params);
             if ($("#" + params.targetId.replace(".", "\\.")).hasClass("jtk-connected")) {
                 let src = params.sourceId.replace("-out", "");
                 let dst = params.targetId.replace("-in", "");
                 Session.connect(src, dst);
             }
         });
+        jsPlumb.bind("connectionMoved", function (params, e) {
+            console.log("MOVED", params);
+            let src = params.sourceId.replace("-out", "");
+            let dstOld = params.originalTargetId.replace("-in", "");
+            let dstNew = params.newTargetId.replace("-in", "");
+            Session.disconnect(src, dstOld);
+            Session.connect(src, dstNew);
+        });
 
         App.redraw();
     }
 
     static redraw() {
+        console.log("REPAINT");
         jsPlumb.repaintEverything();
         h.redraw();
     }
@@ -101,7 +123,6 @@ class App {
         }
 
         dom.style.width = newWidth + "px";
-        jsPlumb.repaintEverything();
     }
 
     static Block_oncreate(vnode) {
@@ -137,6 +158,7 @@ class App {
         // }
         let { output, header, connect, id } = attrs;
         // console.log(attrs);
+        console.log("REMOVE ENDPOINTS", dom.id);
         jsPlumb.removeAllEndpoints(dom);
         
         // console.log(`oncreate ${id} to ${connect}`);
@@ -200,6 +222,7 @@ class App {
     }
 
     static Inflow_onupdate({ dom }) {
+        console.log("REMOVE ENDPOINTS", dom.id);
         jsPlumb.removeAllEndpoints(dom);
         jsPlumb.addEndpoint(dom, {
             endpoint: ["Rectangle", {
@@ -215,13 +238,14 @@ class App {
     };
 
     static Outflow_onupdate( attrs, state, source ) {
-
+        console.log("REMOVE ENDPOINTS", source);
         jsPlumb.removeAllEndpoints(source);
         
         // not sure exactly what this does when added to the following condition.
         // took it out to be safe. -jl
         //!$("#" + attrs.connect.replace(".","\\.")).hasClass("jtk-connected")
         if (attrs.connect) {
+            console.log("connect", source);
             setTimeout(() => {
                 // console.log(`connecting ${source} to ${attrs.connect}`);
                 jsPlumb.connect({
@@ -242,9 +266,10 @@ class App {
                 });
             }, 30);
         } else {
+            console.log("endpoint", source);
             jsPlumb.addEndpoint(source, {
                 endpoint: ["Rectangle", {
-                    cssClass:"endpoint-anchor",
+                    cssClass:"endpoint-anchor debug",
                 }],
                 endpointStyle:{ fill:"white" },
                 isSource: true,
