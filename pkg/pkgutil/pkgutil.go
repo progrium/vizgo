@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	packages "golang.org/x/tools/go/packages"
+	"golang.org/x/tools/go/packages"
 )
 
 var BuiltinTypes = []string{
