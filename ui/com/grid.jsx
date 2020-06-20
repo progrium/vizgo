@@ -3,13 +3,13 @@ import * as shapes from "./shapes.js";
 import { App } from "../lib/app.js";
 
 export function Grid({attrs,style,hooks,vnode}) {
-    hooks.oncreate = () => {
-        jsPlumb.setContainer(vnode.dom);
-    }
-
     var source = attrs.source || "";
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
+
+    hooks.oncreate = () => {
+        jsPlumb.setContainer(vnode.dom);
+    }
 
     style.add({
         userSelect: "none",
@@ -27,7 +27,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            {/* <Connector src={[400,400]} dst={[600,600]} /> */}
+            <Connector src={[400,400]} dst={[600,600]} />
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
@@ -35,8 +35,26 @@ export function Grid({attrs,style,hooks,vnode}) {
                 return <block.Block data-idx={idx} {...attrs} />
             })}
             {(App.selected() !== undefined) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}
+            {flowConnects(entry, blocks)}
         </div>
     )
+}
+
+function flowConnects(entry, blocks) {
+    let conn = [];
+    if (entry) {
+        conn.push(["entrypoint-out", entry+"-in"]);
+    }
+    blocks.forEach((b) => {
+        if (b.connect) {
+            conn.push([b.id+"-out", b.connect]);
+        }
+    });
+    const pos = (id) => {
+        let box = document.querySelector(`#${id}`).getBoundingClientRect();
+        return [box.left, box.top];
+    }
+    console.log(conn.map((c) => [pos(c[0]), pos(c[1])]));
 }
 
 function htmlDecode(input) {

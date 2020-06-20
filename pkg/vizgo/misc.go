@@ -13,5 +13,5 @@ func uid() string {
 	binary.PutVarint(buf, t)
 	token := make([]byte, 4)
 	rand.Read(token)
-	return fmt.Sprintf("%x", append(buf[:4], token...))
+	return fmt.Sprintf("B%x", append(buf[:4], token...))
 }
