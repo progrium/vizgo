@@ -6,7 +6,7 @@ var DefaultState = &State{
 	ImportIDs: make(map[string][]string),
 	Package: Package{
 		Name:         "main",
-		PkgPath:      "github.com/progrium/vizgo/local/out",
+		PkgPath:      "./local/out",
 		Imports:      []Import{},
 		Declarations: []Declaration{},
 	},
