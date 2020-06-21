@@ -3,13 +3,23 @@ import * as shapes from "./shapes.js";
 import { App } from "../lib/app.js";
 
 export function Grid({attrs,style,hooks,vnode}) {
+    hooks.oncreate = () => {
+        jsPlumb.setContainer(vnode.dom);
+    }
+
     var source = attrs.source || "";
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
 
-    hooks.oncreate = () => {
-        jsPlumb.setContainer(vnode.dom);
+    let conn = [];
+    if (entry) {
+        conn.push(["entrypoint-out", entry+"-in"]);
     }
+    blocks.forEach((b) => {
+        if (b.connect) {
+            conn.push([b.id+"-out", b.connect]);
+        }
+    });
 
     style.add({
         userSelect: "none",
@@ -27,7 +37,7 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <Connector src={[400,400]} dst={[600,600]} />
+            {conn.map((c) => <Connector src={c[0]} dst={c[1]} /> )}
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
@@ -35,7 +45,6 @@ export function Grid({attrs,style,hooks,vnode}) {
                 return <block.Block data-idx={idx} {...attrs} />
             })}
             {(App.selected() !== undefined) && <Entrypoint connect={(entry)?`${entry}-in`:undefined} />}
-            {flowConnects(entry, blocks)}
         </div>
     )
 }
@@ -103,52 +112,57 @@ function Entrypoint({attrs,style,hooks,state}) {
 }
 
 function Connector({attrs, style}) {
+    var src = attrs.src || "";
+    var dst = attrs.src || "";
+    var color = attrs.color || "white";
+    var width = attrs.width || 10;
+
+    style.add("absolute", {
+        left: "0px",
+        top: "0px",
+        width: "0px",
+        height: "0px",
+    });
+    
+    return (
+        <svg data-src={src} data-dst={dst}>
+            <path stroke={color} 
+                stroke-width={width} 
+                stroke-linecap="round" 
+                fill="none" />
+        </svg>
+    )
+}
+
+function ConnectorUpdate({attrs, style}) {
     var src = attrs.src || [0, 0];
     var dst = attrs.dst || [0, 0];
     var offset = attrs.offset || 50;
 
-    let strokeWidth = 10;
-
-    const calcMiddle = (src, dest) => [(src[0] + dest[0]) / 2, (src[1] + dest[1]) / 2];
-    const calcOffset = (pt, offset) => [pt[0]+offset, pt[1]];
-
-    function directLine(src, dest) {
-        return `M${src[0]} ${src[1]} L${dest[0]} ${dest[1]}`;
-    }
-    function L(src, dest) {
-        return `M${src[0]} ${src[1]} L${src[0]} ${dest[1]} M${src[0]} ${dest[1]} L${dest[0]} ${dest[1]}`;
-    }
-    function mirroredL(src, dest) {
-        return `M${src[0]} ${src[1]} L${dest[0]} ${src[1]} M${dest[0]} ${src[1]} L${dest[0]} ${dest[1]}`;
-    }
-    function Path(src, dest, offset) {
-        let middle = calcMiddle(src, dest);
-        if (middle[0] > dest[0] + offset) {
-            return mirroredL(src, middle) + " " + L(middle, dest);
+    const calcMiddle = (src, dst) => [(src[0] + dst[0]) / 2, (src[1] + dst[1]) / 2];
+    const xOffset = (pt, offset) => [pt[0]+offset, pt[1]];
+    const line = (src, dst) => `M${src[0]} ${src[1]} L${dst[0]} ${dst[1]}`;
+    const L = (src, dst) => `M${src[0]} ${src[1]} L${src[0]} ${dst[1]} M${src[0]} ${dst[1]} L${dst[0]} ${dst[1]}`;
+    const flipL = (src, dst) => `M${src[0]} ${src[1]} L${dst[0]} ${src[1]} M${dst[0]} ${src[1]} L${dst[0]} ${dst[1]}`;
+    
+    function Path(src, dst, offset) {
+        let middle = calcMiddle(src, dst);
+        if (middle[0] > dst[0] + offset) {
+            return [flipL(src, middle), L(middle, dst)].join(" ");
         } else {
-            return (
-                directLine(calcOffset(src, -offset), src) +
-                " " +
-                L(calcOffset(src, -offset), middle) +
-                " " +
-                mirroredL(middle, calcOffset(dest, offset)) +
-                " " +
-                directLine(dest, calcOffset(dest, offset))
-            );
+            return [
+                line(xOffset(src, -offset), src),
+                L(xOffset(src, -offset), middle),
+                flipL(middle, xOffset(dst, offset)),
+                line(dst, xOffset(dst, offset)),
+            ].split(" ");
         }
     }
     
-    function Cable(src, dest, srcOffset, destOffset, physicsDrop) {
-        let srcCtl = calcOffset(src, srcOffset);
-        let destCtl = calcOffset(dest, destOffset);
-    
-        if (srcCtl[1] > destCtl[1]) {
-            srcCtl[1] += physicsDrop;
-        } else {
-            destCtl[1] += physicsDrop;
-        }
-    
-        return `M${src[0]} ${src[1]} C${srcCtl[0]},${srcCtl[1]} ${destCtl[0]},${destCtl[1]} ${dest[0]}, ${dest[1]}`;
+    function Cable(src, dst, srcOffset, dstOffset) {
+        let srcCtl = xOffset(src, srcOffset);
+        let dstCtl = xOffset(dst, dstOffset);
+        return `M${src[0]} ${src[1]} C${srcCtl[0]},${srcCtl[1]} ${dstCtl[0]},${dstCtl[1]} ${dst[0]}, ${dst[1]}`;
     }
 
     let bounds = {
