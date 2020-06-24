@@ -156,20 +156,16 @@ export function BlockTextbox({style, children}) {
         borderLeft: "var(--pixel-size) solid #42494d",
         flexGrow: "1",
         boxShadow: "inset 2px 2px 3px #333",
-        height: "36px", // use a proper value here
     });
     style.add("light");
 
     let inner = Style.from({
-        paddingTop: "1px",
-        paddingBottom: "1px",
-        paddingLeft: "4px",
+        padding: "-3px 0px",
+        paddingRight: "2px",
         border: "1px solid black",
-        padding: "4px",
-        paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
-        height: "36px", // use a proper value here
+        height: "26px",
     });
 
     return (

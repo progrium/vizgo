@@ -54,6 +54,7 @@ export function setupDivider() {
             const snappedCursorScreenXDelta = cursorScreenXDelta - (cursorScreenXDelta % 30);
             const newWidth = resizeData.startWidth + snappedCursorScreenXDelta;
             $(resizeData.resizeTarget).outerWidth(newWidth);
+            $("#entrypoint")[0].style["margin-left"] = -35 + $(resizeData.resizeTarget).outerWidth()/30/30 + "px";
             jsPlumb.repaintEverything();
         }
     });

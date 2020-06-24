@@ -4,7 +4,7 @@ a visual golang software editor
 
 ## Prereqs
 
-* go 1.13
+* go 1.14
 * whatever is required for Cgo
 * for dev:
     * [go-bindata](https://github.com/shuLhan/go-bindata) `go get -u github.com/shuLhan/go-bindata/...`
