@@ -75,7 +75,7 @@ export function Panel({style,children}) {
         borderBottom: "1px solid black",
         borderLeft: "var(--pixel-size) solid var(--sidebar-outline-color)",
         borderRight: "var(--pixel-size) solid #42494d",
-        backgroundColor: "transparent"
+        backgroundColor: "var(--sidebar-color)"
     })
     return (
         <div>{children}</div>
@@ -156,20 +156,16 @@ export function BlockTextbox({style, children}) {
         borderLeft: "var(--pixel-size) solid #42494d",
         flexGrow: "1",
         boxShadow: "inset 2px 2px 3px #333",
-        height: "36px", // use a proper value here
     });
     style.add("light");
 
     let inner = Style.from({
-        paddingTop: "1px",
-        paddingBottom: "1px",
-        paddingLeft: "4px",
+        padding: "-3px 0px",
+        paddingRight: "2px",
         border: "1px solid black",
-        padding: "4px",
-        paddingLeft: "8px",
         color: "white",
         overflow: "hidden",
-        height: "36px", // use a proper value here
+        height: "26px",
     });
 
     return (
@@ -324,7 +320,24 @@ export function Divider({style}) {
 export function Expander({attrs, children}) {
     var expanded = attrs.expanded || false;
     var onclick = attrs.onclick || undefined;
-
+    if (expanded) {
+        $(".my-2.ml-4").sortable({
+            start: function(event, ui) {
+                ui.item.startPos = ui.item.index();
+                console.log(`Old position for ${ui.item}: ` + ui.item.index());
+            },
+            stop: function(event, ui) {
+                console.log(`New position for ${ui.item}: ` + ui.item.index());
+                //Session.set("package/declarations/1/arguments/sidebar_position_index", ui.item.index())
+            },
+            items: ">> div",
+            revert: 150,
+            tolerance: "pointer",
+            handle: ".Dots.Grip.mr-1.mt-1.mb-1",
+            containment: "parent",
+            axis: "y",
+        });
+    }
     return (
         <div class="flex select-none h-4">
             <div onclick={onclick} class="-mt-px w-4 text-center">
