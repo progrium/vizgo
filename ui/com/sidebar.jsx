@@ -175,6 +175,7 @@ function Function({attrs, style, hooks, vnode}) {
         if (fnPath === App.selected()) {
             $("#entrypoint")[0].style['top'] = vnode.dom.offsetTop + "px";
             $("#entrypoint")[0].style['height'] = vnode.dom.offsetHeight + "px";
+            jsPlumb.repaintEverything()
         }
     };
 

@@ -96,26 +96,12 @@ export function setupSortables() {
                 $("#entrypoint")[0].style['top'] = $(".selected")[0].offsetTop + "px";
                 $("#entrypoint")[0].style['height'] = $(".selected")[0].offsetHeight + "px";
                 jsPlumb.repaintEverything();
+                //Session.set("package/declarations/1/sidebar_position_index", ui.item.index())
             },
             items: "> div",
             revert: 150,
             tolerance: "intersect",
             handle: ".Dots.mb-1",
-            containment: "parent",
-            axis: "y",
-        });
-        $(".Stack.flex.flex-col.pl-1.mt-2").sortable({
-            start: function(event, ui) {
-                ui.item.startPos = ui.item.index();
-                console.log(`Old position for ${ui.item}: ` + ui.item.index());
-            },
-            stop: function(event, ui) {
-                console.log(`New position for ${ui.item}: ` + ui.item.index());
-            },
-            items: "> div",
-            revert: 150,
-            tolerance: "pointer",
-            handle: ".Dots.Grip.mr-1.mt-1.mb-1",
             containment: "parent",
             axis: "y",
         });
