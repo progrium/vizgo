@@ -12,6 +12,7 @@ class App {
         misc.setupContextMenu();
         misc.setupDivider();
         misc.setupSortables();
+        misc.setupDynamicEntrypointPositioning()
         misc.setupNewlinePrevention();
 
 

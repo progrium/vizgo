@@ -173,7 +173,7 @@ function Function({attrs, style, hooks, vnode}) {
     };
     hooks.onupdate = () => {
         if (fnPath === App.selected()) {
-            $("#entrypoint")[0].style['top'] = vnode.dom.offsetTop + "px";
+            $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
             $("#entrypoint")[0].style['height'] = vnode.dom.offsetHeight + "px";
             jsPlumb.repaintEverything()
         }
