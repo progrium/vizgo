@@ -113,7 +113,7 @@ function Entrypoint({attrs,style,hooks,state}) {
 
 function Connector({attrs, style}) {
     var src = attrs.src || "";
-    var dst = attrs.src || "";
+    var dst = attrs.dst || "";
     var color = attrs.color || "white";
     var width = attrs.width || 10;
 
