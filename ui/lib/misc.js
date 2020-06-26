@@ -83,6 +83,15 @@ export function setupNewlinePrevention() {
     })
 }
 
+export function setupDynamicEntrypointPositioning() {
+    $(document).ready(function() {
+        $(".Sidebar").scroll(function() {
+            $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
+            jsPlumb.repaintEverything();
+        })
+    })
+}
+
 export function setupSortables() {
     $(document).ready(function () {
         // sidebar declarations sorting
@@ -93,8 +102,7 @@ export function setupSortables() {
             },
             stop: function(event, ui) {
                 console.log(`New position for ${ui.item}: ` + ui.item.index());
-                $("#entrypoint")[0].style['top'] = $(".selected")[0].offsetTop + "px";
-                $("#entrypoint")[0].style['height'] = $(".selected")[0].offsetHeight + "px";
+                $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
                 jsPlumb.repaintEverything();
                 //Session.set("package/declarations/1/sidebar_position_index", ui.item.index())
             },
