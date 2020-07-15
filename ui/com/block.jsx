@@ -1,4 +1,5 @@
 import * as atom from "./atom.js";
+import * as draw from "./draw.js";
 import * as shapes from "./shapes.js";
 
 import { Style } from "../lib/style.js";
@@ -152,9 +153,6 @@ function Header({ attrs, style }) {
 
 
 function InflowEndpoint({ attrs, style, hooks }) {
-    hooks.oncreate = App.Inflow_onupdate;
-    hooks.onupdate = App.Inflow_onupdate;
-
     var block = attrs.block || "";
 
     style.add({
@@ -168,6 +166,7 @@ function InflowEndpoint({ attrs, style, hooks }) {
 
     return (
         <div id={`${block}-in`}>
+            <draw.Anchor dir="in" dst={`${block}-in`} class="-ml-3" />
             <shapes.ArrowTail color="#475054" />
             {/* <shapes.Diamond style={{marginLeft: "9px", marginTop: "10px"}} color="white" size={10} /> */}
         </div>
@@ -175,10 +174,6 @@ function InflowEndpoint({ attrs, style, hooks }) {
 }
 
 export function OutflowEndpoint({ attrs, style, hooks, state, vnode }) {
-    const update = () => App.Outflow_onupdate(attrs, state, vnode.dom.id);
-    hooks.oncreate = update;
-    hooks.onupdate = update;
-
     var color = attrs.color || "#475054";   
     var case_ = attrs.case || false;
     var body = attrs.body || false;
@@ -215,6 +210,7 @@ export function OutflowEndpoint({ attrs, style, hooks, state, vnode }) {
 
     return (
         <div id={id}>
+            <draw.Anchor dir="out" src={id} class="-ml-3" />
             <shapes.ArrowHead color={color} />
         </div>
     ) 
@@ -347,8 +343,7 @@ function Port({attrs, style}) {
 
 
 function Endpoint({attrs, style, hooks, vnode}) {
-    hooks.oncreate = () => App.Endpoint_oncreate(vnode);
-
+    var id = attrs.id || "";
     var output = attrs.output || false;
     var header = attrs.header || false;
     var connect = attrs.connect || undefined;
@@ -367,8 +362,13 @@ function Endpoint({attrs, style, hooks, vnode}) {
         marginRight: "-24px",
     }, () => header === true);
 
+    let anchor = (output) ?
+        <draw.Anchor src={id||"FUCK"} class="ml-1" />:
+        <draw.Anchor dst={id||"YOU"} class="-ml-1" />;
+
     return (
-        <div>
+        <div id={id}>
+            {anchor}
             <shapes.Ring color="#475054" fill="#2a2a2c" size={size} />
         </div>
     )

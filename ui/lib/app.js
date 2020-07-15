@@ -1,6 +1,8 @@
 import * as hotweb from '/.hotweb/client.mjs'
 import * as misc from './misc.js';
 import * as main from '../com/main.js';
+import * as draw from '../com/draw.js';
+import * as grid from '../com/grid.js';
 
 import { Session } from "./session.js";
 import { Style } from "./style.js";
@@ -42,55 +44,13 @@ class App {
 
     static select(path) {
         Session.select(path);
-
-        console.log("RESET");
-        jsPlumb.reset();
-        jsPlumb.bind("connectionDrag", function (params, e) {
-            if (params.targetId.endsWith("-in")) {
-                $(`#${params.targetId} .arrow`).addClass("dragging");
-            }
-        });
-        jsPlumb.bind("connectionDragStop", function (params, e) {
-            if (params.targetId.endsWith("-in")) {
-                $(`#${params.targetId} .arrow`).removeClass("dragging");
-            }
-        });
-        jsPlumb.bind("connectionDetached", function (params, e) {
-            if (e === undefined) {
-                return;
-            }
-            console.log("DETACH", params);
-            let src = params.sourceId.replace("-out", "");
-            let dst = params.targetId.replace("-in", "");
-            Session.disconnect(src, dst);
-        });
-        jsPlumb.bind("connection", function (params, e) {
-            if (e === undefined) {
-                return;
-            }
-            console.log("CONNECT", params);
-            if ($("#" + params.targetId.replace(".", "\\.")).hasClass("jtk-connected")) {
-                let src = params.sourceId.replace("-out", "");
-                let dst = params.targetId.replace("-in", "");
-                Session.connect(src, dst);
-            }
-        });
-        jsPlumb.bind("connectionMoved", function (params, e) {
-            console.log("MOVED", params);
-            let src = params.sourceId.replace("-out", "");
-            let dstOld = params.originalTargetId.replace("-in", "");
-            let dstNew = params.newTargetId.replace("-in", "");
-            Session.disconnect(src, dstOld);
-            Session.connect(src, dstNew);
-        });
-
         App.redraw();
     }
 
     static redraw() {
-        console.log("REPAINT");
-        jsPlumb.repaintEverything();
+        //jsPlumb.repaintEverything();
         h.redraw();
+        draw.updateConnections();
     }
 
 
@@ -133,7 +93,8 @@ class App {
             grid: [size, size],
             containment: "parent",
             drag: function(event) {
-                jsPlumb.repaintEverything();
+                //jsPlumb.repaintEverything();
+                draw.updateConnections();
             },
             stop: function (event) {
                 let x = event.pos[0]-$(".Sidebar").innerWidth();
@@ -148,140 +109,6 @@ class App {
         // when creating a new empty expression block
         if (attrs.label === "") {
             dom.firstChild.firstChild.focus(); // consider re-writing this
-        }
-    }
-
-
-    static Endpoint_oncreate({ attrs, style, dom, vnode }) {
-        // if (vnode.state.connected) {
-        //     // otherwise this hook is called twice for some reason
-        //     return;
-        // }
-        let { output, header, connect, id } = attrs;
-        // console.log(attrs);
-        console.log("REMOVE ENDPOINTS", dom.id);
-        jsPlumb.removeAllEndpoints(dom);
-        
-        // console.log(`oncreate ${id} to ${connect}`);
-        //vnode.state.connected = true;
-
-        if (connect) {
-            setTimeout(() => {
-                jsPlumb.connect({
-                    endpoint: ["Dot", {
-                        cssClass: `endpoint-anchor output`,
-                        scope: "ports",
-                    }],
-                    source: id,
-                    target: connect,
-                    paintStyle: { stroke: "gray", strokeWidth: 8 },
-                    connector: ["Bezier", { curviness: 100 }],
-                    anchors: [[0, 0, 1, 0, 15, 12], [0, 0, -1, 0, 12, 12]]
-                });
-                
-            }, 10);
-        } 
-
-        function exprEndpoint(dom, style, params) {
-            setTimeout(() => {
-                jsPlumb.addEndpoint(dom, Object.assign({
-                    endpoint: "Dot",
-                    cssClass: `endpoint-anchor output`,
-                    scope: "ports",
-                    connectorStyle: { stroke: "gray", strokeWidth: 8 },
-                    connector: ["Bezier", { curviness: 100 }]
-                }, params));
-            }, 10);
-        }
-
-        if (output === true) {
-            // output port
-            if (header === true) {
-                // expression out
-                exprEndpoint(dom, style, {
-                    maxConnections: 1,
-                    anchor: [0, 0, 1, 0, 14, 14],
-                    isSource: true,
-                })
-            } else {
-                // normal out
-                exprEndpoint(dom, style, {
-                    maxConnections: -1,
-                    anchor: [0, 0, 1, 0, 15, 12],
-                    isSource: true,
-                });
-            }
-        } else {
-            // input port
-            exprEndpoint(dom, style, {
-                isTarget: true,
-                cssClass: `endpoint-anchor input`,
-                anchor: [0, 0, -1, 0, 12, 12],
-            })
-        }
-    
-    }
-
-    static Inflow_onupdate({ dom }) {
-        console.log("REMOVE ENDPOINTS", dom.id);
-        jsPlumb.removeAllEndpoints(dom);
-        jsPlumb.addEndpoint(dom, {
-            endpoint: ["Rectangle", {
-                cssClass:"endpoint-anchor", 
-            }],
-            endpointStyle:{ fill:"white" },
-            isTarget: true,
-            width: 30,
-            height: 30,
-            anchor: [0, 0.5, -1, 0, 0, 0],
-            scope: "flow",
-        });
-    };
-
-    static Outflow_onupdate( attrs, state, source ) {
-        console.log("REMOVE ENDPOINTS", source);
-        jsPlumb.removeAllEndpoints(source);
-        
-        // not sure exactly what this does when added to the following condition.
-        // took it out to be safe. -jl
-        //!$("#" + attrs.connect.replace(".","\\.")).hasClass("jtk-connected")
-        if (attrs.connect) {
-            console.log("connect", source);
-            setTimeout(() => {
-                // console.log(`connecting ${source} to ${attrs.connect}`);
-                jsPlumb.connect({
-                    source: source,
-                    target: attrs.connect,
-                    paintStyle: { stroke: "white", strokeWidth: 10 },
-                    connector: ["Flowchart", {
-                        alwaysRespectStubs: true,
-                        cornerRadius: 4,
-                    }],
-                    detachable: true,
-                    maxConnections:1,
-                    endpoint: ["Rectangle", {
-                        cssClass:"endpoint-anchor", 
-                    }],
-                    endpointStyle:{ fill:"white" },
-                    anchors: [[0, 0, 1, 0, 4, 13], [0, 0.5, -1, 0, 4.5, 0]]
-                });
-            }, 30);
-        } else {
-            console.log("endpoint", source);
-            jsPlumb.addEndpoint(source, {
-                endpoint: ["Rectangle", {
-                    cssClass:"endpoint-anchor debug",
-                }],
-                endpointStyle:{ fill:"white" },
-                isSource: true,
-                anchor: [0, 0, 1, 0, 4, 13],
-                scope: "flow",
-                connectorStyle: { stroke: "white", strokeWidth: 10 },
-                connector: ["Flowchart", {
-                    alwaysRespectStubs: true,
-                    cornerRadius: 4,
-                }]
-            });
         }
     }
 }

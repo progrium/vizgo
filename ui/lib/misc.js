@@ -1,4 +1,5 @@
 import { Session } from "./session.js";
+import { App } from "./app.js";
 
 export function setupDivider() {
     const selectTarget = (fromElement, selector) => {
@@ -55,7 +56,7 @@ export function setupDivider() {
             const newWidth = resizeData.startWidth + snappedCursorScreenXDelta;
             $(resizeData.resizeTarget).outerWidth(newWidth);
             $("#entrypoint")[0].style["margin-left"] = -35 + $(resizeData.resizeTarget).outerWidth()/30/30 + "px";
-            jsPlumb.repaintEverything();
+            App.redraw();
         }
     });
 
@@ -87,7 +88,7 @@ export function setupDynamicEntrypointPositioning() {
     $(document).ready(function() {
         $(".Sidebar").scroll(function() {
             $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
-            jsPlumb.repaintEverything();
+            App.redraw();
         })
     })
 }
@@ -103,7 +104,7 @@ export function setupSortables() {
             stop: function(event, ui) {
                 console.log(`New position for ${ui.item}: ` + ui.item.index());
                 $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
-                jsPlumb.repaintEverything();
+                App.redraw();
                 //Session.set("package/declarations/1/sidebar_position_index", ui.item.index())
             },
             items: "> div",
