@@ -88,15 +88,15 @@ class App {
     static Block_oncreate(vnode) {
         let {attrs, dom} = vnode
         let size = Style.propInt("--grid-size");
-        jsPlumb.draggable(dom, {
+        $("#" + dom.id).draggable({
             grid: [size, size],
             containment: "parent",
             drag: function(event) {
                 conn.redrawAll();
             },
             stop: function (event) {
-                let x = event.pos[0]-$(".Sidebar").innerWidth();
-                let y = event.pos[1];
+                let x = parseInt(event.target.style.left.replace("px","")) - $(".Sidebar").innerWidth() + "px";
+                let y = event.target.style.top;
                 Session.move(`${App.selected()}/Blocks/${vnode.dom.dataset.idx}`, x, y);
             }
         });
@@ -106,7 +106,7 @@ class App {
         App.Block_onupdate(vnode);
         // when creating a new empty expression block
         if (attrs.label === "") {
-            dom.firstChild.firstChild.focus(); // consider re-writing this
+            dom.firstChild.firstChild.focus();
         }
     }
 }
