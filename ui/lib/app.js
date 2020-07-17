@@ -95,8 +95,8 @@ class App {
                 conn.redrawAll();
             },
             stop: function (event) {
-                let x = parseInt(event.target.style.left.replace("px","")) - $(".Sidebar").innerWidth() + "px";
-                let y = event.target.style.top;
+                let x = parseInt(event.target.style.left.replace("px","")) - $(".Sidebar").innerWidth();
+                let y = parseInt(event.target.style.top.replace("px",""));
                 Session.move(`${App.selected()}/Blocks/${vnode.dom.dataset.idx}`, x, y);
             }
         });
