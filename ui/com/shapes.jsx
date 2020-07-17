@@ -37,6 +37,20 @@ export function Ring({ attrs, style }) {
     return <div />
 }
 
+export function Circle({ attrs, style }) {
+    var color = attrs.color || "#444";
+    var size = attrs.size || 28;
+
+    style.add({
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: "50%",
+        backgroundColor: color,
+    });
+
+    return <div />
+}
+
 export function ArrowHead({ attrs, style }) {
     var color = attrs.color || "#444";
     var base = attrs.size || 28;

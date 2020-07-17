@@ -1,5 +1,5 @@
 import * as atom from "./atom.js";
-import * as draw from "./draw.js";
+import * as conn from "./conn.js";
 import * as shapes from "./shapes.js";
 
 import { Style } from "../lib/style.js";
@@ -61,7 +61,7 @@ export function Block({ attrs, style, hooks }) {
 function Title({attrs, style, state, vnode, hooks}) {
     hooks.oncreate = () => {
         vnode.dom.addEventListener("edit", (e) => {
-            vnode.state.readonly = false;
+            state.readonly = false;
             vnode.dom.querySelector("input").select();
             h.redraw();
         });
@@ -166,7 +166,7 @@ function InflowEndpoint({ attrs, style, hooks }) {
 
     return (
         <div id={`${block}-in`}>
-            <draw.Anchor dir="in" dst={`${block}-in`} class="-ml-3" />
+            <conn.Anchor type="flow" dst={`${block}-in`} class="-ml-3" />
             <shapes.ArrowTail color="#475054" />
             {/* <shapes.Diamond style={{marginLeft: "9px", marginTop: "10px"}} color="white" size={10} /> */}
         </div>
@@ -210,7 +210,7 @@ export function OutflowEndpoint({ attrs, style, hooks, state, vnode }) {
 
     return (
         <div id={id}>
-            <draw.Anchor dir="out" src={id} class="-ml-3" />
+            <conn.Anchor type="flow" src={id} class="-ml-3" />
             <shapes.ArrowHead color={color} />
         </div>
     ) 
@@ -363,8 +363,8 @@ function Endpoint({attrs, style, hooks, vnode}) {
     }, () => header === true);
 
     let anchor = (output) ?
-        <draw.Anchor src={id||"FUCK"} class="ml-1" />:
-        <draw.Anchor dst={id||"YOU"} class="-ml-1" />;
+        <conn.Anchor type="expr" src={id} class="ml-1" />:
+        <conn.Anchor type="expr" dst={id} class="-ml-1" />;
 
     return (
         <div id={id}>

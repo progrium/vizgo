@@ -48,31 +48,33 @@ body {
     background-color: #7d898f !important;
 }
 
+#draw-cursor.flow .ArrowHead { display: block; }
+#draw-cursor.flow .Circle { display: none; }
+#draw-cursor.expr .ArrowHead { display: none; }
+#draw-cursor.expr .Circle { display: block; }
+
 .ArrowHead div {
     z-index: 10;
 }
-.jtk-connected .ArrowTail .arrow {
+.connected .ArrowTail .arrow {
     display: block !important;
 }
-.jtk-connected .ArrowTail .arrow.dragging {
+.connected.dragging .ArrowTail .arrow {
     display: none !important;
 }
-.Endpoint.jtk-connected .Ring {
+.Endpoint.connected .Ring {
     background: radial-gradient(circle at center center, lightgray 35%, rgb(71, 80, 84) 0px) !important;
 }
-.jtk-endpoint-anchor {
-    z-index: 10;
-    
-}
+
 .endpoint-anchor {
     opacity: 0;
 }
-.endpoint-anchor.jtk-dragging {
+/* .endpoint-anchor.jtk-dragging {
     transform: rotate(45deg);
     clip-path: polygon(0 0, 100% 0, 100% 100%);
     --webkit-clip-path: polygon(0 0, 100% 0, 100% 100%);
     opacity: 1;
-}
+} */
 .Function.selected {
     border: 0 !important;
     margin-bottom: 1px;

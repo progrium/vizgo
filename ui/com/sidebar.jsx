@@ -1,4 +1,5 @@
 import * as atom from "./atom.js";
+import * as conn from "./conn.js";
 import { App } from "../lib/app.js";
 import { Session } from "../lib/session.js";
 
@@ -175,7 +176,7 @@ function Function({attrs, style, hooks, vnode}) {
         if (fnPath === App.selected()) {
             $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
             $("#entrypoint")[0].style['height'] = vnode.dom.offsetHeight + "px";
-            App.redraw()
+            conn.redrawAll();
         }
     };
 
@@ -202,7 +203,7 @@ function Function({attrs, style, hooks, vnode}) {
                 // TODO: support methods
                 Session.unset("/Selected");
                 Session.unset(`/Package/Declarations/${idx}`);
-                jsPlumb.reset();
+                conn.redrawAll();
             }, 20);
         }],
     ];

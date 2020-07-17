@@ -1,8 +1,7 @@
 import * as hotweb from '/.hotweb/client.mjs'
 import * as misc from './misc.js';
 import * as main from '../com/main.js';
-import * as draw from '../com/draw.js';
-import * as grid from '../com/grid.js';
+import * as conn from '../com/conn.js';
 
 import { Session } from "./session.js";
 import { Style } from "./style.js";
@@ -48,9 +47,9 @@ class App {
     }
 
     static redraw() {
-        //jsPlumb.repaintEverything();
+        console.log("redraw");
         h.redraw();
-        draw.updateConnections();
+        conn.redrawAll();
     }
 
 
@@ -93,8 +92,7 @@ class App {
             grid: [size, size],
             containment: "parent",
             drag: function(event) {
-                //jsPlumb.repaintEverything();
-                draw.updateConnections();
+                conn.redrawAll();
             },
             stop: function (event) {
                 let x = event.pos[0]-$(".Sidebar").innerWidth();

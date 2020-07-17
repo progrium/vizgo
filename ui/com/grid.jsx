@@ -1,7 +1,9 @@
 import * as block from "./block.js";
-import * as draw from "./draw.js";
+import * as conn from "./conn.js";
 import * as shapes from "./shapes.js";
+import * as misc from "../lib/misc.js";
 import { App } from "../lib/app.js";
+
 
 export function Grid({attrs,style,hooks,vnode}) {
     hooks.oncreate = () => {
@@ -11,21 +13,6 @@ export function Grid({attrs,style,hooks,vnode}) {
     var source = attrs.source || "";
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
-
-    let conn = [];
-    if (entry) {
-        conn.push(["entrypoint-out", entry+"-in", "flow"]);
-    }
-    blocks.forEach((b) => {
-        if (b.connect) {
-            if (b.flow === false) {
-                conn.push([`${b.id}-expr`, b.connect, "expr"]);
-            } else {
-                conn.push([`${b.id}-out`, b.connect, "flow"]);
-            }
-            
-        }
-    });
 
     style.add({
         userSelect: "none",
@@ -43,11 +30,11 @@ export function Grid({attrs,style,hooks,vnode}) {
 
     return (
         <div>
-            <div id="draw-cursor" class="hidden" style={{position: "absolute"}}><shapes.ArrowHead color="white" style={{marginTop: "-10px", marginLeft: "-5px"}} /></div>
-            <div id="connectors">
-                <Connector id="draw-line" type="flow" class="hidden" />
-                {conn.map((c) => <Connector src={c[0]} dst={c[1]} type={c[2]} /> )}
+            <div id="draw-cursor" class="hidden" style={{position: "absolute"}}>
+                <shapes.ArrowHead color="white" style={{marginTop: "-14px", marginLeft: "-7px"}} />
+                <shapes.Circle color="gray" size={16} style={{marginTop: "-12px", marginLeft: "-10px"}} />
             </div>
+            <conn.Connectors blocks={blocks} entry={entry} />
             <Preview source={source} />
             {blocks.map((attrs, idx) => {
                 attrs["key"] = attrs["id"];
@@ -59,13 +46,9 @@ export function Grid({attrs,style,hooks,vnode}) {
     )
 }
 
-function htmlDecode(input) {
-    var doc = new DOMParser().parseFromString(input, "text/html");
-    return doc.documentElement.textContent;
-}
 
 function Preview({attrs,style,hooks,vnode}) {
-    let source = Prism.highlight(htmlDecode(attrs.source), Prism.languages.go, 'go');
+    let source = Prism.highlight(misc.htmlDecode(attrs.source), Prism.languages.go, 'go');
 
     style.add({
         width: "300px",
@@ -83,9 +66,7 @@ function Preview({attrs,style,hooks,vnode}) {
 
 function Entrypoint({attrs,style,hooks,state}) {
     var connect = attrs.connect || undefined;
-    // const update = () => App.Outflow_onupdate(attrs, state, "entrypoint-out");
-    // hooks.oncreate = update;
-    // hooks.onupdate = update;
+
     style.add({
         background: "var(--sidebar-color)", //rgb(75, 126, 28)
         width: "22px",
@@ -98,36 +79,11 @@ function Entrypoint({attrs,style,hooks,state}) {
         
     })
     style.add("invisible", () => !App.selected());
+
     return (
         <div id="entrypoint">
-            <draw.Anchor dir="out" src="entrypoint-out" dst={connect} class="ml-3 my-8" />
+            <conn.Anchor type="flow" src="entrypoint-out" dst={connect} class="ml-3 my-8" />
             <shapes.ArrowHead id="entrypoint-out" color="var(--sidebar-color)" class="ml-5 my-8" />
         </div>
     )
 }
-
-function Connector({attrs, style}) {
-    var src = attrs.src || "";
-    var dst = attrs.dst || "";
-    var type = attrs.type || "flow";
-    var color = attrs.color || "red";
-    var width = attrs.width || 10;
-
-    style.add("absolute", {
-        left: "0px",
-        top: "0px",
-        width: "0px",
-        height: "0px",
-        zIndex: "0",
-    });
-    
-    return (
-        <svg id={"C"+src+dst+type} data-src={src} data-dst={dst} data-type={type}>
-            <path stroke={color} 
-                stroke-width={width} 
-                stroke-linecap="round" 
-                fill="none" />
-        </svg>
-    )
-}
-
