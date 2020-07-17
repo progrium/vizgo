@@ -17,21 +17,19 @@ class App {
         misc.setupNewlinePrevention();
 
 
-        jsPlumb.bind("ready", function () {
-            hotweb.watchCSS();
-            hotweb.watchHTML();
-            hotweb.refresh(() => h.redraw());
+        hotweb.watchCSS();
+        hotweb.watchHTML();
+        hotweb.refresh(() => h.redraw());
 
-            App.session = new Session(App.redraw, () => {
-                
-                h.mount(document.body, wrap(() => main.Main));
-
-                if (App.selected()) {
-                    App.select(App.selected());
-                }
+        App.session = new Session(App.redraw, () => {
             
-            });    
-        });
+            h.mount(document.body, wrap(() => main.Main));
+
+            if (App.selected()) {
+                App.select(App.selected());
+            }
+        
+        }); 
         
     }
 

@@ -6,10 +6,6 @@ import { App } from "../lib/app.js";
 
 
 export function Grid({attrs,style,hooks,vnode}) {
-    hooks.oncreate = () => {
-        jsPlumb.setContainer(vnode.dom);
-    }
-
     var source = attrs.source || "";
     var blocks = attrs.blocks || [];
     var entry = attrs.entry || "";
