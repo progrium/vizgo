@@ -72,6 +72,7 @@ function Entrypoint({attrs,style,hooks,state}) {
         position: "absolute",
         top: "400px",
         marginLeft: "-34px",
+        zIndex: "11",
         
     })
     style.add("invisible", () => !App.selected());

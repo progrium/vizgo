@@ -234,6 +234,7 @@ export function redrawAll() {
     document.querySelectorAll("svg.Connector").forEach((c) => {
         if (c.id == "draw-line" && state.drawing) {
             let cursor = document.querySelector("#draw-cursor");
+            cursor.style["z-index"] = "0"
             let cursorPos = center(cursor);
             c.dataset.type = state.type;
             if (state.type === "flow") {

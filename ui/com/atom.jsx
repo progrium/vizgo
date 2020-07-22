@@ -310,6 +310,7 @@ export function Divider({style}) {
         cursor: "ew-resize",
         userSelect: "none",
         borderLeft: "1px solid black",
+        zIndex: "10",
     });
     return (
         <div data-target=".Sidebar"></div>
