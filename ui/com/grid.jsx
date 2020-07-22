@@ -50,7 +50,7 @@ function Preview({attrs,style,hooks,vnode}) {
         width: "300px",
         height: "500px",
         fontSize: "smaller",
-        marginLeft: "900px",
+        marginLeft: "900px", //can be changed to left:"1230px" to make its position fixed
         backgroundColor: "transparent",
         border: "0",
         boxShadow: "none",

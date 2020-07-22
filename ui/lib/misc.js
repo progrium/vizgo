@@ -54,15 +54,17 @@ export function setupDivider() {
         resizeData.parentElement = handleElement.parentElement;
         resizeData.maxWidth = $(handleElement.parentElement).innerWidth() - resizeData.handleWidth;
         resizeData.tracking = true;
+        resizeData.snappedCursorScreenXDelta = 0
     });
 
     $(window).on('mousemove', null, null, (event) => {
         if (resizeData.tracking) {
             const cursorScreenXDelta = event.screenX - resizeData.startCursorScreenX;
             const snappedCursorScreenXDelta = cursorScreenXDelta - (cursorScreenXDelta % 30);
+            resizeData.snappedCursorScreenXDelta = snappedCursorScreenXDelta
             const newWidth = resizeData.startWidth + snappedCursorScreenXDelta;
             $(resizeData.resizeTarget).outerWidth(newWidth);
-            $("#entrypoint")[0].style["margin-left"] = -35 + $(resizeData.resizeTarget).outerWidth()/30/30 + "px";
+            $("#entrypoint")[0].style["margin-left"] = -34 + $(resizeData.resizeTarget).outerWidth()/30/30 + "px";
             conn.redrawAll();
         }
     });
@@ -70,6 +72,12 @@ export function setupDivider() {
     $(window).on('mouseup', null, null, (event) => {
         if (resizeData.tracking) {
             resizeData.tracking = false;
+            App.session.blocks().map(b => {
+                if (b) {
+                    $("#" + b.id).css("left", parseInt($("#" + b.id).css("left").replace("px","")) + resizeData.snappedCursorScreenXDelta + "px")
+                }
+            });
+            conn.redrawAll();
         }
     });
 }
