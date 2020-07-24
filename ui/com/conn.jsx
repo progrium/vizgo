@@ -108,7 +108,8 @@ export function Anchor({attrs, style}) {
 
 
         let cur = document.querySelector("#draw-cursor");
-        state.mousePosition = [e.pageX, e.pageY]
+        cur.style["z-index"] = "0";
+        state.mousePosition = [e.pageX, e.pageY];
         document.querySelector("#draw-line").firstChild.setAttribute("d", "");
         let conn = undefined;
         if (state.movingLocal) {
@@ -117,7 +118,7 @@ export function Anchor({attrs, style}) {
 
         const docmousemove = (e) => {
             let new_ = (state.setDst) ? state.newDst : state.newSrc;
-            state.mousePosition = [e.pageX, e.pageY]
+            state.mousePosition = [e.pageX, e.pageY];
             if (new_) {
                 let pt = center(new_);
                 cur.style.left = `${pt[0]}px`;
@@ -144,7 +145,9 @@ export function Anchor({attrs, style}) {
                 let oldDstId = state.oldDst.id;
                 setTimeout(() => {
                     document.querySelector(`#${oldSrcId}`).classList.remove("connected", "dragging");
+                    document.querySelector(`#${oldSrcId}`).classList.add("previously_connected");
                     document.querySelector(`#${oldDstId}`).classList.remove("connected", "dragging");
+                    document.querySelector(`#${oldDstId}`).classList.add("previously_connected");
                 }, 40);
                 if (!state.didConnect) {
                     let src_ = state.oldSrc.id.replace("-out", "");
@@ -237,7 +240,6 @@ export function redrawAll() {
     document.querySelectorAll("svg.Connector").forEach((c) => {
         if (c.id == "draw-line" && state.drawing) {
             let cursor = document.querySelector("#draw-cursor");
-            cursor.style["z-index"] = "0"
             let cursorPos = center(cursor);
             c.dataset.type = state.type;
             if (state.type === "flow") {
@@ -271,8 +273,13 @@ export function redrawAll() {
             let dstEl = document.querySelector(`#${c.dataset["dst"]}`);
 
             // ensure connected class is added to src and dst targets
-            srcEl.classList.add("connected");
-            dstEl.classList.add("connected");
+            if (dstEl.classList.contains("previously_connected")) {
+                srcEl.classList.remove("previously_connected");
+                dstEl.classList.remove("previously_connected");
+            } else {
+                srcEl.classList.add("connected");
+                dstEl.classList.add("connected");
+            }
 
             redraw(c, center(srcEl), center(dstEl));
 
