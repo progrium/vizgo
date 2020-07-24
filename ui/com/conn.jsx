@@ -86,6 +86,7 @@ export function Anchor({attrs, style}) {
     const onmousedown = (e) => {
         state.movingLocal = (e.target.dataset['remote'] !== undefined);
         if (state.movingLocal && isSrc && type === "flow") return;
+        if (!state.movingLocal && !isSrc && type === "flow") return;
         state.type = type;
         state.drawing = true;
         state.setDst = (state.movingLocal) ? !isSrc : isSrc;
@@ -183,7 +184,7 @@ export function Anchor({attrs, style}) {
         let isDroppable = (state.setDst && !isSrc) || (!state.setDst && isSrc);
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
-            let newDstId = state.newDst.id; // this occasionally throws a TypeError
+            let newDstId = state.newDst.id;
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
                 document.querySelector(`#${newDstId}`).classList.remove("dragging");
@@ -258,7 +259,7 @@ export function redrawAll() {
             }
             
         }
-        if (c.dataset["src"] && c.dataset["dst"]) { // this activates right after the blocks have been disconnected, therefore adding back the "connected" class
+        if (c.dataset["src"] && c.dataset["dst"]) {
             // set remote on anchors that apply to this connection
             let srcAnchor = document.querySelector(`.Anchor[data-dir="dst"][data-local="${c.dataset["src"]}"]`);
             if (srcAnchor) {
