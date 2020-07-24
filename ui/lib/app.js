@@ -93,7 +93,7 @@ class App {
         });
         App.Block_onupdate(vnode);
         // when creating a new empty expression block
-        if (attrs.label === "") {
+        if (attrs.label === "") { //TODO
             dom.firstChild.firstChild.focus();
         }
     }

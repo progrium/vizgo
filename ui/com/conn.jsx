@@ -11,6 +11,7 @@ let state = {
     newDst: undefined,
     didConnect: false,
     movingConnId: undefined,
+    mousePosition: [0,0],
 };
 
 export function Connectors({attrs}) {
@@ -104,17 +105,19 @@ export function Anchor({attrs, style}) {
 
         if (state.oldSrc) state.oldSrc.classList.add("dragging");
         if (state.oldDst) state.oldDst.classList.add("dragging");
-        
-    
+
+
         let cur = document.querySelector("#draw-cursor");
+        state.mousePosition = [e.pageX, e.pageY]
         document.querySelector("#draw-line").firstChild.setAttribute("d", "");
         let conn = undefined;
         if (state.movingLocal) {
             conn = document.querySelector(`svg.Connector[data-src="${srcId}"][data-dst="${dstId}"]`);
         }
-        
+
         const docmousemove = (e) => {
             let new_ = (state.setDst) ? state.newDst : state.newSrc;
+            state.mousePosition = [e.pageX, e.pageY]
             if (new_) {
                 let pt = center(new_);
                 cur.style.left = `${pt[0]}px`;
@@ -122,7 +125,7 @@ export function Anchor({attrs, style}) {
             } else {
                 cur.style.left = e.pageX+"px";
                 cur.style.top = e.pageY+"px";
-            }            
+            }
 
             redrawAll();
 
@@ -177,7 +180,7 @@ export function Anchor({attrs, style}) {
         let isDroppable = (state.setDst && !isSrc) || (!state.setDst && isSrc);
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
-            let newDstId = state.newDst.id;
+            let newDstId = state.newDst.id; // this occasionally throws a TypeError
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
                 document.querySelector(`#${newDstId}`).classList.remove("dragging");
@@ -253,7 +256,7 @@ export function redrawAll() {
             }
             
         }
-        if (c.dataset["src"] && c.dataset["dst"]) {
+        if (c.dataset["src"] && c.dataset["dst"]) { // this activates right after the blocks have been disconnected, therefore adding back the "connected" class
             // set remote on anchors that apply to this connection
             let srcAnchor = document.querySelector(`.Anchor[data-dir="dst"][data-local="${c.dataset["src"]}"]`);
             if (srcAnchor) {
@@ -282,7 +285,10 @@ export function redrawAll() {
 
 function center(el) {
     let box = el.getBoundingClientRect();
-    return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))]
+    if (box.left !== 0 && box.top !== 0){
+        return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))];
+    }
+    return [state.mousePosition[0], state.mousePosition[1]];
 }
 
 function offset(pt, x, y) {
@@ -316,7 +322,7 @@ function redraw(conn, src, dst) {
             ].join(" ");
         }
     }
-    
+
     function Cable(src, dst, srcOffset, dstOffset) {
         let srcCtl = xOffset(src, srcOffset);
         let dstCtl = xOffset(dst, dstOffset);
@@ -344,8 +350,8 @@ function redraw(conn, src, dst) {
         path.setAttribute("stroke-width", "10");
         path.setAttribute("d", Path(offsetSrc,offsetDst,offset));
     }
-        
-    
+
+
     if (conn.dataset["type"] == "expr") {
         path.setAttribute("stroke", "gray");
         path.setAttribute("stroke-width", "8");

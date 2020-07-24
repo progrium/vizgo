@@ -72,6 +72,7 @@ export function setupDivider() {
     $(window).on('mouseup', null, null, (event) => {
         if (resizeData.tracking) {
             resizeData.tracking = false;
+            //Session.set("sidebar/width", $(resizeData.resizeTarget).outerWidth())
             App.session.blocks().map(b => {
                 if (b) {
                     $("#" + b.id).css("left", parseInt($("#" + b.id).css("left").replace("px","")) + resizeData.snappedCursorScreenXDelta + "px")
