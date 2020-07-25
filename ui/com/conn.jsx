@@ -184,13 +184,13 @@ export function Anchor({attrs, style}) {
         let isDroppable = (state.setDst && !isSrc) || (!state.setDst && isSrc);
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
-            let newDstId = state.newDst.id;
+            let newDstId = state.newDst ? state.newDst.id : state.oldDst.id;
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
                 document.querySelector(`#${newDstId}`).classList.remove("dragging");
             }, 40);
             let src_ = state.newSrc.id.replace("-out", "");
-            let dst_ = state.newDst.id.replace("-in", "");
+            let dst_ = state.newDst ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
             Session.connect(src_, dst_);
             redrawAll();
             state.didConnect = true;
@@ -296,7 +296,7 @@ function center(el) {
     if (box.left !== 0 && box.top !== 0){
         return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))];
     }
-    return [state.mousePosition[0], state.mousePosition[1]];
+    return [state.mousePosition[0], state.mousePosition[1]]; // this could be re-written
 }
 
 function offset(pt, x, y) {
