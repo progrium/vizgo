@@ -129,11 +129,12 @@ export function Anchor({attrs, style}) {
                 cur.style.top = e.pageY+"px";
             }
 
-            redrawAll();
-
             if (conn) {
                 state.movingConnId = conn.id;
             }
+
+            redrawAll();
+
             cur.style.display = "block";
             document.querySelector("#draw-line").style.display = "block"; 
         }
@@ -146,9 +147,9 @@ export function Anchor({attrs, style}) {
                 let oldDstId = state.oldDst.id;
                 setTimeout(() => {
                     document.querySelector(`#${oldSrcId}`).classList.remove("connected", "dragging");
-                    document.querySelector(`#${oldSrcId}`).classList.add("previously_connected");
+                    document.querySelector(`#${oldSrcId}`).classList.add("previouslyConnected");
                     document.querySelector(`#${oldDstId}`).classList.remove("connected", "dragging");
-                    document.querySelector(`#${oldDstId}`).classList.add("previously_connected");
+                    document.querySelector(`#${oldDstId}`).classList.add("previouslyConnected");
                 }, 40);
                 if (!state.didConnect) {
                     let src_ = state.oldSrc.id.replace("-out", "");
@@ -185,13 +186,16 @@ export function Anchor({attrs, style}) {
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
             let newDstId = state.newDst ? state.newDst.id : state.oldDst.id;
+            let dstTaken = document.querySelector("#" + newDstId).classList.contains("connected")
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
                 document.querySelector(`#${newDstId}`).classList.remove("dragging");
             }, 40);
-            let src_ = state.newSrc.id.replace("-out", "");
-            let dst_ = state.newDst ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
-            Session.connect(src_, dst_);
+            if (!dstTaken) {
+                let src_ = state.newSrc.id.replace("-out", "");
+                let dst_ = state.newDst ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
+                Session.connect(src_, dst_);                    
+            }
             redrawAll();
             state.didConnect = true;
         }
@@ -274,9 +278,9 @@ export function redrawAll() {
             let dstEl = document.querySelector(`#${c.dataset["dst"]}`);
 
             // ensure connected class is added to src and dst targets
-            if (dstEl.classList.contains("previously_connected")) {
-                srcEl.classList.remove("previously_connected");
-                dstEl.classList.remove("previously_connected");
+            if (dstEl.classList.contains("previouslyConnected")) {
+                srcEl.classList.remove("previouslyConnected");
+                dstEl.classList.remove("previouslyConnected");
             } else {
                 srcEl.classList.add("connected");
                 dstEl.classList.add("connected");
@@ -296,7 +300,7 @@ function center(el) {
     if (box.left !== 0 && box.top !== 0){
         return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))];
     }
-    return [state.mousePosition[0], state.mousePosition[1]]; // this could be re-written
+    return [state.mousePosition[0], state.mousePosition[1]];
 }
 
 function offset(pt, x, y) {
