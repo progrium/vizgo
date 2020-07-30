@@ -155,13 +155,13 @@ export function Anchor({attrs, style}) {
                     let src_ = state.oldSrc.id.replace("-out", "");
                     let dst_ = state.oldDst.id.replace("-in", "");
                     Session.disconnect(src_, dst_);
-                    state.isConnected = false;
                 }
             }
             cur.style.display = "none";
             document.querySelector("#draw-line").firstChild.setAttribute("d", "");
             document.querySelector("#draw-line").style.display = "none";
             state.didConnect = false;
+            state.isConnected = false;
             state.drawing = false;
             state.type = undefined;
             state.oldDst = undefined;
@@ -197,9 +197,9 @@ export function Anchor({attrs, style}) {
                 let dst_ = (state.newDst) ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
                 Session.connect(src_, dst_);
                 state.isConnected = true;
+                state.didConnect = true;
             }
             redrawAll();
-            state.didConnect = true;
         }
     };
 
