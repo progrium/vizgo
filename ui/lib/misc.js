@@ -104,6 +104,7 @@ export function setupDynamicEntrypointPositioning() {
     $(document).ready(function() {
         $(".Sidebar").scroll(function() {
             $("#entrypoint")[0].style['top'] = $(".selected").position()['top'] + "px";
+            console.log("redraw")
             conn.redrawAll();
         })
     })

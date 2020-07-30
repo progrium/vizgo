@@ -9,6 +9,7 @@ let state = {
     oldDst: undefined,
     newSrc: undefined,
     newDst: undefined,
+    isConnected: false,
     didConnect: false,
     movingConnId: undefined,
     mousePosition: [0,0],
@@ -71,6 +72,7 @@ export function Anchor({attrs, style}) {
     var type = attrs.type || "flow";
     var src = attrs.src || undefined;
     var dst = attrs.dst || undefined;
+    if (dst) state.isConnected = true;
 
     let local = src || dst;
     let isSrc = (local === src);
@@ -147,14 +149,13 @@ export function Anchor({attrs, style}) {
                 let oldDstId = state.oldDst.id;
                 setTimeout(() => {
                     document.querySelector(`#${oldSrcId}`).classList.remove("connected", "dragging");
-                    document.querySelector(`#${oldSrcId}`).classList.add("previouslyConnected");
                     document.querySelector(`#${oldDstId}`).classList.remove("connected", "dragging");
-                    document.querySelector(`#${oldDstId}`).classList.add("previouslyConnected");
                 }, 40);
                 if (!state.didConnect) {
                     let src_ = state.oldSrc.id.replace("-out", "");
                     let dst_ = state.oldDst.id.replace("-in", "");
                     Session.disconnect(src_, dst_);
+                    state.isConnected = false;
                 }
             }
             cur.style.display = "none";
@@ -185,7 +186,7 @@ export function Anchor({attrs, style}) {
         let isDroppable = (state.setDst && !isSrc) || (!state.setDst && isSrc);
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
-            let newDstId = state.newDst ? state.newDst.id : state.oldDst.id;
+            let newDstId = (state.newDst) ? state.newDst.id : state.oldDst.id;
             let dstTaken = document.querySelector("#" + newDstId).classList.contains("connected")
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
@@ -193,8 +194,9 @@ export function Anchor({attrs, style}) {
             }, 40);
             if (!dstTaken) {
                 let src_ = state.newSrc.id.replace("-out", "");
-                let dst_ = state.newDst ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
-                Session.connect(src_, dst_);                    
+                let dst_ = (state.newDst) ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
+                Session.connect(src_, dst_);
+                state.isConnected = true;
             }
             redrawAll();
             state.didConnect = true;
@@ -278,10 +280,7 @@ export function redrawAll() {
             let dstEl = document.querySelector(`#${c.dataset["dst"]}`);
 
             // ensure connected class is added to src and dst targets
-            if (dstEl.classList.contains("previouslyConnected")) {
-                srcEl.classList.remove("previouslyConnected");
-                dstEl.classList.remove("previouslyConnected");
-            } else {
+            if (state.isConnected) {
                 srcEl.classList.add("connected");
                 dstEl.classList.add("connected");
             }
