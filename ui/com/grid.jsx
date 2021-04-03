@@ -50,7 +50,7 @@ function Preview({attrs,style,hooks,vnode}) {
         width: "300px",
         height: "500px",
         fontSize: "smaller",
-        marginLeft: "900px",
+        marginLeft: "900px", //can be changed to left:"76.9%" with position: "fixed" to make it stay on sidebar resize
         backgroundColor: "transparent",
         border: "0",
         boxShadow: "none",
@@ -72,6 +72,7 @@ function Entrypoint({attrs,style,hooks,state}) {
         position: "absolute",
         top: "400px",
         marginLeft: "-34px",
+        zIndex: "11",
         
     })
     style.add("invisible", () => !App.selected());

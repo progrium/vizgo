@@ -9,8 +9,10 @@ let state = {
     oldDst: undefined,
     newSrc: undefined,
     newDst: undefined,
+    isConnected: false,
     didConnect: false,
     movingConnId: undefined,
+    mousePosition: [0,0],
 };
 
 export function Connectors({attrs}) {
@@ -70,6 +72,7 @@ export function Anchor({attrs, style}) {
     var type = attrs.type || "flow";
     var src = attrs.src || undefined;
     var dst = attrs.dst || undefined;
+    if (dst) state.isConnected = true;
 
     let local = src || dst;
     let isSrc = (local === src);
@@ -85,6 +88,7 @@ export function Anchor({attrs, style}) {
     const onmousedown = (e) => {
         state.movingLocal = (e.target.dataset['remote'] !== undefined);
         if (state.movingLocal && isSrc && type === "flow") return;
+        if (!state.movingLocal && !isSrc && type === "flow") return;
         state.type = type;
         state.drawing = true;
         state.setDst = (state.movingLocal) ? !isSrc : isSrc;
@@ -104,17 +108,20 @@ export function Anchor({attrs, style}) {
 
         if (state.oldSrc) state.oldSrc.classList.add("dragging");
         if (state.oldDst) state.oldDst.classList.add("dragging");
-        
-    
+
+
         let cur = document.querySelector("#draw-cursor");
+        cur.style["z-index"] = "0";
+        state.mousePosition = [e.pageX, e.pageY];
         document.querySelector("#draw-line").firstChild.setAttribute("d", "");
         let conn = undefined;
         if (state.movingLocal) {
             conn = document.querySelector(`svg.Connector[data-src="${srcId}"][data-dst="${dstId}"]`);
         }
-        
+
         const docmousemove = (e) => {
             let new_ = (state.setDst) ? state.newDst : state.newSrc;
+            state.mousePosition = [e.pageX, e.pageY];
             if (new_) {
                 let pt = center(new_);
                 cur.style.left = `${pt[0]}px`;
@@ -122,13 +129,14 @@ export function Anchor({attrs, style}) {
             } else {
                 cur.style.left = e.pageX+"px";
                 cur.style.top = e.pageY+"px";
-            }            
-
-            redrawAll();
+            }
 
             if (conn) {
                 state.movingConnId = conn.id;
             }
+
+            redrawAll();
+
             cur.style.display = "block";
             document.querySelector("#draw-line").style.display = "block"; 
         }
@@ -153,6 +161,7 @@ export function Anchor({attrs, style}) {
             document.querySelector("#draw-line").firstChild.setAttribute("d", "");
             document.querySelector("#draw-line").style.display = "none";
             state.didConnect = false;
+            state.isConnected = false;
             state.drawing = false;
             state.type = undefined;
             state.oldDst = undefined;
@@ -177,16 +186,20 @@ export function Anchor({attrs, style}) {
         let isDroppable = (state.setDst && !isSrc) || (!state.setDst && isSrc);
         if (state.drawing && isDroppable) {
             let newSrcId = state.newSrc.id;
-            let newDstId = state.newDst.id;
+            let newDstId = (state.newDst) ? state.newDst.id : state.oldDst.id;
+            let dstTaken = document.querySelector("#" + newDstId).classList.contains("connected")
             setTimeout(() => {
                 document.querySelector(`#${newSrcId}`).classList.remove("dragging");
                 document.querySelector(`#${newDstId}`).classList.remove("dragging");
             }, 40);
-            let src_ = state.newSrc.id.replace("-out", "");
-            let dst_ = state.newDst.id.replace("-in", "");
-            Session.connect(src_, dst_);
+            if (!dstTaken) {
+                let src_ = state.newSrc.id.replace("-out", "");
+                let dst_ = (state.newDst) ? state.newDst.id.replace("-in", "") : state.oldDst.id.replace("-in", "");
+                Session.connect(src_, dst_);
+                state.isConnected = true;
+                state.didConnect = true;
+            }
             redrawAll();
-            state.didConnect = true;
         }
     };
 
@@ -267,8 +280,10 @@ export function redrawAll() {
             let dstEl = document.querySelector(`#${c.dataset["dst"]}`);
 
             // ensure connected class is added to src and dst targets
-            srcEl.classList.add("connected");
-            dstEl.classList.add("connected");
+            if (state.isConnected) {
+                srcEl.classList.add("connected");
+                dstEl.classList.add("connected");
+            }
 
             redraw(c, center(srcEl), center(dstEl));
 
@@ -281,7 +296,10 @@ export function redrawAll() {
 
 function center(el) {
     let box = el.getBoundingClientRect();
-    return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))]
+    if (box.left !== 0 && box.top !== 0){
+        return [Math.floor(box.left+(box.width/2)), Math.floor(box.top+(box.height/2))];
+    }
+    return [state.mousePosition[0], state.mousePosition[1]];
 }
 
 function offset(pt, x, y) {
@@ -315,7 +333,7 @@ function redraw(conn, src, dst) {
             ].join(" ");
         }
     }
-    
+
     function Cable(src, dst, srcOffset, dstOffset) {
         let srcCtl = xOffset(src, srcOffset);
         let dstCtl = xOffset(dst, dstOffset);
@@ -343,8 +361,8 @@ function redraw(conn, src, dst) {
         path.setAttribute("stroke-width", "10");
         path.setAttribute("d", Path(offsetSrc,offsetDst,offset));
     }
-        
-    
+
+
     if (conn.dataset["type"] == "expr") {
         path.setAttribute("stroke", "gray");
         path.setAttribute("stroke-width", "8");

@@ -50,13 +50,6 @@ class App {
         conn.redrawAll();
     }
 
-
-    static checkPosition({ dom }) { // rewrite this to actually move all the blocks when the sidebar is moved
-        if (`${dom.style.left.replace("px", "")}` <= $(".Sidebar").innerWidth()) {
-            dom.style.left = $(".Sidebar").innerWidth() + 30 + "px"
-        }
-    }
-
     static calculateEndpointWidth (endpoints, fontSize) {
         let copy = [...endpoints]
         for (let i = 0; i < copy.length; i++) {
@@ -98,12 +91,9 @@ class App {
                 Session.move(`${App.selected()}/Blocks/${vnode.dom.dataset.idx}`, x, y);
             }
         });
-        $(window).on('mousemove', null, null, (event) => {
-            App.checkPosition({ dom })
-        })
         App.Block_onupdate(vnode);
         // when creating a new empty expression block
-        if (attrs.label === "") {
+        if (attrs.label === "") { //TODO
             dom.firstChild.firstChild.focus();
         }
     }
